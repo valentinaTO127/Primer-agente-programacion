@@ -12,7 +12,9 @@ Cuando se active esta skill:
 3. Señala la línea o parte exacta del código que lo causa y por qué.
 4. Sugiere la corrección, pero explica el concepto detrás — el objetivo es que el estudiante
    entienda, no que copie una solución.
-5. Guarda una copia breve de la explicación en `OUTPUT/explicacion_error_[fecha].md`.
+5. Guarda una copia breve de la explicación en `OUTPUT/explicacion_error_[fecha].md`. Si ese
+   archivo ya existe (ya se explicó otro error hoy), no lo sobrescribas: anexa esta explicación
+   al final como una nueva sección `## [hora] — [tipo de error]`, conservando las anteriores.
 6. Agrega una fila nueva a `WORK-MEMORY/registro_errores.csv` (créalo con el encabezado si todavía
    no existe) con estas columnas, en este orden:
    - `fecha` — fecha de hoy.

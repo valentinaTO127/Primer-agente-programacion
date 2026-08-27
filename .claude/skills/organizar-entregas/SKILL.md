@@ -8,5 +8,7 @@ Cuando se active esta skill:
 1. Lee `INPUT/entregas_talleres.md`.
 2. Ordena las entregas con estado distinto de "Entregado" por fecha, de más próxima a más lejana.
 3. Señala cuál es la más urgente y por qué.
-4. Guarda el resumen en `OUTPUT/resumen_entregas_[fecha].md`.
+4. Guarda el resumen en `OUTPUT/resumen_entregas_[fecha].md`. Si ese archivo ya existe (la skill
+   ya se corrió hoy), no lo sobrescribas: anexa el nuevo resumen al final bajo un encabezado
+   `## Actualización [hora]`, conservando lo que ya había.
 5. Si una entrega no tiene fecha registrada, dilo explícitamente — no asumas una.
