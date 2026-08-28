@@ -1,0 +1,137 @@
+/* =========================================================
+   CARTA SUPERHÉROE — layout responsive con CSS Grid
+   =========================================================
+   Idea general: definimos el layout MOBILE primero (esto se
+   llama "mobile-first"), y después usamos un @media query para
+   REEMPLAZAR ese layout cuando la pantalla es más ancha.
+
+   El HTML no cambia nunca. Los mismos 5 divs (.Header, .Image,
+   .Description, .Powers, .Weakness) simplemente se reacomodan
+   porque cambia el grid-template-areas del .container.
+   ========================================================= */
+
+
+/* ---------- 1. Layout base (mobile) ----------
+   Este bloque de reglas se aplica SIEMPRE, sin importar el
+   ancho de pantalla, salvo que el @media de abajo lo sobreescriba. */
+.container {
+  display: grid;
+
+  /* 3 columnas: una angosta a cada lado (margen) y una ancha
+     en el centro donde vive el contenido */
+  grid-template-columns: 1fr 5fr 1fr;
+
+  /* 5 filas: header chico, imagen grande, y tres bloques de texto */
+  grid-template-rows: 1fr 4fr 2fr 2fr 1fr;
+
+  gap: 0;
+
+  /* grid-template-areas dibuja el layout como un "mapa" de texto.
+     Cada palabra tiene que coincidir con el grid-area de algún
+     elemento (ver la sección 3, abajo). El punto "." significa
+     "celda vacía". */
+  grid-template-areas:
+    "Header Header Header"
+    ".      Image       ."
+    ".      Description ."
+    ".      Powers      ."
+    ".      Weakness    .";
+}
+
+
+/* ---------- 2. Media query: layout desktop ----------
+   min-width: 640px  →  esta regla se activa cuando la ventana
+   (o el contenedor, en un dispositivo real) mide 640px o más.
+   Es un "breakpoint": el punto donde decidimos que ya no cabe
+   bien el layout mobile y conviene reorganizar el contenido.
+
+   Adentro del @media solo escribimos lo que CAMBIA respecto al
+   layout base. No hay que repetir gap, display, etc. si no varían. */
+@media (min-width: 640px) {
+  .container {
+    /* Ahora son 5 columnas: 3 angostas a la izquierda para el
+       texto y 2 anchas a la derecha para la imagen */
+    grid-template-columns: 1fr 1fr 1fr 5fr 1fr;
+    grid-template-rows: 1fr 4fr 2fr 2fr;
+
+    /* La imagen ahora hace "span" de 3 filas seguidas (Header +
+       Description + Weakness) porque la palabra "Image" se repite
+       en esas 3 filas, siempre en las mismas columnas */
+    grid-template-areas:
+      "Header      Header      Header      Image  Image"
+      "Description Description Description Image  Image"
+      "Weakness    Weakness    Weakness    Image  Image"
+      "Weakness    Weakness    Weakness    Powers Powers";
+  }
+}
+
+
+/* ---------- 3. Asignar cada bloque a su área ----------
+   grid-area conecta el elemento HTML con el nombre que usamos
+   arriba en grid-template-areas. Esto NO depende del @media:
+   una vez que el elemento "sabe" que es el área Header, el
+   media query decide DÓNDE queda esa área en cada layout. */
+.Header      { grid-area: Header; }
+.Image       { grid-area: Image; }
+.Description { grid-area: Description; }
+.Powers      { grid-area: Powers; }
+.Weakness    { grid-area: Weakness; }
+
+
+/* ---------- 4. Estilos visuales de prueba (opcional) ----------
+   Esto es solo para ver los bloques mientras no hay contenido
+   real. Se puede borrar cuando agregues el diseño final. */
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  min-height: 80vh;
+  padding: 8px;
+  font-family: sans-serif;
+  background: linear-gradient(180deg, #2b1150, #020c30);
+  color: #fff;
+  border-radius: 16px;
+  box-shadow:
+    0 0 20px 4px rgba(226, 54, 54, 0.6),
+    0 0 45px 10px rgba(2, 12, 48, 0.9);
+  transition: box-shadow 0.3s ease;
+}
+
+.container:hover {
+  box-shadow:
+    0 0 30px 8px rgba(226, 54, 54, 0.85),
+    0 0 60px 16px rgba(2, 12, 48, 1);
+}
+
+.Header, .Image, .Description, .Powers, .Weakness {
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.Header {
+  color: #fff;
+  text-shadow: 0 0 10px rgba(226, 54, 54, 0.9), 0 0 20px rgba(226, 54, 54, 0.6);
+}
+
+.Image {
+  overflow: hidden;
+}
+
+.Image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.Description, .Powers, .Weakness {
+  color: #fff;
+}
+
+.Powers ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
