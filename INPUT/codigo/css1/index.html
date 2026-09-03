@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estado 2 — Grid Básico (para completar en clase)</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    body.dark-mode {
+        background-color: #0f0814;
+    }
+
+    body.dark-mode h1, body.dark-mode p {
+        color: #ecf0f1;
+    }
+    /* ==========================================
+       ESTADO 2 — Grid Básico (SIN RESOLVER a propósito)
+       Este es el punto de partida para escribirlo en vivo en clase.
+       Sigue los TODO en orden — cada uno agrega UNA propiedad de la
+       tabla "Propiedades del contenedor" del recurso de Grid/Flexbox
+       (semana_03_recurso_css_grid_flexbox_tailwind.md).
+    ========================================== */
+    .grid-container {
+
+      /* TODO 1: activa Grid en este contenedor.
+         Propiedad: display
+         Valor: grid
+      */
+
+      /* TODO 2: define 3 columnas de 200px cada una.
+         Propiedad: grid-template-columns
+         Pista: puedes escribir "200px 200px 200px" a mano,
+         o usar el atajo repeat(3, 200px) — ambos hacen lo mismo.
+      */
+
+      /* TODO 3: agrega espacio entre las celdas, sin usar márgenes.
+         Propiedad: gap
+         Valor sugerido: 15px
+      */
+
+      /* Ya viene incluido, no lo toques: */
+      background-color: #ecf0f1;
+      display: grid;
+      grid-template-columns: 100px 2fr 1fr;
+      gap: 15px;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .grid-item {
+      background-color: #3498db;
+      color: white;
+      padding: 30px;
+      text-align: center;
+      font-size: 1.5rem;
+      border-radius: 6px;
+    }
+
+    @media (min-width: 500px) {
+        .grid-item {
+        background-color: #340055;
+        }
+    
+    .grid-container {
+        background-color: #53ab86;
+    }
+    }
+
+    @media (min-width: 700px) {
+        .grid-item {
+        background-color:#DC143C;
+        border-radius: 100px;
+        font-size: 2rem;
+        font-family: "Times New Roman", Times, serif;
+        }
+        .grid-container {
+        background-color: #FFEBCD;
+        }
+    }
+
+        /* TODO 4 (opcional, para quien termine antes): alinea el
+        contenido de cada celda al centro verticalmente.
+        Propiedad: align-items (va en .grid-container, no en .grid-item)
+        Valor: center
+        */
+    
+  </style>  
+</head>
+<body>
+  <h1>Mi Primer Grid</h1>
+  <p style="margin: 20px 0;">Grid con 3 columnas de 200px cada una — completa los TODO del CSS.</p>
+
+  <div class="grid-container">
+    <div class="grid-item">1</div>
+    <div class="grid-item">2</div>
+    <div class="grid-item">3</div>
+    <div class="grid-item">4</div>
+    <div class="grid-item">5</div>
+    <div class="grid-item">6</div>
+    <div class="grid-item">7</div>
+    <div class="grid-item">8</div>
+    <div id="demo" class="grid-item">9</div>
+  </div>
+  <button id="boton">Click</button>
+  <button id="boton2">Click 2</button>
+  <script>
+    let txt = document.getElementById('demo');
+    txt.textContent = 'Hola'
+    let btnMsg = document.getElementById('boton')
+    btnMsg.addEventListener('click', function () {
+        txt.textContent = 'Bañate';
+        txt.style.backgroundColor = "#6495ED";
+    })
+
+    let btnMsg2 = document.getElementById('boton2')
+    btnMsg2.addEventListener('click', function () {
+        txt.textContent = 'Hueles feo';
+        txt.style.backgroundColor = "#8B4513";
+        document.body.classList.toggle('dark-mode')
+    })
+  </script>
+</body>
+</html>
