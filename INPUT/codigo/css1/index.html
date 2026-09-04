@@ -50,9 +50,10 @@
       gap: 15px;
       padding: 15px;
       border-radius: 8px;
+      margin-bottom: 20px;
     }
 
-    .grid-item {
+    .grid-item, .grid-item2, .grid-item3 {
       background-color: #3498db;
       color: white;
       padding: 30px;
@@ -61,21 +62,64 @@
       border-radius: 6px;
     }
 
+    .grid-item2 {
+      background-color: #3453db;
+    }
+
+    .grid-item3 {
+      background-color: #34db6a;
+    }
+
+    #caja-2 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      background-color: #ecf0f1;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    #caja-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      background-color: #ecf0f1;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: #ecf0f1;
+      padding: 8px;
+      border-radius: 20px;
+      border: none;
+    }
+
     @media (min-width: 500px) {
-        .grid-item {
+        .grid-item, button {
         background-color: #340055;
         }
     
-    .grid-container {
-        background-color: #53ab86;
-    }
+      .grid-container {
+          background-color: #53ab86;
+      }
     }
 
     @media (min-width: 700px) {
-        .grid-item {
+        .grid-item, button {
         background-color:#DC143C;
+        }
+
+        .grid-item2, #caja-2 {
+          display: none;
+        }
+
+        .grid-item{
         border-radius: 100px;
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-family: "Times New Roman", Times, serif;
         }
         .grid-container {
@@ -106,8 +150,24 @@
     <div class="grid-item">8</div>
     <div id="demo" class="grid-item">9</div>
   </div>
+
+  
   <button id="boton">Click</button>
   <button id="boton2">Click 2</button>
+  <button id="dark-model-btn">Modo Oscuro</button>
+
+  <div id="caja-2">
+    <div class="grid-item2">A</div>
+    <div class="grid-item2">B</div>
+    <div class="grid-item2">C</div>
+  </div>
+
+  <div id="caja-3">
+    <div class="grid-item3">D</div>
+    <div class="grid-item3">E</div>
+    <div class="grid-item3">F</div>
+  </div>
+
   <script>
     let txt = document.getElementById('demo');
     txt.textContent = 'Hola'
@@ -121,8 +181,26 @@
     btnMsg2.addEventListener('click', function () {
         txt.textContent = 'Hueles feo';
         txt.style.backgroundColor = "#8B4513";
-        document.body.classList.toggle('dark-mode')
     })
+
+    let btnDarkMode = document.getElementById('dark-model-btn');
+
+    btnDarkMode.addEventListener('click', function () {
+        document.body.classList.toggle('dark-mode');
+        if (document.body.classList.contains('dark-mode')) {
+          btnDarkMode.textContent = 'Modo claro';
+        } else { btnDarkMode.textContent = 'Modo oscuro';}
+    })
+
+    let caja3 = document.getElementById('caja-3');
+    let mediaQuery700 = window.matchMedia('(min-width: 700px)');
+
+    function toggleCaja3(e) {
+        caja3.style.display = e.matches ? 'none' : 'grid';
+    }
+
+    toggleCaja3(mediaQuery700);
+    mediaQuery700.addEventListener('change', toggleCaja3);
   </script>
 </body>
 </html>
