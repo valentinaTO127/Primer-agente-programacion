@@ -18,6 +18,10 @@
     body.dark-mode h1, body.dark-mode p {
         color: #ecf0f1;
     }
+
+    h1 {
+      color: #340055;
+    }
     /* ==========================================
        ESTADO 2 — Grid Básico (SIN RESOLVER a propósito)
        Este es el punto de partida para escribirlo en vivo en clase.
@@ -53,7 +57,7 @@
       margin-bottom: 20px;
     }
 
-    .grid-item, .grid-item2, .grid-item3 {
+    .grid-item, .grid-item2, .grid-item3, .grid-item4 {
       background-color: #3498db;
       color: white;
       padding: 30px;
@@ -70,17 +74,8 @@
       background-color: #34db6a;
     }
 
-    #caja-2 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
-      background-color: #ecf0f1;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 20px;
-    }
 
-    #caja-3 {
+    #caja-3, #caja-4, #caja-2 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 15px;
@@ -98,6 +93,8 @@
       border: none;
     }
 
+  
+        
     @media (min-width: 500px) {
         .grid-item, button {
         background-color: #340055;
@@ -109,7 +106,7 @@
     }
 
     @media (min-width: 700px) {
-        .grid-item, button {
+        .grid-item, button, .dark-mode .grid-container {
         background-color:#DC143C;
         }
 
@@ -122,9 +119,12 @@
         font-size: 1.8rem;
         font-family: "Times New Roman", Times, serif;
         }
-        .grid-container {
+        .grid-container, .dark-mode .grid-item {
         background-color: #FFEBCD;
+        color: #0f0814;
         }
+
+        
     }
 
         /* TODO 4 (opcional, para quien termine antes): alinea el
@@ -136,8 +136,8 @@
   </style>  
 </head>
 <body>
-  <h1>Mi Primer Grid</h1>
-  <p style="margin: 20px 0;">Grid con 3 columnas de 200px cada una — completa los TODO del CSS.</p>
+  <h1 id="titulo">Mi Primer Grid</h1>
+  <p id="descripcion" style="margin: 20px 0;">Grid con 3 columnas de 200px cada una — completa los TODO del CSS.</p>
 
   <div class="grid-container">
     <div class="grid-item">1</div>
@@ -168,6 +168,13 @@
     <div class="grid-item3">F</div>
   </div>
 
+  <div id="caja-4" class="gc4">
+    <div class="grid-item4">D</div>
+    <div class="grid-item4">E</div>
+    <div class="grid-item4">F</div>
+  </div>
+  <button id="btn4">Desaparece clase</button>
+
   <script>
     let txt = document.getElementById('demo');
     txt.textContent = 'Hola'
@@ -176,6 +183,10 @@
         txt.textContent = 'Bañate';
         txt.style.backgroundColor = "#6495ED";
     })
+    const btn4 = document.getElementById('btn4');
+    const gc4 = document.querySelector('.gc4');
+    const tit = document.getElementById("titulo");
+    const desc = document.getElementById("descripcion");
 
     let btnMsg2 = document.getElementById('boton2')
     btnMsg2.addEventListener('click', function () {
@@ -187,6 +198,7 @@
 
     btnDarkMode.addEventListener('click', function () {
         document.body.classList.toggle('dark-mode');
+        //txt.classList.toggle('dark-mode');
         if (document.body.classList.contains('dark-mode')) {
           btnDarkMode.textContent = 'Modo claro';
         } else { btnDarkMode.textContent = 'Modo oscuro';}
@@ -201,6 +213,29 @@
 
     toggleCaja3(mediaQuery700);
     mediaQuery700.addEventListener('change', toggleCaja3);
+
+    btn4.addEventListener("click", function () {
+      alert("Hola Mundo");
+      gc4.style.display = "none";
+    })
+
+    function resize() {
+      if(window.innerWidth >= 1024) {
+        tit.textContent = "Modo Desktop";
+        desc.textContent = "Hola mundo así se ve en desktop";
+      } else if (window.innerWidth >= 768) {
+        tit.textContent = "Modo Tablet";
+        desc.textContent = "Hola mundo así se ve en tablet";
+      } else {
+        tit.textContent = "Modo Telefono";
+        desc.textContent = "Hola mundo así se ve en telefono";
+      }
+    }
+    window.addEventListener('resize',  resize);
+
+    resize();
+
+
   </script>
 </body>
 </html>

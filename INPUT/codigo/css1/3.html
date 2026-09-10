@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landing — De pequeño a grande</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      color: #09010e;
+      font-size: 40px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    img {
+      max-width: 80%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    p {
+      max-width: 500px;
+      margin: 20px auto;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="titulo">Carro</h1>
+  <img id="imagen" src="carro.png" alt="Carro">
+  <p id="descripcion">Un carro es un vehículo de cuatro ruedas pensado para transportar pocas personas por ciudad y carretera.</p>
+
+  <script>
+    const titulo = document.getElementById('titulo');
+    const imagen = document.getElementById('imagen');
+    const descripcion = document.getElementById('descripcion');
+
+    const contenido = {
+      mobile: {
+        titulo: 'Carro',
+        tamañoTitulo: '40px',
+        imagen: 'imagenesPrueba1/carro.png',
+        descripcion: 'Un carro es un vehículo de cuatro ruedas pensado para transportar pocas personas por ciudad y carretera.'
+      },
+      tablet: {
+        titulo: 'Camioneta',
+        tamañoTitulo: '52px',
+        imagen: 'imagenesPrueba1/camioneta.png',
+        descripcion: 'Una camioneta es un vehículo más grande que un carro, con espacio de carga adicional, usado para transportar personas o herramientas de trabajo.'
+      },
+      desktop: {
+        titulo: 'Camion',
+        tamañoTitulo: '60px',
+        imagen: 'imagenesPrueba1/camion.png',
+        descripcion: 'Un camión es un vehículo de gran tamaño diseñado para transportar cargas pesadas entre ciudades y largas distancias.'
+      }
+    };
+
+    function actualizarContenido() {
+      let datos;
+
+      if (window.innerWidth >= 1024) {
+        datos = contenido.desktop;
+      } else if (window.innerWidth >= 768) {
+        datos = contenido.tablet;
+      } else {
+        datos = contenido.mobile;
+      }
+
+      titulo.textContent = datos.titulo;
+      titulo.style.fontSize = datos.tamañoTitulo;
+      imagen.src = datos.imagen;
+      imagen.alt = datos.titulo;
+      descripcion.textContent = datos.descripcion;
+    }
+
+    window.addEventListener('resize', actualizarContenido);
+    actualizarContenido();
+  </script>
+</body>
+</html>

@@ -26,3 +26,7 @@ Hoy aprendí a cambiar elementos HTML cuando se redimensiona el width de la pant
 usando JavaScript en vez de CSS: con `window.matchMedia('(min-width: 700px)')` obtengo un
 objeto que se puede evaluar (`.matches`) y también escuchar (`addEventListener('change', ...)`)
 para reaccionar cada vez que la pantalla cruza ese punto de quiebre.
+
+## 2026-09-10
+
+Lo que más me costó fue el cambio de contenido con JavaScript según el tamaño de pantalla.
