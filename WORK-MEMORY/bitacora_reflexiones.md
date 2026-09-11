@@ -30,3 +30,7 @@ para reaccionar cada vez que la pantalla cruza ese punto de quiebre.
 ## 2026-09-10
 
 Lo que más me costó fue el cambio de contenido con JavaScript según el tamaño de pantalla.
+
+## 2026-09-11
+
+Hoy aprendí a usar objetos en JavaScript y a renderizarlos en HTML.
