@@ -1,0 +1,351 @@
+* {
+    /* padding/border ya no se suman al width/height declarado: más fácil de calcular tamaños */
+    box-sizing: border-box;
+}
+
+/* --- Variables de tema --- */
+/* :root define los valores para modo oscuro (el que carga por defecto). body.light los redefine
+   para modo claro. Como el resto del CSS usa var(--nombre), cambiar de tema es solo alternar
+   la clase "light" en el body (lo hace theme.js) y todo lo demás se actualiza solo. */
+:root {
+    /* Noche helada: gris casi negro */
+    --card-bg: rgba(255, 255, 255, 0.1);
+    --card-border: rgba(255, 255, 255, 0.35);
+    --card-shadow: rgba(0, 0, 0, 0.35);
+    --text-primary: #eaf6ff;
+    --text-secondary: #b9d4e8;
+    --tag-bg: linear-gradient(135deg, #b38e13, #d3b51e);
+    --tag-text: #ffffff;
+    --tag-shadow: rgba(37, 99, 235, 0.45);
+    --activo-color: #7dffb3;
+    --retirado-color: #ff8080;
+    /* Color del brillo que sigue al cursor (.card-shine): más tenue en oscuro que en claro */
+    --shine-color: rgba(255, 255, 255, 0.16);
+}
+
+body.light {
+    /* Día de nieve: foto de pista de hielo */
+    --card-bg: rgba(255, 255, 255, 0.212);
+    --card-border: rgba(255, 255, 255, 0.8);
+    --card-shadow: rgba(40, 60, 80, 0.35);
+    --text-primary: #14324a;
+    --text-secondary: #33465a;
+    --tag-bg: linear-gradient(135deg, #b38e13, #d3b51e);
+    --tag-text: #ffffff;
+    --tag-shadow: rgba(29, 78, 216, 0.4);
+    --activo-color: #41e07b;
+    --retirado-color: #dc2626;
+    --shine-color: rgba(255, 255, 255, 0.35);
+}
+
+/* Fondo base del modo oscuro: degradado gris casi negro (sin foto) */
+body {
+    margin: 0;
+    padding: 24px 16px;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #0d0d0d 0%, #161616 55%, #1f1f1f 100%);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: sans-serif;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.light {
+    /* Capa oscura semi-transparente encima de la foto, para que el texto siga siendo legible.
+       background-size:auto + background-repeat:repeat = la imagen conserva su tamaño original
+       y se repite en mosaico en vez de estirarse para cubrir toda la pantalla. */
+    background-image:
+        linear-gradient(rgba(10, 25, 40, 0.082), rgba(10, 25, 40, 0.159)),
+        url("https://cdn.senmoney.co.kr/news/photo/202312/18319_18591_4419.jpg");
+    background-size: cover;
+    background-repeat: repeat;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+/* --- Nieve cayendo: generada en JS (index.js), solo visible en modo oscuro --- */
+/* Contenedor a pantalla completa (position:fixed + inset:0) donde viven todos los copos */
+.nieve-cayendo {
+    display: block;
+    position: fixed;
+    inset: 0;
+    overflow: hidden; /* recorta los copos que salen por los bordes */
+    pointer-events: none; /* así no bloquea clicks sobre las tarjetas/botones de abajo */
+    z-index: 5;
+}
+
+/* En modo claro no hay nieve (el fondo ya es la foto de la pista de hielo) */
+body.light .nieve-cayendo {
+    display: none;
+}
+
+/* Cada copo individual: su posición horizontal, tamaño, opacidad y tiempos de animación
+   se asignan por JS (inline style), acá solo se define el comportamiento común a todos */
+.copo {
+    position: absolute;
+    top: 0;
+    color: rgba(255, 255, 255, 0.9);
+    animation-name: caer;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    user-select: none; /* que no se pueda seleccionar el texto del copo como si fuera texto normal */
+}
+
+/* Anima al copo desde arriba de la pantalla (-10vh) hasta abajo (110vh), con una deriva lateral
+   (--drift) que cada copo trae distinta desde JS, para que no caigan todos en línea recta */
+@keyframes caer {
+    from {
+        transform: translateY(-10vh) translateX(0);
+    }
+    to {
+        transform: translateY(110vh) translateX(var(--drift, 20px));
+    }
+}
+
+/* Título principal de la página */
+h1 {
+    text-align: center;
+    margin-bottom: 24px;
+    font-family: "Cinzel Decorative", serif; /* fuente decorativa cargada desde Google Fonts en index.html */
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: rgb(247, 253, 210);
+    letter-spacing: 1px;
+    /* Varias capas de text-shadow superpuestas (blanco cerca del texto, azul hacia afuera)
+       simulan un resplandor de luz alrededor de las letras */
+    text-shadow:
+        0 0 8px rgba(198, 202, 255, 0.9),
+        0 0 18px rgba(168, 200, 225, 0.7),
+        0 0 36px rgba(88, 143, 198, 0.5);
+}
+
+/* Botón que alterna modo claro/oscuro (ver theme-toggle en index.js) */
+.theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+/* Galería: grid responsive. auto-fit + minmax(240px, 300px) hace que quepan tantas columnas
+   como el ancho disponible permita, sin definir un número fijo de columnas. */
+/* perspective aquí (y no en body) para que el tilt de las cartas no afecte a los position:fixed
+   (modal, nieve, toggle): perspective en un ancestro cambia el "contenedor" de sus descendientes
+   position:fixed, así que si estuviera en body, esos elementos dejarían de fijarse al viewport
+   y se moverían con el scroll de la página en vez de quedarse quietos en la pantalla. */
+.galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
+    justify-content: center;
+    gap: 24px;
+    perspective: 1000px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Tarjeta vertical tipo póster: imagen arriba (grande) e info abajo, siempre en 1 columna
+   (grid-template-areas define el orden visual, sin depender del orden en el HTML) */
+/* Efecto vidrio (glassmorphism): fondo translúcido (--card-bg) + blur de lo que hay detrás
+   (backdrop-filter) simulan una superficie de vidrio esmerilado */
+.tarjeta {
+    position: relative; /* necesario para que .tarjeta-estado (position:absolute) se ubique respecto a esta tarjeta */
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+        "imagen"
+        "info";
+    /* Degradado sutil arriba (rojo por defecto, o el color que fije --card-accent desde JS
+       según patinadora.colorDegradado), que se desvanece hacia el resto de la carta */
+    background:
+        linear-gradient(to bottom, var(--card-accent, rgba(220, 38, 38, 0.2)), transparent 40%),
+        var(--card-bg);
+    border-radius: 16px;
+    overflow: hidden; /* recorta la imagen y el degradado a las esquinas redondeadas */
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%); /* prefijo para compatibilidad con Safari */
+    box-shadow: 0 8px 32px var(--card-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transform-style: preserve-3d; /* para que el rotateX/rotateY del tilt se vea en 3D real */
+}
+
+/* Sombra más marcada mientras el cursor está encima (la clase la agrega/quita index.js) */
+.tarjeta.is-hovering {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), 0 0 60px 15px var(--card-shadow);
+}
+
+/* Brillo que sigue al cursor durante el efecto tilt: un gradiente radial cuyo centro
+   (--mx/--my) mueve index.js en cada mousemove. Solo se ve (opacity:1) mientras hay hover. */
+.card-shine {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), var(--shine-color), transparent 55%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* para que el brillo no intercepte el mousemove de la tarjeta */
+}
+
+.tarjeta.is-hovering .card-shine {
+    opacity: 1;
+}
+
+/* aspect-ratio:1/1 fuerza un marco cuadrado; object-fit:contain evita recortar la foto
+   (a diferencia de "cover", que la recortaría para llenar el cuadrado) */
+.tarjeta-imagen {
+    grid-area: imagen;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    display: block;
+}
+
+/* Contenedor de todo el texto de la tarjeta, debajo de la imagen */
+.tarjeta-info {
+    grid-area: info;
+    display: grid;
+    gap: 8px;
+    align-content: start;
+    padding: 16px 20px 20px;
+}
+
+.tarjeta-encabezado {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.tarjeta-nombre {
+    margin: 0;
+    font-size: 1.2rem;
+    font-family: "Cinzel Decorative", serif;
+}
+
+/* Badge flotante sobre la esquina superior derecha de la carta (position:absolute respecto
+   a .tarjeta, que tiene position:relative), queda encima de la imagen en vez de junto al nombre */
+.tarjeta-estado {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2; /* por encima de la imagen y del degradado */
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 4px 10px;
+    border-radius: 999px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+/* El color del texto del badge depende de la clase que le agregó index.js según patinadora.activo */
+.tarjeta-estado.activo {
+    color: var(--activo-color);
+}
+
+.tarjeta-estado.retirado {
+    color: var(--retirado-color);
+}
+
+.tarjeta-meta {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.tarjeta-titulo {
+    margin: 0;
+    font-weight: 700;
+}
+
+.tarjeta-descripcion {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Lista de elementos insignia (saltos/movimientos), en fila y con salto de línea si no caben */
+.tarjeta-insignias {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Cada elemento insignia como un "chip": degradado de color fijo (no depende del tema),
+   para que resalten con buen contraste sobre el vidrio translúcido de la tarjeta */
+.tarjeta-insignias li {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px var(--tag-shadow);
+}
+
+/* Cursor tipo "click para ver video" sobre la tarjeta (se agregó junto con el modal de YouTube) */
+.tarjeta {
+    cursor: pointer;
+}
+
+/* --- Modal con video en bucle (tipo GIF), generado en JS (index.js) --- */
+/* Overlay a pantalla completa que oscurece el fondo. Se muestra/oculta con la clase "visible"
+   (index.js la agrega/quita); position:fixed + inset:0 lo mantiene centrado en la pantalla
+   sin importar el scroll de la página. */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20; /* por encima de todo lo demás, incluida la nieve (z-index:5) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.75);
+    opacity: 0;
+    pointer-events: none; /* mientras está oculto, no debe interceptar clicks */
+    transition: opacity 0.25s ease;
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Contenedor vertical (9:16), porque los videos son YouTube Shorts (formato retrato) */
+.modal-contenido {
+    position: relative; /* para poder ubicar el botón de cerrar encima, en su esquina */
+    width: min(90vw, 400px); /* nunca más ancho que 400px, pero se achica en pantallas chicas */
+    aspect-ratio: 9 / 16;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-video {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+.modal-cerrar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 2; /* encima del iframe del video */
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    font-size: 1rem;
+    cursor: pointer;
+}
