@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input type="text" id="campo">
+    <button id="boton">Enviar</button>
+    <button id="botonEliminar">Eliminar</button>
+    <button id="botonPrimero" onclick="eliminarPrimero()">Eliminar Primero</button>
+    <button id="botonMostrar">Mostrar todo</button>
+    <button id="botonBuscar">Buscar</button>
+    <p id="parrafo"></p>
+    <ul id="lista"></ul>
+
+    <script>
+        let frutas = ["manzana", "pera", "uva", "mango",
+            "piña", "fresa", "melon", "kiwi",
+            "naranja", "limon", "papaya", "banano"];
+
+        // Solo se vinculan los elementos (referencias guardadas en variables), sin lógica todavía
+        const campo = document.getElementById("campo");
+        const boton = document.getElementById("boton");
+        const botonPrimero = document.getElementById("botonPrimero");
+        const botonEliminar = document.getElementById("botonEliminar");
+        const botonMostrar = document.getElementById("botonMostrar");
+        const botonBuscar = document.getElementById("botonBuscar");
+        const text = document.getElementById("parrafo");
+        const lista = document.getElementById("lista");
+
+        boton.addEventListener('click', function () {
+            text.textContent = "Valor ingresado: " + campo.value.trim().toLowerCase();
+            // Agregar el valor ingresado al arreglo al final
+            //frutas.push(campo.value.trim().toLowerCase());
+            // Agregar el valor ingresado al inicio del arreglo
+            frutas.unshift(campo.value.trim().toLowerCase());
+            mostrarTodo()
+        });
+
+        function eliminarUltimo() {
+            if (frutas.length > 0) {
+                let eliminado = frutas.pop();
+                text.textContent = "Elemento eliminado: " + eliminado;
+                
+            } else {
+                text.textContent = "El arreglo está vacío";
+            }
+            mostrarTodo()
+        }
+
+        function eliminarPrimero() {
+            if (frutas.length > 0) {
+                let primero = frutas.shift();
+                text.textContent = "Elemento eliminado: " + primero;
+            } else {
+                text.textContent = "El arreglo está vacío";
+            }
+            mostrarTodo()
+        }
+        
+        function mostrarTodo() {
+            lista.innerHTML = "";
+            frutas.forEach(function (fruta) {
+                lista.innerHTML += "<li>" + fruta + "</li>";
+            });
+        }
+
+        botonEliminar.addEventListener('click', eliminarUltimo);
+        botonMostrar.addEventListener('click', mostrarTodo);
+
+        function buscarElemento() {
+            let valorBuscado = campo.value.trim().toLowerCase();
+            let indice = frutas.indexOf(valorBuscado);
+            if (indice !== -1) {
+                text.textContent = "Elemento encontrado en la posicion: " + indice;
+            } else {
+                text.textContent = "Elemento no encontrado en el arreglo";
+            }
+        }
+
+        botonBuscar.addEventListener('click', buscarElemento);
+    </script>
+</body>
+</html>
