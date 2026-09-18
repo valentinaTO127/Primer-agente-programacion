@@ -1,0 +1,119 @@
+let patinadores = [
+    {
+        nombre: "Alexandra Ignatova (Trusova)",
+        activo: true,
+        descripcion: "Reconocida por ser la primera mujer en ejecutar varios saltos cuádruples y aterrizar hasta cinco saltos cuádruples en un mismo programa",
+        edad: 22,
+        tituloMasImportante: " 🥈 Winter Olympics 2022",
+        elementosInsignia: ["4Lz", "Cantilever", "4Lz+Eu+3S+2A"],
+        nacionalidad: "Rusa",
+        imagen: "https://i.postimg.cc/j2D5dcZ7/Alexandra-Trusova.png",
+        videoId: "rr9kWE73XU8"
+    },
+    {
+        nombre: "Alena Kostornaia",
+        activo: false,
+        colorDegradado: "azul",
+        descripcion: "Conocida por su elegancia y líneas depuradas sobre el hielo, además de sus intentos de triple axel en competencia",
+        edad: 22,
+        tituloMasImportante: " 🥇 European Championships 2020",
+        elementosInsignia: ["Ina Bauer", "Spread Eagle", "3A"],
+        nacionalidad: "Rusa",
+        imagen: "https://i.postimg.cc/1X8t5BJ6/Alionakostornaia.png",
+        videoId: "sZcqWUK2RBg"
+    },
+    {
+        nombre: "Ami Nakai",
+        activo: true,
+        descripcion: "Patinadora joven destacada por su consistencia técnica y por incorporar saltos cuádruples desde temprana edad",
+        edad: 19,
+        tituloMasImportante: " 🥉 Winter Olympics 2026",
+        elementosInsignia: ["4Lo", "3A", "3Lz+3Lo"],
+        nacionalidad: "Japonesa",
+        imagen: "https://i.postimg.cc/Gt42hKqD/Ami-Nakai.png",
+        videoId: "ISIOdd72j8w"
+    },
+    {
+        nombre: "Anna Shcherbakova",
+        activo: false,
+        colorDegradado: "morado",
+        descripcion: "Campeona olímpica reconocida por su combinación de dificultad técnica (varios cuádruples) con un programa muy pulido",
+        edad: 21,
+        tituloMasImportante: " 🥇 Winter Olympics 2022",
+        elementosInsignia: ["4Lz", "4F", "3A"],
+        nacionalidad: "Rusa",
+        imagen: "https://i.postimg.cc/8c75P4tM/Anna-Shcherbakova.png",
+        videoId: "pF68GHNB4Is"
+    },
+    {
+        nombre: "Evgenia Medvedeva",
+        activo: false,
+        descripcion: "Referente de la interpretación artística en el patinaje, con programas muy expresivos y técnicamente sólidos",
+        edad: 26,
+        tituloMasImportante: " 🥈 Winter Olympics 2018",
+        elementosInsignia: ["3Lz+3Lo", "Ina Bauer", "Layback spin"],
+        nacionalidad: "Rusa",
+        imagen: "https://i.postimg.cc/x8XCT5tL/Evgenia-Medvedeva.png",
+        videoId: "eCf8MQ90478"
+    },
+    {
+        nombre: "Ilia Malinin",
+        activo: true,
+        colorDegradado: "amarillo",
+        descripcion: "Apodado 'Quad God' por ser el primero en aterrizar un axel cuádruple en competencia oficial",
+        edad: 21,
+        tituloMasImportante: " 🥇 World Championships 2026",
+        elementosInsignia: ["4A", "4Lz+3T", "Backflip"],
+        nacionalidad: "Estadounidense",
+        imagen: "https://i.postimg.cc/PJCxry2m/Ilia-Malinin.png",
+        videoId: "nWYOQZIDmxQ"
+    },
+    {
+        nombre: "Kaori Sakamoto",
+        activo: true,
+        colorDegradado: "morado",
+        descripcion: "Reconocida por su consistencia competitiva y su presencia escénica constante en programas cortos y largos",
+        edad: 26,
+        tituloMasImportante: " 🥈 Winter Olympics 2026",
+        elementosInsignia: ["3A", "3F+3T", "Artistry"],
+        nacionalidad: "Japonesa",
+        imagen: "https://i.postimg.cc/1X8t5BJG/Kaori-Sakamoto.png",
+        videoId: "_aIeUqiqGHA"
+    },
+    {
+        nombre: "Nathan Chen",
+        activo: false,
+        colorDegradado: "amarillo",
+        descripcion: "Apodado 'el rey de los cuádruples', reconocido por aterrizar hasta cinco saltos cuádruples en un mismo programa",
+        edad: 26,
+        tituloMasImportante: " 🥇 Winter Olympics 2022",
+        elementosInsignia: ["4F", "4Lz",],
+        nacionalidad: "Estadounidense",
+        imagen: "https://i.postimg.cc/Gt42hKqP/Natan-Chen.png",
+        videoId: "x6bL09DxciQ"
+    },
+    {
+        nombre: "Yuna Kim",
+        activo: false,
+        colorDegradado: "amarillo",
+        descripcion: "Conocida como 'la Reina Yuna', referente histórico del patinaje surcoreano por su técnica y expresividad",
+        edad: 35,
+        tituloMasImportante: " 🥇 Winter Olympics 2010",
+        elementosInsignia: ["3Lz+3T", "Layback spin", "Spiral sequence"],
+        nacionalidad: "Surcoreana",
+        imagen: "https://i.postimg.cc/L5JX6DNB/Yuna-Kim.png",
+        videoId: "lmnaBOTRNuE"
+    },
+    {
+        nombre: "Yuzuru Hanyu",
+        activo: false,
+        colorDegradado: "azul",
+        descripcion: "Bicampeón olímpico consecutivo, considerado uno de los patinadores más influyentes de la historia del deporte",
+        edad: 31,
+        tituloMasImportante: " 🥇 Winter Olympics 2014 y 2018",
+        elementosInsignia: ["4Lo", "4S", "Ina Bauer", "Hydroblade"],
+        nacionalidad: "Japonesa",
+        imagen: "https://i.postimg.cc/T1KwY0Ct/Yuzuru-Hanyu.png",
+        videoId: "iDsKdf4UjGg"
+    }
+]

@@ -85,3 +85,7 @@ Lo que más me queda de este repaso: varias decisiones de una iteración (el deg
 fondo, los puntos estáticos, el layout imagen-a-un-lado, el aspect-ratio 3:4 de la imagen) se
 probaron y después las reemplazó la siguiente instrucción, aunque no quedaron en la versión final
 del código.
+
+## 2026-09-18
+
+Hoy aprendí a hacer CRUD con JavaScript y a usar `localStorage`.

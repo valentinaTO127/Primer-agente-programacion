@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button id="theme-toggle" class="theme-toggle"></button>
+    <a class="nav-link" href="index.html">Ver galería</a>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <button class="sidebar-link is-active" data-seccion="mostrar" type="button">Mostrar todos</button>
+            <button class="sidebar-link" data-seccion="crear" type="button">Crear</button>
+            <button class="sidebar-link" data-seccion="actualizar" type="button">Actualizar</button>
+            <button class="sidebar-link" data-seccion="eliminar" type="button">Eliminar</button>
+        </aside>
+
+        <main class="contenido">
+            <section class="gestion" data-seccion="mostrar">
+                <h1 class="gestion-titulo">Gestión de patinadores</h1>
+
+                <!-- Estructura básica: las filas se llenarán a partir de "patinadores" en data.js -->
+                <table class="tabla-gestion" id="tabla-patinadores">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Nacionalidad</th>
+                            <th>Edad</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+
+            <section class="gestion" data-seccion="crear" hidden>
+                <h1 class="gestion-titulo">Crear patinador</h1>
+
+                <form class="formulario-gestion" id="formulario-crear">
+                    <label>Nombre
+                        <input type="text" name="nombre" required>
+                    </label>
+
+                    <label>Nacionalidad
+                        <input type="text" name="nacionalidad" required>
+                    </label>
+
+                    <label>Edad
+                        <input type="number" name="edad" min="0" required>
+                    </label>
+
+                    <label>¿Activo?
+                        <select name="activo">
+                            <option value="true">Sí</option>
+                            <option value="false">No</option>
+                        </select>
+                    </label>
+
+                    <label>Título más importante
+                        <input type="text" name="tituloMasImportante" placeholder="🥇 Winter Olympics 2026">
+                    </label>
+
+                    <label>Elementos insignia (separados por coma)
+                        <input type="text" name="elementosInsignia" placeholder="4Lz, 3A, Ina Bauer">
+                    </label>
+
+                    <label>Descripción
+                        <textarea name="descripcion" rows="3"></textarea>
+                    </label>
+
+                    <label>Imagen (URL)
+                        <input type="url" name="imagen">
+                    </label>
+
+                    <label>Video (ID de YouTube)
+                        <input type="text" name="videoId">
+                    </label>
+
+                    <label>Color degradado
+                        <select name="colorDegradado">
+                            <option value="">Ninguno</option>
+                            <option value="azul">Azul</option>
+                            <option value="morado">Morado</option>
+                            <option value="amarillo">Amarillo</option>
+                        </select>
+                    </label>
+
+                    <label>Agregar al array
+                        <select name="posicion">
+                            <option value="final">Al final</option>
+                            <option value="inicio">Al inicio</option>
+                        </select>
+                    </label>
+
+                    <div class="formulario-acciones">
+                        <button type="submit" class="sidebar-link">Crear patinador</button>
+                        <button type="reset" class="sidebar-link">Limpiar</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="gestion" data-seccion="actualizar" hidden>
+                <h1 class="gestion-titulo">Actualizar patinador</h1>
+
+                <form class="formulario-gestion" id="formulario-actualizar">
+                    <label>Selecciona un patinador
+                        <select name="indice" id="select-actualizar"></select>
+                    </label>
+
+                    <label>Nombre
+                        <input type="text" name="nombre" required>
+                    </label>
+
+                    <label>Nacionalidad
+                        <input type="text" name="nacionalidad" required>
+                    </label>
+
+                    <label>Edad
+                        <input type="number" name="edad" min="0" required>
+                    </label>
+
+                    <label>¿Activo?
+                        <select name="activo">
+                            <option value="true">Sí</option>
+                            <option value="false">No</option>
+                        </select>
+                    </label>
+
+                    <label>Título más importante
+                        <input type="text" name="tituloMasImportante">
+                    </label>
+
+                    <label>Elementos insignia (separados por coma)
+                        <input type="text" name="elementosInsignia">
+                    </label>
+
+                    <label>Descripción
+                        <textarea name="descripcion" rows="3"></textarea>
+                    </label>
+
+                    <label>Imagen (URL)
+                        <input type="url" name="imagen">
+                    </label>
+
+                    <label>Video (ID de YouTube)
+                        <input type="text" name="videoId">
+                    </label>
+
+                    <label>Color degradado
+                        <select name="colorDegradado">
+                            <option value="">Ninguno</option>
+                            <option value="azul">Azul</option>
+                            <option value="morado">Morado</option>
+                            <option value="amarillo">Amarillo</option>
+                        </select>
+                    </label>
+
+                    <div class="formulario-acciones">
+                        <button type="submit" class="sidebar-link">Guardar cambios</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="gestion" data-seccion="eliminar" hidden>
+                <h1 class="gestion-titulo">Eliminar patinador</h1>
+
+                <form class="formulario-gestion" id="formulario-eliminar">
+                    <label>Selecciona un patinador
+                        <select name="indice" id="select-eliminar"></select>
+                    </label>
+
+                    <div class="formulario-acciones">
+                        <button type="submit" class="sidebar-link">Eliminar</button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="gestion.js"></script>
+</body>
+</html>

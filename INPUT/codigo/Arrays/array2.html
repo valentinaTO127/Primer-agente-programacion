@@ -4,16 +4,130 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        :root {
+            --bg: #f2e8dc;
+            --surface: #fffaf3;
+            --text: #4a3b2c;
+            --primary: #a9603f;
+            --primary-dark: #8a4b30;
+            --accent: #6b7a4f;
+            --border: #d8c6ac;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        #campo {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            margin-bottom: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        #campo:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .botones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: 0.55rem 0.9rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: var(--surface);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        #parrafo {
+            min-height: 1.2rem;
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+        }
+
+        #lista {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        #lista li {
+            background: var(--accent);
+            color: var(--surface);
+            padding: 0.3rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+
+            button {
+                min-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <input type="text" id="campo">
-    <button id="boton">Enviar</button>
-    <button id="botonEliminar">Eliminar</button>
-    <button id="botonPrimero" onclick="eliminarPrimero()">Eliminar Primero</button>
-    <button id="botonMostrar">Mostrar todo</button>
-    <button id="botonBuscar">Buscar</button>
-    <p id="parrafo"></p>
-    <ul id="lista"></ul>
+    <div class="container">
+        <input type="text" id="campo">
+        <div class="botones">
+            <button id="boton">Enviar</button>
+            <button id="botonEliminar">Eliminar</button>
+            <button id="botonPrimero" onclick="eliminarPrimero()">Eliminar Primero</button>
+            <button id="modificar" onclick="modificarElmento()">Modificar</button>
+            <button id="botonEliminarNombre">Eliminar por nombre</button>
+            <button id="botonMostrar">Mostrar todo</button>
+            <button id="botonBuscar">Buscar</button>
+        </div>
+        <p id="parrafo"></p>
+        <ul id="lista"></ul>
+    </div>
 
     <script>
         let frutas = ["manzana", "pera", "uva", "mango",
@@ -25,6 +139,7 @@
         const boton = document.getElementById("boton");
         const botonPrimero = document.getElementById("botonPrimero");
         const botonEliminar = document.getElementById("botonEliminar");
+        const botonEliminarNombre = document.getElementById("botonEliminarNombre");
         const botonMostrar = document.getElementById("botonMostrar");
         const botonBuscar = document.getElementById("botonBuscar");
         const text = document.getElementById("parrafo");
@@ -72,6 +187,10 @@
 
         function buscarElemento() {
             let valorBuscado = campo.value.trim().toLowerCase();
+            if (valorBuscado === '') {
+                text.textContent = "Por favor ingrese el valor para eliminar"
+                return;
+            }
             let indice = frutas.indexOf(valorBuscado);
             if (indice !== -1) {
                 text.textContent = "Elemento encontrado en la posicion: " + indice;
@@ -81,6 +200,46 @@
         }
 
         botonBuscar.addEventListener('click', buscarElemento);
+
+        function eliminarElemento() {
+            let valorBuscado = campo.value.trim().toLowerCase();
+            if (valorBuscado === '') {
+                text.textContent = "Por favor ingrese el valor para eliminar"
+                return;
+            }
+            let indice = frutas.indexOf(valorBuscado);
+            
+            if (indice !== -1) {
+                text.textContent = "Elemento eliminado en la posicion: " + indice;
+                mostrarTodo();
+                frutas.slice(indice, 1);
+            } else {
+                text.textContent = "Elemento no encontrado en el arreglo";
+            }
+        }
+
+        function modificarElmento() {
+            let valorBuscado = campo.value.trim().toLowerCase();
+            if (valorBuscado === '') {
+                text.textContent = "Por favor ingrese el valor para eliminar"
+                return;
+            }
+            let indice = frutas.indexOf(valorBuscado);
+            
+            if (indice !== -1) {
+                let nuevoValor = prompt("Ingrese el nuevo valir para remplazar '" + valorBuscado + "'")
+                if (nuevoValor !== null && nuevoValor.trim().toLowerCase() !=="") {
+                    frutas[indice] = nuevoValor.trim().toLowerCase();
+                    text.textContent = "Elemento en la posicion: " + indice + " modficado a " + nuevoValor;
+                    mostrarTodo();
+                }
+            } else {
+                text.textContent = "Elemento no encontrado en el arreglo";
+            }
+        }
+
+        botonEliminarNombre.addEventListener('click', eliminarElemento);
+        mostrarTodo();
     </script>
 </body>
 </html>
