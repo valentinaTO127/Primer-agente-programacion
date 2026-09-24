@@ -10,12 +10,34 @@
     <button id="theme-toggle" class="theme-toggle"></button>
     <a class="nav-link" href="index.html">Ver galería</a>
 
-    <div class="layout">
+    <!-- Login: el CRUD (.layout) solo se muestra si usuario y contraseña coinciden con credenciales.js -->
+    <section class="login" id="login">
+        <h1 class="gestion-titulo">Acceso de administrador</h1>
+
+        <form class="formulario-gestion" id="formulario-login">
+            <label>Usuario
+                <input type="text" name="usuario" autocomplete="username" required>
+            </label>
+
+            <label>Contraseña
+                <input type="password" name="password" autocomplete="current-password" required>
+            </label>
+
+            <p class="login-error" id="login-error" hidden></p>
+
+            <div class="formulario-acciones">
+                <button type="submit" class="sidebar-link">Entrar</button>
+            </div>
+        </form>
+    </section>
+
+    <div class="layout" hidden>
         <aside class="sidebar">
             <button class="sidebar-link is-active" data-seccion="mostrar" type="button">Mostrar todos</button>
             <button class="sidebar-link" data-seccion="crear" type="button">Crear</button>
             <button class="sidebar-link" data-seccion="actualizar" type="button">Actualizar</button>
             <button class="sidebar-link" data-seccion="eliminar" type="button">Eliminar</button>
+            <button class="sidebar-link" data-seccion="restaurar" type="button">Restaurar</button>
         </aside>
 
         <main class="contenido">
@@ -177,10 +199,27 @@
                     </div>
                 </form>
             </section>
+
+            <section class="gestion" data-seccion="restaurar" hidden>
+                <h1 class="gestion-titulo">Restaurar datos originales</h1>
+
+                <form class="formulario-gestion" id="formulario-restaurar">
+                    <p class="gestion-placeholder">
+                        Vuelve a cargar los patinadores de data.js. Se pierden los patinadores creados,
+                        editados o eliminados desde este CRUD.
+                    </p>
+
+                    <div class="formulario-acciones">
+                        <button type="submit" class="sidebar-link">Restaurar datos originales</button>
+                    </div>
+                </form>
+            </section>
         </main>
     </div>
 
     <script src="data.js"></script>
+    <script src="credenciales.js"></script>
+    <script src="login.js"></script>
     <script src="gestion.js"></script>
 </body>
 </html>

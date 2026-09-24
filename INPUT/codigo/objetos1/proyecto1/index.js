@@ -5,6 +5,7 @@ if (patinadoresGuardados) {
 }
 
 const galeria = document.getElementById("galeria");
+const mensajeSinResultados = document.getElementById("galeria-vacia");
 
 // Colores de fondo por patinador según su campo "colorDegradado" (mismo truco que --card-color en las ponies)
 const coloresDegradado = {
@@ -94,14 +95,64 @@ function activarTiltCard(card) {
     });
 }
 
-// Recorre el array, arma una tarjeta por cada patinador y la agrega a la galería.
+// Limpia la galería y pinta una tarjeta por cada objeto del array recibido.
+// Como limpia antes de pintar, se puede llamar varias veces sin duplicar tarjetas.
 // Al hacer click en una tarjeta, se abre en YouTube el video asociado (videoId).
-patinadores.forEach((patinador) => {
-    const card = crearTarjetaPatinador(patinador);
-    card.addEventListener("click", () => {
-        window.open(`https://www.youtube.com/watch?v=${patinador.videoId}`, "_blank");
+function renderizarObjetos(listaObjetos) {
+    galeria.innerHTML = "";
+    mensajeSinResultados.hidden = listaObjetos.length > 0;
+
+    listaObjetos.forEach((patinador) => {
+        const card = crearTarjetaPatinador(patinador);
+        card.addEventListener("click", () => {
+            window.open(`https://www.youtube.com/watch?v=${patinador.videoId}`, "_blank");
+        });
+        galeria.appendChild(card);
     });
-    galeria.appendChild(card);
+}
+
+renderizarObjetos(patinadores);
+
+// --- Filtros por país (nacionalidad) y estado ---
+const formularioFiltros = document.getElementById("formulario-filtros");
+const selectPais = document.getElementById("filtro-pais");
+const selectEstado = document.getElementById("filtro-estado");
+
+// Llena el select de país con cada nacionalidad una sola vez (Set elimina los repetidos), en orden alfabético
+function renderizarOpcionesPais() {
+    const nacionalidades = [...new Set(patinadores.map((patinador) => patinador.nacionalidad))]
+        .filter((nacionalidad) => nacionalidad)
+        .sort((a, b) => a.localeCompare(b));
+
+    nacionalidades.forEach((nacionalidad) => {
+        const opcion = document.createElement("option");
+        opcion.value = nacionalidad;
+        opcion.textContent = nacionalidad;
+        selectPais.appendChild(opcion);
+    });
+}
+
+renderizarOpcionesPais();
+
+// Un valor vacío ("Todos") significa que ese filtro no se aplica
+formularioFiltros.addEventListener("submit", (evento) => {
+    evento.preventDefault();
+
+    const pais = selectPais.value;
+    const estado = selectEstado.value;
+
+    const patinadoresFiltrados = patinadores.filter((patinador) => {
+        const cumplePais = pais === "" || patinador.nacionalidad === pais;
+        const cumpleEstado = estado === "" || patinador.activo === (estado === "activo");
+        return cumplePais && cumpleEstado;
+    });
+
+    renderizarObjetos(patinadoresFiltrados);
+});
+
+// "Limpiar" (type="reset") devuelve los selects a "Todos": se vuelve a pintar el array completo
+formularioFiltros.addEventListener("reset", () => {
+    renderizarObjetos(patinadores);
 });
 
 // --- Modo claro / oscuro ---

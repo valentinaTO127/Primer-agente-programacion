@@ -1,5 +1,6 @@
 let patinadores = [
     {
+        id: 1,
         nombre: "Alexandra Ignatova (Trusova)",
         activo: true,
         descripcion: "Reconocida por ser la primera mujer en ejecutar varios saltos cuádruples y aterrizar hasta cinco saltos cuádruples en un mismo programa",
@@ -11,6 +12,7 @@ let patinadores = [
         videoId: "rr9kWE73XU8"
     },
     {
+        id: 2,
         nombre: "Alena Kostornaia",
         activo: false,
         colorDegradado: "azul",
@@ -23,6 +25,7 @@ let patinadores = [
         videoId: "sZcqWUK2RBg"
     },
     {
+        id: 3,
         nombre: "Ami Nakai",
         activo: true,
         descripcion: "Patinadora joven destacada por su consistencia técnica y por incorporar saltos cuádruples desde temprana edad",
@@ -34,6 +37,7 @@ let patinadores = [
         videoId: "ISIOdd72j8w"
     },
     {
+        id: 4,
         nombre: "Anna Shcherbakova",
         activo: false,
         colorDegradado: "morado",
@@ -46,6 +50,7 @@ let patinadores = [
         videoId: "pF68GHNB4Is"
     },
     {
+        id: 5,
         nombre: "Evgenia Medvedeva",
         activo: false,
         descripcion: "Referente de la interpretación artística en el patinaje, con programas muy expresivos y técnicamente sólidos",
@@ -57,6 +62,7 @@ let patinadores = [
         videoId: "eCf8MQ90478"
     },
     {
+        id: 6,
         nombre: "Ilia Malinin",
         activo: true,
         colorDegradado: "amarillo",
@@ -69,6 +75,7 @@ let patinadores = [
         videoId: "nWYOQZIDmxQ"
     },
     {
+        id: 7,
         nombre: "Kaori Sakamoto",
         activo: true,
         colorDegradado: "morado",
@@ -81,6 +88,7 @@ let patinadores = [
         videoId: "_aIeUqiqGHA"
     },
     {
+        id: 8,
         nombre: "Nathan Chen",
         activo: false,
         colorDegradado: "amarillo",
@@ -93,6 +101,7 @@ let patinadores = [
         videoId: "x6bL09DxciQ"
     },
     {
+        id: 9,
         nombre: "Yuna Kim",
         activo: false,
         colorDegradado: "amarillo",
@@ -105,6 +114,7 @@ let patinadores = [
         videoId: "lmnaBOTRNuE"
     },
     {
+        id: 10,
         nombre: "Yuzuru Hanyu",
         activo: false,
         colorDegradado: "azul",

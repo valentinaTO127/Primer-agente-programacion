@@ -68,6 +68,73 @@ body {
     -webkit-backdrop-filter: blur(16px);
 }
 
+/* Filtros + galería en un solo bloque: el body es un grid centrado y con dos hijos sueltos quedaría un hueco entre ellos */
+.pagina-galeria {
+    width: 100%;
+    max-width: 1200px;
+    display: grid;
+    gap: 24px;
+}
+
+.filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 16px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.filtros label {
+    display: grid;
+    gap: 4px;
+    flex: 1 1 160px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.filtros select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+/* Las opciones del desplegable no heredan el fondo translúcido: se les da uno sólido para que se lean */
+.filtros option {
+    background: var(--bg-edge);
+    color: var(--text-primary);
+}
+
+.filtros-acciones {
+    display: flex;
+    gap: 8px;
+}
+
+.filtros-acciones button {
+    font-family: inherit;
+}
+
+.galeria-vacia {
+    margin: 0;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* En pantallas pequeñas se deja espacio para los botones fijos de tema y "Gestión" (arriba a la derecha) */
+@media (max-width: 640px) {
+    .pagina-galeria {
+        padding-top: 96px;
+    }
+}
+
 .galeria {
     display: grid;
     grid-template-columns: 1fr;
@@ -84,6 +151,42 @@ body {
     align-items: flex-start;
     justify-self: start;
     align-self: start;
+}
+
+/* Sin esto, display: flex de .layout le gana al atributo hidden y el CRUD se vería igual */
+.layout[hidden] {
+    display: none;
+}
+
+.login {
+    width: 100%;
+    max-width: 360px;
+    display: grid;
+    gap: 16px;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.login[hidden] {
+    display: none;
+}
+
+.login .formulario-gestion {
+    max-width: none;
+}
+
+.login-error {
+    margin: 0;
+    color: #f87171;
+    font-size: 0.85rem;
+}
+
+body.light .login-error {
+    color: #b91c1c;
 }
 
 .sidebar {

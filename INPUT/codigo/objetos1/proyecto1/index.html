@@ -12,8 +12,34 @@
 
     <a class="nav-link" href="gestion.html">Gestión</a>
 
-    <!-- Contenedor vacío: las 12 tarjetas se generan por JS en tiempo de ejecución -->
-    <section class="galeria" id="galeria"></section>
+    <main class="pagina-galeria">
+        <!-- Filtros: las opciones de país se generan por JS a partir de las nacionalidades de "patinadores" -->
+        <form class="filtros" id="formulario-filtros">
+            <label>País
+                <select name="pais" id="filtro-pais">
+                    <option value="">Todos</option>
+                </select>
+            </label>
+
+            <label>Estado
+                <select name="estado" id="filtro-estado">
+                    <option value="">Todos</option>
+                    <option value="activo">Activo</option>
+                    <option value="retirado">Retirado</option>
+                </select>
+            </label>
+
+            <div class="filtros-acciones">
+                <button type="submit" class="sidebar-link">Filtrar</button>
+                <button type="reset" class="sidebar-link">Limpiar</button>
+            </div>
+        </form>
+
+        <p class="galeria-vacia" id="galeria-vacia" hidden>No hay patinadores con esos filtros.</p>
+
+        <!-- Contenedor vacío: las tarjetas se generan por JS en tiempo de ejecución -->
+        <section class="galeria" id="galeria"></section>
+    </main>
 
     <script src="data.js"></script>
     <script src="index.js"></script>
