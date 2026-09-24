@@ -89,3 +89,23 @@ del código.
 ## 2026-09-18
 
 Hoy aprendí a hacer CRUD con JavaScript y a usar `localStorage`.
+
+## 2026-09-24
+
+Hoy aprendí a hacer un **login en el front end** para proteger el CRUD de patinadores y, sobre
+todo, a entender por qué no es seguridad real:
+
+- **Login en front end:** formulario que valida usuario y contraseña contra `credenciales.js`,
+  sesión que se cierra tras 5 minutos de inactividad, y la verificación separada en `login.js`
+  con la función `verificarLogin()`.
+- **Inyecciones de datos por consola:** vi las credenciales abriendo `credenciales.js` en el
+  navegador, creé 10 patinadores con un ciclo `for` + `push` desde la consola sin hacer login,
+  y entré al CRUD escribiendo a mano la sesión en `sessionStorage`. También aprendí por qué el
+  navegador pide escribir `allow pasting` (protección contra self-XSS).
+- **Endurecer el front end:** meter el código en una IIFE para que nada sea global (closure),
+  guardar solo el hash SHA-256 de la contraseña, y revisar la sesión en cada operación. Aun así,
+  `localStorage.setItem(...)` desde la consola sigue pudiendo cambiar los datos: la seguridad
+  real solo existe con un backend que valide y guarde los datos.
+
+Además: `id` propio para cada patinador con `siguienteId`, la función `renderizarObjetos()`
+en la galería, filtros por país y estado, y un botón para restaurar los datos originales.
