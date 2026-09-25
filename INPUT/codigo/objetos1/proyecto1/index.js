@@ -116,7 +116,9 @@ renderizarObjetos(patinadores);
 // --- Filtros por país (nacionalidad) y estado ---
 const formularioFiltros = document.getElementById("formulario-filtros");
 const selectPais = document.getElementById("filtro-pais");
-const selectEstado = document.getElementById("filtro-estado");
+// Todos los radios comparten name="estado": el formulario los agrupa en un RadioNodeList
+// cuyo .value es el value del radio marcado
+const radiosEstado = formularioFiltros.elements.estado;
 
 // Llena el select de país con cada nacionalidad una sola vez (Set elimina los repetidos), en orden alfabético
 function renderizarOpcionesPais() {
@@ -134,24 +136,59 @@ function renderizarOpcionesPais() {
 
 renderizarOpcionesPais();
 
-// Un valor vacío ("Todos") significa que ese filtro no se aplica
-formularioFiltros.addEventListener("submit", (evento) => {
-    evento.preventDefault();
+// --- Filtro por edad máxima (slider vertical) ---
+const sliderEdad = document.getElementById("filtro-edad");
+const valorEdad = document.getElementById("valor-edad");
 
+// El rango sale de los datos (no fijo) porque el CRUD de gestion.html puede cambiar las edades
+const edades = patinadores.map((patinador) => patinador.edad);
+const edadMinima = Math.min(...edades);
+const edadMaxima = Math.max(...edades);
+
+sliderEdad.min = edadMinima;
+sliderEdad.max = edadMaxima;
+// defaultValue (el atributo value) es a lo que vuelve el slider con "Limpiar"
+sliderEdad.defaultValue = edadMaxima;
+valorEdad.textContent = edadMaxima;
+
+// Un valor vacío ("Todos") significa que ese filtro no se aplica
+function aplicarFiltros() {
     const pais = selectPais.value;
-    const estado = selectEstado.value;
+    const estado = radiosEstado.value;
+    const edadLimite = Number(sliderEdad.value);
 
     const patinadoresFiltrados = patinadores.filter((patinador) => {
         const cumplePais = pais === "" || patinador.nacionalidad === pais;
         const cumpleEstado = estado === "" || patinador.activo === (estado === "activo");
-        return cumplePais && cumpleEstado;
+        const cumpleEdad = patinador.edad <= edadLimite;
+        return cumplePais && cumpleEstado && cumpleEdad;
     });
 
     renderizarObjetos(patinadoresFiltrados);
+}
+
+// "input" se dispara en cada movimiento del botón del slider ("change" solo al soltarlo)
+sliderEdad.addEventListener("input", () => {
+    valorEdad.textContent = sliderEdad.value;
+    aplicarFiltros();
 });
 
-// "Limpiar" (type="reset") devuelve los selects a "Todos": se vuelve a pintar el array completo
+// Al hacer click en un botón de estado se filtra de una vez, sin esperar a "Filtrar"
+radiosEstado.forEach((radio) => {
+    radio.addEventListener("change", aplicarFiltros);
+});
+
+// "change" en un select se dispara apenas se elige otra opción
+selectPais.addEventListener("change", aplicarFiltros);
+
+// Ya no hay botón "Filtrar", pero se deja esto para que un submit (ej. Enter) nunca recargue la página
+formularioFiltros.addEventListener("submit", (evento) => {
+    evento.preventDefault();
+});
+
+// "Limpiar" (type="reset") devuelve los selects a "Todos" y el slider a su defaultValue: se vuelve a pintar el array completo
 formularioFiltros.addEventListener("reset", () => {
+    valorEdad.textContent = edadMaxima;
     renderizarObjetos(patinadores);
 });
 

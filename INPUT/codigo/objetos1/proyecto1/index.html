@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <!-- Fuente manuscrita para el título (Google Fonts); preconnect adelanta la conexión al servidor de fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +16,18 @@
 
     <a class="nav-link" href="gestion.html">Gestión</a>
 
+    <!-- Slider vertical de edad máxima, fijo a la izquierda y fuera del <form>.
+         El atributo form="formulario-filtros" lo sigue asociando al formulario, así "Limpiar" también lo reinicia.
+         min/max se calculan por JS a partir de "patinadores" -->
+    <label class="filtro-edad">Edad máx.
+        <output id="valor-edad" for="filtro-edad"></output>
+        <input type="range" name="edad" id="filtro-edad" step="1" form="formulario-filtros">
+    </label>
+
     <main class="pagina-galeria">
+        <!-- Reusa .gestion-titulo (fuente y color de gestion.html) + .titulo-galeria para el tamaño -->
+        <h1 class="gestion-titulo titulo-galeria">Figure Skaters</h1>
+
         <!-- Filtros: las opciones de país se generan por JS a partir de las nacionalidades de "patinadores" -->
         <form class="filtros" id="formulario-filtros">
             <label>País
@@ -21,16 +36,16 @@
                 </select>
             </label>
 
-            <label>Estado
-                <select name="estado" id="filtro-estado">
-                    <option value="">Todos</option>
-                    <option value="activo">Activo</option>
-                    <option value="retirado">Retirado</option>
-                </select>
-            </label>
+            <!-- Estado como botones: son radios (solo uno activo a la vez) con estilo de botón.
+                 "checked" en "Todos" es el valor al que vuelve con "Limpiar" -->
+            <fieldset class="filtro-estado">
+                <legend>Estado</legend>
+                <label><input type="radio" name="estado" value="" checked><span>Todos</span></label>
+                <label><input type="radio" name="estado" value="activo"><span>Activo</span></label>
+                <label><input type="radio" name="estado" value="retirado"><span>Retirado</span></label>
+            </fieldset>
 
             <div class="filtros-acciones">
-                <button type="submit" class="sidebar-link">Filtrar</button>
                 <button type="reset" class="sidebar-link">Limpiar</button>
             </div>
         </form>

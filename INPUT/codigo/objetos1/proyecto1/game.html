@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Botón que alterna modo claro/oscuro, controlado desde game.js -->
+    <button id="theme-toggle" class="theme-toggle"></button>
+
+    <a class="nav-link" href="index.html">Ver galería</a>
+
+    <!-- Login del juego: reusa las clases del login de gestion.html -->
+    <section class="login" id="login">
+        <h1 class="gestion-titulo">Entrar al juego</h1>
+
+        <!-- novalidate: la validación la hace game.js, para mostrar un mensaje por cada regla -->
+        <form class="formulario-gestion" id="formulario-login" novalidate>
+            <label>Nombre
+                <input type="text" name="nombre" autocomplete="name">
+            </label>
+
+            <label>Alias
+                <input type="text" name="alias" autocomplete="nickname">
+            </label>
+
+            <!-- type="email" muestra el teclado con @ en el celular; la validación la hace la regex de game.js (form con novalidate) -->
+            <label>Email
+                <input type="email" name="email" autocomplete="email">
+            </label>
+
+            <label>Contraseña
+                <input type="password" name="password" autocomplete="current-password" aria-describedby="reglas-password">
+            </label>
+
+            <!-- Checklist de requisitos: game.js crea un <li> por regla y lo actualiza con cada tecla -->
+            <ul class="reglas-password" id="reglas-password"></ul>
+
+            <p class="login-error" id="login-error" hidden></p>
+
+            <div class="formulario-acciones">
+                <button type="submit" class="sidebar-link">Entrar</button>
+            </div>
+        </form>
+    </section>
+
+    <!-- Juego de memoria: se muestra cuando el login es válido. memory.js crea las cartas en #tablero -->
+    <section class="juego" id="bienvenida" hidden>
+        <h1 class="gestion-titulo" id="mensaje-bienvenida"></h1>
+
+        <!-- HUD: estadísticas de la partida en tiempo real -->
+        <div class="hud">
+            <div class="hud-item">
+                <span class="hud-valor" id="hud-timer">00:00</span>
+                <span class="hud-label">Tiempo</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-valor" id="hud-intentos">0</span>
+                <span class="hud-label">Intentos</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-valor" id="hud-pares">0/0</span>
+                <span class="hud-label">Pares</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-valor" id="hud-record">—</span>
+                <span class="hud-label">Tu récord</span>
+            </div>
+            <button type="button" class="sidebar-link" id="btn-reiniciar">↺ Reiniciar</button>
+        </div>
+
+        <p class="gestion-placeholder" id="juego-mensaje" hidden></p>
+
+        <div class="tablero" id="tablero"></div>
+    </section>
+
+    <!-- Overlay de victoria: memory.js lo muestra al encontrar todos los pares -->
+    <div class="overlay-victoria" id="overlay-victoria" hidden>
+        <div class="modal-victoria">
+            <div class="trofeo">🏆</div>
+            <h2>¡Lo lograste!</h2>
+            <p class="victoria-record" id="victoria-record"></p>
+
+            <div class="stats-victoria">
+                <div class="stat">
+                    <span class="stat-num" id="stat-tiempo">--:--</span>
+                    <span class="stat-label">Tiempo</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num" id="stat-intentos">0</span>
+                    <span class="stat-label">Intentos</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-num" id="stat-pares">0/0</span>
+                    <span class="stat-label">Pares</span>
+                </div>
+            </div>
+
+            <button type="button" class="sidebar-link" id="btn-jugar-de-nuevo">Jugar de nuevo</button>
+        </div>
+    </div>
+
+    <!-- Orden importa: data.js define "patinadores", usuarios.js las funciones de usuarios y partidas,
+         memory.js define iniciarMemoria y game.js la llama tras el login -->
+    <script src="data.js"></script>
+    <script src="usuarios.js"></script>
+    <script src="memory.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

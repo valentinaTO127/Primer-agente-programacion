@@ -38,6 +38,8 @@
             <button class="sidebar-link" data-seccion="actualizar" type="button">Actualizar</button>
             <button class="sidebar-link" data-seccion="eliminar" type="button">Eliminar</button>
             <button class="sidebar-link" data-seccion="restaurar" type="button">Restaurar</button>
+            <button class="sidebar-link" data-seccion="usuarios" type="button">Usuarios</button>
+            <button class="sidebar-link" data-seccion="partidas" type="button">Partidas</button>
         </aside>
 
         <main class="contenido">
@@ -214,10 +216,50 @@
                     </div>
                 </form>
             </section>
+
+            <section class="gestion" data-seccion="usuarios" hidden>
+                <h1 class="gestion-titulo">Usuarios registrados</h1>
+
+                <!-- Las filas se llenan desde localStorage["usuarios"], donde los guarda game.js al registrarse.
+                     La contraseña original nunca se guarda: se muestra su hash SHA-256 -->
+                <table class="tabla-gestion" id="tabla-usuarios">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Nombre</th>
+                            <th>Alias</th>
+                            <th>Email</th>
+                            <th>Contraseña (hash SHA-256)</th>
+                            <th>Mejor puntaje</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
+
+            <section class="gestion" data-seccion="partidas" hidden>
+                <h1 class="gestion-titulo">Partidas del juego de memoria</h1>
+
+                <!-- Las filas se llenan desde localStorage["partidas"]; cada partida apunta a su usuario con usuarioId -->
+                <table class="tabla-gestion" id="tabla-partidas">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Usuario</th>
+                            <th>Fecha</th>
+                            <th>Intentos</th>
+                            <th>Tiempo</th>
+                            <th>Pares</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </section>
         </main>
     </div>
 
     <script src="data.js"></script>
+    <script src="usuarios.js"></script>
     <script src="credenciales.js"></script>
     <script src="login.js"></script>
     <script src="gestion.js"></script>

@@ -12,6 +12,10 @@
     --tag-bg: rgba(242, 230, 247, 0.55);
     --tag-text: #ffffff;
     --glow: rgba(242, 230, 247, 0.35);
+    /* Colores de todos los inputs y botones (los de los botones de estado); iguales en ambos temas.
+       El estado activo/seleccionado usa --tag-bg y --tag-text */
+    --control-bg: #ffffff;
+    --control-text: #2b1533;
 }
 
 body.light {
@@ -35,7 +39,6 @@ body {
     background: radial-gradient(circle at center, var(--bg-center) 0%, var(--bg-edge) 100%);
     font-family: sans-serif;
     transition: background 0.3s ease;
-    perspective: 1000px;
 }
 
 .theme-toggle {
@@ -45,8 +48,8 @@ body {
     padding: 8px 16px;
     border-radius: 999px;
     border: 1px solid var(--card-border);
-    background: var(--card-bg);
-    color: var(--text-primary);
+    background: var(--control-bg);
+    color: var(--control-text);
     font-size: 0.9rem;
     cursor: pointer;
     backdrop-filter: blur(16px);
@@ -60,8 +63,8 @@ body {
     padding: 8px 16px;
     border-radius: 999px;
     border: 1px solid var(--card-border);
-    background: var(--card-bg);
-    color: var(--text-primary);
+    background: var(--control-bg);
+    color: var(--control-text);
     font-size: 0.9rem;
     text-decoration: none;
     backdrop-filter: blur(16px);
@@ -101,16 +104,111 @@ body {
     padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid var(--card-border);
-    background: var(--card-bg);
-    color: var(--text-primary);
+    background: var(--control-bg);
+    color: var(--control-text);
     font-family: inherit;
     font-size: 0.9rem;
 }
 
 /* Las opciones del desplegable no heredan el fondo translúcido: se les da uno sólido para que se lean */
 .filtros option {
-    background: var(--bg-edge);
+    background: var(--control-bg);
+    color: var(--control-text);
+}
+
+/* Filtro de estado: fieldset sin el marco por defecto, con los botones en fila */
+.filtro-estado {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+.filtro-estado legend {
+    padding: 0;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* Anula el display: grid y flex: 1 1 160px que .filtros label le da a los labels de los selects */
+.filtros .filtro-estado label {
+    display: block;
+    flex: 0 0 auto;
+}
+
+/* El radio se oculta a la vista pero sigue existiendo: se puede enfocar con Tab y cambiar con las flechas */
+.filtro-estado input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+}
+
+.filtro-estado span {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--card-border);
+    background: var(--control-bg);
+    color: var(--control-text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* "+" apunta al span que va justo después del radio: así el estado :checked del input pinta al botón visible */
+.filtro-estado input:checked + span {
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-weight: 700;
+}
+
+.filtro-estado input:focus-visible + span {
+    outline: 2px solid var(--text-primary);
+    outline-offset: 2px;
+}
+
+/* Panel fijo a la izquierda, centrado en vertical (como theme-toggle y nav-link, pero del otro lado).
+   Solo funciona si ningún ancestro tiene perspective/transform: por eso perspective está en .galeria y no en body */
+.filtro-edad {
+    position: fixed;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    padding: 16px 12px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* Mientras la pantalla no deje margen libre a los lados de la galería (1200px), se le abre espacio al panel */
+@media (max-width: 1376px) {
+    .pagina-galeria {
+        padding-left: 88px;
+    }
+}
+
+.filtro-edad output {
     color: var(--text-primary);
+    font-weight: 700;
+}
+
+/* writing-mode lo pone en vertical ocupando su espacio real en el layout (rotate no lo haría);
+   direction: rtl hace que el valor mínimo quede abajo y el máximo arriba */
+.filtro-edad input[type="range"] {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    height: 140px;
+    width: 24px;
+    margin: 0;
+    accent-color: var(--tag-bg);
+    cursor: pointer;
 }
 
 .filtros-acciones {
@@ -141,6 +239,7 @@ body {
     gap: 24px;
     width: 100%;
     max-width: 1200px;
+    perspective: 1000px;
 }
 
 .layout {
@@ -189,6 +288,37 @@ body.light .login-error {
     color: #b91c1c;
 }
 
+/* Requisitos de contraseña de game.html: ✗ en rojo mientras falta, ✓ en verde cuando se cumple */
+.reglas-password {
+    display: grid;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.85rem;
+    color: #f87171;
+}
+
+.reglas-password li::before {
+    content: "✗ ";
+}
+
+.reglas-password li.cumple {
+    color: #4ade80;
+}
+
+.reglas-password li.cumple::before {
+    content: "✓ ";
+}
+
+body.light .reglas-password {
+    color: #b91c1c;
+}
+
+body.light .reglas-password li.cumple {
+    color: #15803d;
+}
+
 .sidebar {
     flex: 0 0 200px;
     display: grid;
@@ -199,8 +329,8 @@ body.light .login-error {
     padding: 10px 16px;
     border-radius: 8px;
     border: 1px solid var(--card-border);
-    background: var(--card-bg);
-    color: var(--text-primary);
+    background: var(--control-bg);
+    color: var(--control-text);
     font-size: 0.9rem;
     text-align: left;
     cursor: pointer;
@@ -236,6 +366,13 @@ body.light .login-error {
     text-align: center;
 }
 
+/* Título de la galería más grande que los de gestion.html; clamp lo achica en celular sin bajar de 2.5rem */
+.titulo-galeria {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    /* Manuscrita; si Google Fonts no carga (sin internet) cae a la cursiva del sistema */
+    font-family: 'Dancing Script', cursive;
+}
+
 .gestion-placeholder {
     color: var(--text-secondary);
 }
@@ -259,8 +396,8 @@ body.light .login-error {
     padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid var(--card-border);
-    background: var(--card-bg);
-    color: var(--text-primary);
+    background: var(--control-bg);
+    color: var(--control-text);
     font-family: inherit;
     font-size: 0.9rem;
 }
@@ -312,6 +449,13 @@ body.light .login-error {
     border-bottom: 1px solid var(--card-border);
 }
 
+/* El hash SHA-256 son 64 caracteres sin espacios: sin break-all estiraría la tabla fuera de la pantalla */
+.tabla-gestion .celda-hash {
+    font-family: monospace;
+    font-size: 0.75rem;
+    word-break: break-all;
+}
+
 .tabla-gestion th {
     color: var(--text-secondary);
     font-size: 0.85rem;
@@ -342,7 +486,7 @@ body.light .login-error {
     border-radius: 12px;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 80px 20px var(--glow);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15), 0 0 80px 10px var(--glow);
     transform-style: preserve-3d;
     transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
 }
@@ -414,4 +558,259 @@ body.light .login-error {
     padding: 6px 12px;
     border-radius: 999px;
     font-size: 0.85rem;
+}
+
+/* =============================================================================
+   Juego de memoria (game.html + memory.js)
+   Adaptado de cardGame (c) 2026 Julian Bejarano, MIT — con los colores del tema de proyecto1
+   ============================================================================= */
+
+.juego {
+    width: 100%;
+    max-width: 720px;
+    display: grid;
+    gap: 16px;
+}
+
+/* Sin esto, display: grid le gana al atributo hidden y el juego se vería antes del login */
+.juego[hidden] {
+    display: none;
+}
+
+.juego .gestion-titulo {
+    margin: 0;
+}
+
+/* En celular se deja espacio para los botones fijos de tema y "Ver galería" (arriba a la derecha) */
+@media (max-width: 640px) {
+    .juego {
+        padding-top: 96px;
+    }
+}
+
+/* --- HUD --- */
+.hud {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px 24px;
+    padding: 12px 16px;
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.hud-item {
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    min-width: 52px;
+}
+
+.hud-valor {
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--text-primary);
+}
+
+/* Más de 2 minutos: el tiempo se pone en rojo */
+.hud-valor.danger {
+    color: #f87171;
+}
+
+body.light .hud-valor.danger {
+    color: #b91c1c;
+}
+
+.hud-label {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* --- Tablero y cartas --- */
+.tablero {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+/* La perspectiva va en cada carta (no en body): así no rompe los elementos position: fixed */
+.flip-card {
+    aspect-ratio: 3 / 4;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.flip-card.encontrada {
+    cursor: default;
+    pointer-events: none;
+}
+
+/* El contenedor interno es el que gira */
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flip-card.volteada .flip-card-inner,
+.flip-card.encontrada .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+/* Las dos caras una encima de la otra; backface-visibility oculta la que queda de espaldas.
+   Sin backdrop-filter aquí: dentro de un contexto 3D puede aplanarlo y se verían las dos caras */
+.flip-card-front,
+.flip-card-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Reverso: degradado con los colores de fondo del tema + emoji de patín */
+.flip-card-front {
+    display: grid;
+    place-items: center;
+    font-size: 2.2rem;
+    background: linear-gradient(135deg, var(--bg-center), var(--bg-edge));
+    box-shadow: inset 0 0 0 4px var(--card-bg);
+}
+
+/* Anverso: ya rotado 180° para que quede de frente cuando la carta gira */
+.flip-card-back {
+    display: flex;
+    flex-direction: column;
+    transform: rotateY(180deg);
+    background: var(--control-bg);
+    color: var(--control-text);
+}
+
+.flip-card-back img {
+    width: 100%;
+    height: 68%;
+    object-fit: contain;
+}
+
+.info-carta {
+    flex: 1;
+    display: grid;
+    align-content: center;
+    gap: 2px;
+    padding: 4px 8px;
+}
+
+.nombre-carta {
+    margin: 0;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.titulo-carta {
+    margin: 0;
+    font-size: 0.65rem;
+    color: #6b4f75;
+}
+
+/* Par encontrado: borde verde */
+.flip-card.encontrada .flip-card-back {
+    border-color: #4ade80;
+    box-shadow: 0 0 0 2px #4ade80, 0 0 18px rgba(74, 222, 128, 0.25);
+}
+
+.flip-card.encontrada .nombre-carta {
+    color: #15803d;
+}
+
+@media (max-width: 520px) {
+    .tablero {
+        gap: 8px;
+    }
+}
+
+/* --- Overlay de victoria --- */
+.overlay-victoria {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* Igual que .juego: display: flex le ganaría al atributo hidden */
+.overlay-victoria[hidden] {
+    display: none;
+}
+
+.modal-victoria {
+    width: 90%;
+    max-width: 400px;
+    padding: 36px 28px;
+    border-radius: 24px;
+    border: 1px solid var(--card-border);
+    background: radial-gradient(circle at center, var(--bg-center) 0%, var(--bg-edge) 100%);
+    color: var(--text-primary);
+    text-align: center;
+    animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes pop {
+    from { transform: scale(0.8) translateY(30px); opacity: 0; }
+    to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.modal-victoria .trofeo {
+    font-size: 3.5rem;
+}
+
+.modal-victoria h2 {
+    margin: 8px 0 4px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-size: 1.9rem;
+}
+
+.victoria-record {
+    margin: 0 0 24px;
+    color: var(--text-secondary);
+}
+
+.stats-victoria {
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    margin-bottom: 24px;
+}
+
+.stat {
+    display: grid;
+    gap: 2px;
+}
+
+.stat-num {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.stat-label {
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }

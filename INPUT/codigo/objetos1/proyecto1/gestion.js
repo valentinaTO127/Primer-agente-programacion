@@ -102,9 +102,91 @@
             });
         }
 
+        // --- Usuarios y partidas del juego de memoria (solo lectura) ---
+        // leerUsuarios, leerPartidas, mejorPartidaDe, formatearTiempo y formatearFecha vienen de usuarios.js.
+        // Se lee localStorage cada vez que se abre la pestaña (no una sola vez al cargar): si alguien se
+        // registra o juega en game.html en otra pestaña, aparece sin recargar gestion.html
+        const cuerpoTablaUsuarios = document.querySelector("#tabla-usuarios tbody");
+        const cuerpoTablaPartidas = document.querySelector("#tabla-partidas tbody");
+
+        function crearCelda(texto, clase) {
+            const celda = document.createElement("td");
+            celda.textContent = texto;
+            if (clase) {
+                celda.className = clase;
+            }
+            return celda;
+        }
+
+        // Una sola celda que ocupa todas las columnas (colSpan), para cuando la tabla está vacía
+        function mostrarTablaVacia(cuerpoTabla, columnas, mensaje) {
+            const fila = document.createElement("tr");
+            const celda = crearCelda(mensaje);
+            celda.colSpan = columnas;
+            fila.appendChild(celda);
+            cuerpoTabla.appendChild(fila);
+        }
+
+        function renderizarTablaUsuarios() {
+            const usuarios = leerUsuarios();
+            // Se leen las partidas una sola vez y se pasan a mejorPartidaDe (si no, las leería por cada usuario)
+            const partidas = leerPartidas();
+
+            cuerpoTablaUsuarios.innerHTML = "";
+
+            if (usuarios.length === 0) {
+                mostrarTablaVacia(cuerpoTablaUsuarios, 6, "Todavía no hay usuarios registrados.");
+                return;
+            }
+
+            usuarios.forEach((usuario) => {
+                const mejor = mejorPartidaDe(usuario.id, partidas);
+                const fila = document.createElement("tr");
+                fila.append(
+                    crearCelda(usuario.id),
+                    crearCelda(usuario.nombre),
+                    crearCelda(usuario.alias),
+                    crearCelda(usuario.email),
+                    crearCelda(usuario.passwordHash, "celda-hash"),
+                    crearCelda(mejor ? `${mejor.intentos} intentos · ${formatearTiempo(mejor.segundos)}` : "—")
+                );
+                cuerpoTablaUsuarios.appendChild(fila);
+            });
+        }
+
+        function renderizarTablaPartidas() {
+            const partidas = leerPartidas();
+            const usuarios = leerUsuarios();
+
+            cuerpoTablaPartidas.innerHTML = "";
+
+            if (partidas.length === 0) {
+                mostrarTablaVacia(cuerpoTablaPartidas, 6, "Todavía no hay partidas terminadas.");
+                return;
+            }
+
+            // Las más recientes primero: se invierte una COPIA (reverse() sobre el original lo modificaría)
+            partidas.slice().reverse().forEach((partida) => {
+                // usuarioId conecta la partida con su usuario: con find se obtiene su alias
+                const usuario = usuarios.find((u) => u.id === partida.usuarioId);
+                const fila = document.createElement("tr");
+                fila.append(
+                    crearCelda(partida.id),
+                    crearCelda(usuario ? `${usuario.alias} (id ${usuario.id})` : `Usuario ${partida.usuarioId} (no existe)`),
+                    crearCelda(formatearFecha(partida.fecha)),
+                    crearCelda(partida.intentos),
+                    crearCelda(formatearTiempo(partida.segundos)),
+                    crearCelda(partida.pares ?? "—")
+                );
+                cuerpoTablaPartidas.appendChild(fila);
+            });
+        }
+
         renderizarTabla();
         renderizarSelectEliminar();
         renderizarSelectActualizar();
+        renderizarTablaUsuarios();
+        renderizarTablaPartidas();
 
         // --- Sidebar: cambia de sección (Mostrar todos / Crear / Actualizar / Eliminar) ---
         // Solo los botones dentro de .sidebar: los botones de los formularios también usan la clase
@@ -120,6 +202,13 @@
             secciones.forEach((seccion) => {
                 seccion.hidden = seccion.dataset.seccion !== nombreSeccion;
             });
+
+            if (nombreSeccion === "usuarios") {
+                renderizarTablaUsuarios();
+            }
+            if (nombreSeccion === "partidas") {
+                renderizarTablaPartidas();
+            }
         }
 
         botonesSidebar.forEach((boton) => {
