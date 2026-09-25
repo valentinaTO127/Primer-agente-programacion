@@ -109,3 +109,42 @@ todo, a entender por qué no es seguridad real:
 
 Además: `id` propio para cada patinador con `siguienteId`, la función `renderizarObjetos()`
 en la galería, filtros por país y estado, y un botón para restaurar los datos originales.
+
+## 2026-09-25
+
+Hoy trabajé en `proyecto1`: filtros en vivo en la galería, un login con expresiones regulares y
+un juego de memoria conectado a los usuarios.
+
+- **Filtros en vivo en la galería:**
+  - Slider vertical de edad máxima. Aprendí que `input` se dispara en cada movimiento y `change`
+    solo al soltar, que `writing-mode` pone el slider en vertical sin romper el layout, y que
+    `defaultValue` define a qué valor vuelve el slider con un `reset`.
+  - El filtro de estado pasó de `select` a radios con estilo de botón (`RadioNodeList`,
+    `input:checked + span`).
+  - El select de país filtra con `change`, así que quité el botón "Filtrar".
+  - El slider quedó fijo a la izquierda y fuera del `<form>`, conectado con el atributo `form`.
+    Me volvió a pasar lo de `perspective` en `body` rompiendo `position: fixed` (el mismo caso
+    del modal de YouTube).
+- **Estilos:**
+  - Unifiqué los colores de inputs y botones con `--control-bg` y `--control-text`. Aprendí
+    que un `var()` dentro de `:root` se resuelve ahí y no sigue el cambio de tema.
+  - Título "Figure Skaters" con `clamp()` y una fuente manuscrita de Google Fonts.
+- **filterMap:** creé `filterMap.js` para practicar `filter` y `map`. Me queda pendiente
+  revisar el `>` de `alAlcance`.
+- **Login de `game.html`:**
+  - Expresión regular con lookaheads `(?=...)` para la contraseña (4 letras, 4 números,
+    1 mayúscula, 1 carácter especial) y otra para el email (`\.` literal, `^` y `$`).
+  - Checklist de requisitos en tiempo real con `classList.toggle(clase, condición)`.
+  - Registro de usuarios en localStorage con `JSON.stringify` / `JSON.parse`. La contraseña
+    se guarda como hash SHA-256 (`async` / `await`), y si el email no existe, `confirm()`
+    pregunta si quiero registrarme.
+- **Gestión:** pestañas "Usuarios" y "Partidas". Entendí que un hash no se puede revertir,
+  así que la contraseña original no se puede mostrar.
+- **Juego de memoria:**
+  - Analicé el `cardgame` de CodePen (licencia MIT, Julian Bejarano) y lo adapté con los
+    patinadores: 8 al azar por partida, cartas con `createElement` en vez de `innerHTML` (para
+    evitar inyección de HTML), el código dentro de una IIFE y un callback (`guardarPartida`)
+    para que el juego no dependa de cómo se guardan los datos.
+  - Datos relacionados por id: cada usuario y cada partida tienen su `id` autogenerado, y
+    `usuarioId` conecta la partida con su dueño (como una llave foránea). El mejor puntaje no
+    se guarda: se calcula con `filter` + `reduce`. Las fechas se guardan en formato ISO.
