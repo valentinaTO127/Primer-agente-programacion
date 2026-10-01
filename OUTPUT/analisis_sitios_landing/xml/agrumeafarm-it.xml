@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Agrumea Farm" url="https://www.agrumeafarm.it/en">
+  <header>
+    <logo>Ilustración de campesino con cesta de cítricos sobre el texto "AGRUMEA Farm" en serif, centrado; enlace al home</logo>
+    <nav tipo="overlay-fullscreen">
+      <enlace>Home</enlace>
+      <enlace>Pantry</enlace>
+      <enlace>Production</enlace>
+      <enlace>Experience</enlace>
+      <enlace>About</enlace>
+      <enlace>Contacts</enlace>
+      <enlace>Shop</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Slider a pantalla completa con 10 frascos de producto que giran al hacer scroll, texto circular sobre forma color vino, indicador "SCROLL TO DISCOVER" y botón "DISCOVER THE PRODUCT"; selector de idioma IT / EN arriba a la izquierda</section>
+  </main>
+  <footer>
+    <redes>Instagram (instagram.com/agrumea.farm), solo en /contatti</redes>
+    <contacto>info@agrumeafarm.it; Via Generale Ameglio 13, 95123 Catania; Seconda strada c.da piana s. Croce, 96014 Floridia (SR). En el home el footer solo tiene "Privacy &amp; Cookies"</contacto>
+  </footer>
+</sitio>

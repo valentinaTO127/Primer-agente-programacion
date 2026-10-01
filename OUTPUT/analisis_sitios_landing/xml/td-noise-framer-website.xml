@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="TD_Noise" url="https://td-noise.framer.website/">
+  <header>
+    <logo>Logotipo tipográfico "NOISE" en negro, arriba a la izquierda; enlace al home</logo>
+    <nav tipo="fija">
+      <enlace>CASE STUDIES</enlace>
+      <enlace>STUDIO</enlace>
+      <enlace>INSIGHTS</enlace>
+      <enlace>BOOK A CALL</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Titular "We make brands impossible to ignore", subtítulo, texto de posicionamiento y botón BOOK A CALL</section>
+    <section tipo="casos-de-estudio">Tarjetas de 3 casos (Donna, Timo, Applafe) con año, descripción y métricas; enlace "See all case studies"</section>
+    <section tipo="logos">Franja "BRANDS THAT MADE NOISE" con logos de clientes</section>
+    <section tipo="servicios">"Strategy, campaigns, content, and growth": 4 servicios con descripción</section>
+    <section tipo="reel">Video fijo durante el scroll con etiquetas de disciplinas (creative campaigns, strategy, content)</section>
+    <section tipo="proceso">"This is how the Noise gets made": 4 pasos (Discovery, Strategy, Production, Growth) con números gigantes fijos</section>
+    <section tipo="precios">"Invest in being unforgettable": planes de precio</section>
+    <section tipo="comparacion">Tabla comparativa entre Noise y otras opciones</section>
+    <section tipo="faq">"Got questions?": preguntas desplegables y enlace ASK A QUESTION</section>
+    <section tipo="testimonios">Citas de clientes</section>
+    <section tipo="blog">"Articles &amp; insights": 3 artículos y enlace ALL INSIGHTS</section>
+  </main>
+  <footer>
+    <redes>Instagram, Facebook, TikTok, WhatsApp (iconos que apuntan a la página principal de cada red, no a perfiles)</redes>
+    <contacto>CTA "Let's build something unforgettable"; newsletter; hello@noise.studio; 045 234 9216; 875 Biscayne Boulevard, Suite 410, Miami, FL 33132</contacto>
+  </footer>
+</sitio>

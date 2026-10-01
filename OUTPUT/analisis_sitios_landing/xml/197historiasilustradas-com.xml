@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="197 Historias Ilustradas" url="https://www.197historiasilustradas.com/">
+  <header>
+    <logo>Texto "197 HISTORIAS ILUSTRADAS" en Simplon Mono mayúsculas (en móvil se reduce a "197"), enlace al home</logo>
+    <nav tipo="fija">
+      <enlace>[ GRILLA ]</enlace>
+      <enlace>[ LISTADO ]</enlace>
+      <enlace>[ GALERÍA ]</enlace>
+      <enlace>SOBRE EL PROYECTO</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Intro a pantalla completa con la frase "Recordar es volver a dar vida..." escrita en efecto máquina de escribir y botón [ OMITIR ]</section>
+    <section tipo="grilla">Grilla infinita y arrastrable con los 197 retratos ilustrados que se despliega desde el centro; controles FILTROS [+] y BUSCAR OBRA; selector de idioma ES / EN fijo abajo a la derecha</section>
+  </main>
+  <footer>
+    <redes>Ninguna red del proyecto; solo enlaces a Instagram de cada artista en /sobre-nosotros. El home no tiene footer</redes>
+    <contacto>Sin correo ni formulario visible; footer de páginas internas: "Todos los derechos reservados © · Montevideo, Uruguay · Hecho por ++ HELLOHELLO"</contacto>
+  </footer>
+</sitio>

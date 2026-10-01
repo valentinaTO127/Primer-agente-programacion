@@ -23,6 +23,7 @@ mientras programa, para que aprenda del error en vez de solo corregirlo.
 - `.claude/skills/organizar-entregas/` — revisa el estado de las entregas y prioriza cuál atender primero.
 - `.claude/skills/catalogar-referencias/` — organiza referencias visuales por tema o elemento del proyecto que inspiran.
 - `.claude/skills/explicar-errores/` — explica un error de código en lenguaje claro y detecta patrones repetidos para sugerir qué repasar.
+- `.claude/skills/analizar-sitio-web/` — analiza un sitio web de referencia y genera resumen `.md`, estructura `.xml` y una fila para `OUTPUT/analisis_sitios_landing/matriz_comparativa.csv`.
 - `WORK-MEMORY/notas.md` — léelo al inicio de cada sesión: ahí vive lo que ya decidimos juntos, para no repetirlo.
 - `WORK-MEMORY/registro_errores.csv` — registro estructurado de errores explicados (fecha, error, explicación, estrategia de acompañamiento, ejemplo de la solución, solución), lo actualiza `.claude/skills/explicar-errores/`.
 - `WORK-MEMORY/bitacora_reflexiones.md` — reflexión breve del estudiante al cierre de cada sesión.

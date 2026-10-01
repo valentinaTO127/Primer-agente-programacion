@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Justine Soulié" url="https://justinesoulie.fr/">
+  <header>
+    <logo>Texto "JUSTINE SOULIÉ" en Inter mayúsculas, enlace al home</logo>
+    <nav tipo="fija">
+      <enlace>JUSTINE SOULIÉ</enlace>
+      <enlace>ABOUT</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Carrusel WebGL de 8 pósters ilustrados con efecto de papel (Hermes, extra, typography, miscellaneous, M - Lettre Infinie, Ponpon Mania, Pop Art Car, House of Frog); debajo, nombre y categoría del proyecto activo</section>
+  </main>
+  <footer>
+    <redes>Twitter (twitter.com/JustineSoulie), Instagram (instagram.com/jus.paris) — visibles solo en /about</redes>
+    <contacto>Botón "Mail" y "CONTACT ME" en /about; el correo no aparece como texto. El home no tiene footer</contacto>
+  </footer>
+</sitio>

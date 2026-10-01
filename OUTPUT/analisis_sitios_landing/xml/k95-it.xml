@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Studio K95" url="https://k95.it/en">
+  <header>
+    <logo>Logotipo geométrico "K95" en blanco, arriba a la izquierda; enlace al home</logo>
+    <nav tipo="fija">
+      <enlace>ALL WORKS</enlace>
+      <enlace>STUDIO</enlace>
+      <enlace>CONTACT</enlace>
+      <enlace>IT / EN</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Escena WebGL a pantalla completa con las portadas de 20 proyectos flotando en 3D sobre cuadrícula azul; switch de layout RINGS / SPIRAL, indicador SCROLL y contador "12 / 20 Works" con enlace a Works</section>
+  </main>
+  <footer>
+    <redes>Instagram (instagram.com/k95.studio), LinkedIn (linkedin.com/company/studio-k95), Behance (behance.net/k95), Typographic Posters; además Shop K95 (shop.k95.it). Solo en el footer de páginas internas</redes>
+    <contacto>info@k95.it; Via Vittorio Emanuele II, 140, Catania, Italia. En el home solo aparece el contador de proyectos y el enlace de privacidad</contacto>
+  </footer>
+</sitio>

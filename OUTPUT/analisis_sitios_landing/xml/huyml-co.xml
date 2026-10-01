@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Huy Phan (Huyml)" url="https://huyml.co/">
+  <header>
+    <logo>Logotipo tipográfico "HUYML" con símbolo de marca, en negro, centrado arriba</logo>
+    <nav tipo="fija">
+      <enlace>WORK</enlace>
+      <enlace>ABOUT</enlace>
+      <enlace>PLAYGROUND</enlace>
+      <enlace>CONTACT</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Carrusel WebGL a pantalla completa con 19 proyectos guiado por scroll: imagen deformada en 3D, contador "01 / 19", categoría, título, descripción, 3 colores del proyecto, fecha, rol y premios; botón de audio y showreel 2025</section>
+  </main>
+  <footer>
+    <redes>YouTube, Behance, Dribbble, LinkedIn, Instagram, Facebook, Unsplash, Pexels (en el panel "COME SAY HI")</redes>
+    <contacto>hello@huyml.co, visible en la barra superior ("For inquiries") y en el panel "COME SAY HI"; "Working globally · HCMC" con hora local</contacto>
+  </footer>
+</sitio>
