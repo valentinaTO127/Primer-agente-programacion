@@ -148,3 +148,26 @@ un juego de memoria conectado a los usuarios.
   - Datos relacionados por id: cada usuario y cada partida tienen su `id` autogenerado, y
     `usuarioId` conecta la partida con su dueño (como una llave foránea). El mejor puntaje no
     se guarda: se calcula con `filter` + `reduce`. Las fechas se guardan en formato ISO.
+
+## 2026-10-01
+
+Hoy construí mi portafolio a partir del brief `INPUT/portfolio/ValentinaTorres.md`, con
+**Vite + npm**, **Three.js**, **GSAP** y **Lenis**, y lo publiqué en GitHub.
+
+- **Estructura en módulos:** cada parte del sitio vive en su archivo (`preloader.js`,
+  `scroll.js`, `nav.js`, `hero.js`, `carousel.js`, `projectInfo.js`) y `main.js` los arranca.
+- **Preloader con porcentaje:** cada imagen es una promesa; el % es cuántas ya se resolvieron
+  sobre el total.
+- **Carrusel WebGL de 5 proyectos:** el scroll es la única fuente de verdad. El arrastre y el
+  clic no mueven el carrusel directamente: mueven el scroll, y el carrusel lo sigue con `lerp`.
+- **Bug del día:** el clic y el arrastre no funcionaban porque un `div` con el atributo `hidden`
+  tenía `display: flex` en el CSS, y cualquier regla `display` le gana a `hidden`. El div
+  invisible tapaba el canvas. Lo encontré con `document.elementFromPoint(x, y)` y lo arreglé con
+  `[hidden] { display: none !important; }`.
+- **Datos en JSON:** los proyectos quedaron en `projects.json` (array `proyectos`) y todo el
+  texto de la página en `info.json`. El HTML usa `data-text="about.heading"` y una función
+  con `reduce` recorre esa ruta con puntos dentro del JSON.
+- **Publicar en GitHub Pages:** subí solo la carpeta del portafolio al repo `portfoliio`.
+  Aprendí que Pages sirve el sitio desde una subcarpeta (`/portfoliio/`), por eso hace falta
+  `base` en `vite.config.js` y rutas de imágenes sin `/` inicial. Un workflow de GitHub Actions
+  compila y publica en cada push; falta activar Pages en *Settings → Pages → GitHub Actions*.

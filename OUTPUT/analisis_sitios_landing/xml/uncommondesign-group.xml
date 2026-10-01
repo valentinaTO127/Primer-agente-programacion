@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Uncommon - Design Studio" url="https://uncommondesign.group">
+  <header>
+    <logo>UNCOMMON</logo>
+    <nav tipo="hamburguesa">
+      <enlace>Team</enlace>
+      <enlace>Work</enlace>
+      <enlace>Studio</enlace>
+      <enlace>Services</enlace>
+      <enlace>Awards</enlace>
+      <enlace>Contact</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">"Love to the hidden" - "We design for impact. See for yourself.", CTA "Play Reel"</section>
+    <section tipo="proyectos">Kismet, Mat Voyce, Roblox (UX/UI/Design Direction), CTA "All Work"</section>
+    <section tipo="propuesta-de-valor">"Design that delivers uncommonly good results"</section>
+    <section tipo="servicios">Design Sprints, UX and UI Design, Design Direction, Discovery Workshops</section>
+    <section tipo="valores">Hyper-collaboration, Specialist minds, Diverse brilliance, Design with brains</section>
+    <section tipo="contacto">CTA "Book a 15 min call", reconocimiento territorial bilingüe (inglés/español)</section>
+  </main>
+  <footer>
+    <redes>LinkedIn, Instagram, YouTube, Awwwards, Behance</redes>
+    <contacto>hola@uncommonstudio.com.au</contacto>
+  </footer>
+</sitio>

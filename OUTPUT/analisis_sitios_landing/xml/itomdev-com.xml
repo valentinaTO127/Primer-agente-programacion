@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="ITom - Creative 3D Portfolio (Tomasz Szmajda)" url="https://itomdev.com">
+  <header>
+    <logo>PORTFOLIO (letrero de tienda)</logo>
+    <nav tipo="fija">
+      <enlace>Explorer (clic en las puertas)</enlace>
+      <enlace>Wanderer (scroll por el corredor)</enlace>
+      <enlace>Sky Walker (scroll narrativo)</enlace>
+      <enlace>Director (arrastrar para rotar la sala)</enlace>
+      <enlace>Art Critic (clic en un proyecto)</enlace>
+      <enlace>Sociable (contacto)</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">"ITom - Award-Winning Creative Developer", CTA "Click a door to enter"</section>
+    <section tipo="about">Bio: Tomasz Szmajda, desarrollador creativo premiado de Polonia</section>
+    <section tipo="proyectos">Adam &amp; Ewa (fotografía premium), 67 Game (juego de navegador con webcam), Young Multi (sitio de artista con distorsión WebGL), ITom Sketchbook (componentes UI animados)</section>
+    <section tipo="prensa">Codrops Feature, canal de YouTube, WebGPU.com Showcase, Instagram/TikTok, prensa polaca (Strzelce360.pl)</section>
+    <section tipo="premios">Awwwards Honorable Mention, FWA Site of the Day, CSSDA, Orpetron Site of the Day, CSS Winner Site of the Day</section>
+    <section tipo="faq">Preguntas frecuentes sobre su diferenciador, tecnologías usadas y disponibilidad freelance</section>
+  </main>
+  <footer>
+    <redes>GitHub, LinkedIn, Instagram, TikTok, YouTube</redes>
+    <contacto>Contacto mediante la sección interactiva "Sociable"</contacto>
+  </footer>
+</sitio>

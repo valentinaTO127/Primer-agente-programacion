@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Justine Soulié - Art Director &amp; Illustrator" url="https://justinesoulie.fr">
+  <header>
+    <logo>Justine Soulié</logo>
+    <nav tipo="fija">
+      <enlace>About</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">
+      <article>Hermes - promotional video</article>
+      <article>extra</article>
+      <article>typography</article>
+      <article>miscellaneous</article>
+      <article>M - Lettre Infinie</article>
+    </section>
+    <section tipo="about">
+      <h1>Justine Soulié - Art Director</h1>
+      <p>I am Justine Soulié a french freelance art director based in Paris with a keen interest in art direction and illustration.</p>
+      <aside>Based in Paris since 2016</aside>
+      <aside>Freelancer since 2023</aside>
+      <a>Contact me</a>
+    </section>
+  </main>
+  <footer>
+    <redes>
+      <enlace>Twitter</enlace>
+      <enlace>Instagram</enlace>
+    </redes>
+    <contacto>
+      <enlace>Mail</enlace>
+    </contacto>
+  </footer>
+</sitio>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Minh Pham - Multidisciplinary Designer" url="https://minhpham.design">
+  <header>
+    <logo>Minh Pham (M)</logo>
+    <nav tipo="fija">
+      <enlace>About</enlace>
+      <enlace>Work</enlace>
+      <enlace>Contact</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">"Minh Pham - Making good shit since 2009", video a pantalla completa</section>
+    <section tipo="about">Bio: diseñador de producto selectivamente hábil, enfocado en experiencias digitales de alta calidad</section>
+    <section tipo="servicios">What I Do: 3D, Visual, Motion, Product, Tutorial</section>
+    <section tipo="experiencia">Experience/History: Fantasy Interactive (actual), Interactive Labs (2016), DR Com Group (2012, 2009)</section>
+    <section tipo="clientes">Ford, UFC, Lincoln, Royal Caribbean, SleepiQ, NFL</section>
+    <section tipo="testimonios">3 citas de clientes/colegas destacando su trabajo</section>
+    <section tipo="motto">"Good design is honest - Dieter Rams"</section>
+  </main>
+  <footer>
+    <redes>Dribbble, Instagram, YouTube, LinkedIn, Facebook, Behance</redes>
+    <contacto>minhpham.design@gmail.com, +84 366 138 837</contacto>
+  </footer>
+</sitio>

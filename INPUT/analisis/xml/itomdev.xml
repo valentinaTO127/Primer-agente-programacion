@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="ITom - Creative 3D Portfolio (Tomasz Szmajda)" url="https://itomdev.com">
+  <header>
+    <logo>PORTFOLIO (letrero de tienda)</logo>
+    <nav tipo="interactiva-gamificada (puertas clicables, no es fija/hamburguesa/mega-menu/overlay estandar)">
+      <enlace>Explorer - clic en las puertas</enlace>
+      <enlace>Wanderer - scroll por el corredor</enlace>
+      <enlace>Sky Walker - scroll narrativo</enlace>
+      <enlace>Director - arrastrar para rotar la sala</enlace>
+      <enlace>Art Critic - clic en un proyecto</enlace>
+      <enlace>Sociable - contacto</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">
+      <h1>ITom - Award-Winning Creative Developer</h1>
+      <p>Click a door to enter</p>
+    </section>
+    <section tipo="about">
+      <h2>About Me</h2>
+      <p>Tomasz Szmajda, known online as ITom, is an award-winning creative developer from Poland.</p>
+    </section>
+    <section tipo="proyectos">
+      <h2>Projects</h2>
+      <article>Adam &amp; Ewa - Premium Photography Website</article>
+      <article>67 Game - Browser Webcam Game</article>
+      <article>Young Multi - Artist Website with WebGL Distortion</article>
+      <article>ITom Sketchbook - Animated UI Components</article>
+    </section>
+    <section tipo="prensa-y-contenido">
+      <h2>The Studio (Content)</h2>
+      <article>Codrops Feature</article>
+      <article>YouTube Channel</article>
+      <article>WebGPU.com Showcase</article>
+      <article>Instagram / TikTok</article>
+      <article>Prensa polaca (Strzelce360.pl)</article>
+    </section>
+    <section tipo="premios">
+      <h2>Awards &amp; Certificates</h2>
+      <article>Awwwards Honorable Mention</article>
+      <article>FWA Site of the Day</article>
+      <article>CSSDA (UI, UX, Innovation, Public)</article>
+      <article>Orpetron Site of the Day</article>
+      <article>CSS Winner Site of the Day</article>
+    </section>
+    <section tipo="faq">
+      <h2>Frequently Asked Questions</h2>
+      <article>What makes ITom different from other developers?</article>
+      <article>What technologies does ITom use?</article>
+      <article>Does ITom take freelance projects?</article>
+    </section>
+  </main>
+  <footer>
+    <redes>
+      <enlace>GitHub</enlace>
+      <enlace>LinkedIn</enlace>
+      <enlace>Instagram</enlace>
+      <enlace>TikTok</enlace>
+      <enlace>YouTube</enlace>
+    </redes>
+    <contacto>
+      <p>Contacto mediante seccion "Sociable" (metodo de contacto interactivo)</p>
+    </contacto>
+  </footer>
+</sitio>

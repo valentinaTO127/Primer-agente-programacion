@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Andrew Aghoghovwia - Senior Frontend &amp; AI Engineer" url="https://andrew-aghoghovwia.vercel.app">
+  <header>
+    <logo>Andrew°</logo>
+    <nav tipo="overlay-fullscreen">
+      <enlace>Work</enlace>
+      <enlace>Stack</enlace>
+      <enlace>About</enlace>
+      <enlace>Contact</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Manifiesto corto ("I build interfaces with gravity") con escultura 3D orgánica en WebGL (OGL + GSAP) y CTA "View Work"</section>
+    <section tipo="manifiesto">01 Manifesto: "Most interfaces fade the moment you scroll past them. I build the opposite."</section>
+    <section tipo="proyectos">02 Selected Work: DevLens (analizador de repos con Claude API), RAG CV (asistente de voz), Study AI (compañero de estudio multimodal), Live Board (pizarra colaborativa en tiempo real)</section>
+    <section tipo="stack">03 Stack: Frontend Engineering, AI Engineering, Platform &amp; Delivery, Testing &amp; Quality</section>
+    <section tipo="about">04 About: timeline profesional (HSBC, e-commerce, Kobu Innovative Solutions) y métricas de experiencia</section>
+    <section tipo="contacto">05 Contact: CTA "Let's build something that ships" y correo de contacto</section>
+  </main>
+  <footer>
+    <redes>LinkedIn</redes>
+    <contacto>androyt1@gmail.com, +44 7821 460751, Carshalton UK</contacto>
+  </footer>
+</sitio>

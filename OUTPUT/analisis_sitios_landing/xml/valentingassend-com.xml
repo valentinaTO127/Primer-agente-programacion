@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Valentin Gassend - Développeur Créatif Freelance" url="https://valentingassend.com">
+  <header>
+    <logo>Valentin Gassend</logo>
+    <nav tipo="overlay-fullscreen">
+      <enlace>Accueil</enlace>
+      <enlace>À propos</enlace>
+      <enlace>Projets</enlace>
+      <enlace>Atelier</enlace>
+      <enlace>FR</enlace>
+      <enlace>EN</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">"Web Développeur Créatif" - Valentin Gassend, basado en Chambéry</section>
+    <section tipo="about">"Création d'expériences interactives", CTA "À propos"</section>
+    <section tipo="proyectos">Etudiants Gobelins, Célia, Hugo Pinna, ITS, CTA "Voir plus de projets"</section>
+    <section tipo="cta">CTA "Découvrir l'atelier"</section>
+    <section tipo="contacto">"Travaillons ensemble", contact@valentingassend.com</section>
+  </main>
+  <footer>
+    <redes>GitHub, Instagram, LinkedIn</redes>
+    <contacto>contact@valentingassend.com, 07 68 93 59 96, Chambéry France</contacto>
+  </footer>
+</sitio>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Valentin Gassend - Développeur Créatif Freelance" url="https://valentingassend.com">
+  <header>
+    <logo>Valentin Gassend</logo>
+    <nav tipo="overlay-fullscreen">
+      <enlace>Accueil</enlace>
+      <enlace>À propos</enlace>
+      <enlace>Projets</enlace>
+      <enlace>Atelier</enlace>
+      <enlace>FR</enlace>
+      <enlace>EN</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">
+      <h1>Web Développeur Créatif</h1>
+      <p>Valentin Gassend, 2026 - Basé à Chambéry</p>
+    </section>
+    <section tipo="about">
+      <h2>Création d'expériences interactives</h2>
+      <a>À propos</a>
+    </section>
+    <section tipo="proyectos">
+      <article>Etudiants Gobelins</article>
+      <article>Célia</article>
+      <article>Hugo Pinna</article>
+      <article>ITS</article>
+      <a>Voir plus de projets</a>
+    </section>
+    <section tipo="cta">
+      <a>Découvrir l'atelier</a>
+    </section>
+    <section tipo="contacto">
+      <h2>Travaillons ensemble</h2>
+      <a>contact@valentingassend.com</a>
+    </section>
+  </main>
+  <footer>
+    <redes>
+      <enlace>GitHub</enlace>
+      <enlace>Instagram</enlace>
+      <enlace>LinkedIn</enlace>
+    </redes>
+    <contacto>
+      <enlace>contact@valentingassend.com</enlace>
+      <enlace>07 68 93 59 96</enlace>
+      <p>Chambéry, France - Disponible</p>
+    </contacto>
+  </footer>
+</sitio>
