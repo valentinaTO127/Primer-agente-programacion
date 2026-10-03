@@ -1,0 +1,67 @@
+/* ---------- Project page (project.html) ---------- */
+/* Loaded after main.css, so it reuses its tokens, header and .project-info styles */
+
+.header__back {
+  margin-left: auto;
+}
+
+/* ---------- Hero ---------- */
+.project-hero {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* Start state = the active image of the Work carousel (carousel.js -> resize()):
+   height 42% of the viewport, ratio 3:4 (capped at 75% of the width), centered 10% above the middle */
+.project-hero__media {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: min(31.5svh, 75vw);
+  height: min(42svh, 100vw);
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+}
+
+/* End state = 16:9 at 80% of the width (capped at 80% of the height on very wide screens) */
+.project-hero__media.is-expanded {
+  top: 50%;
+  width: min(80vw, 142.22svh);
+  height: min(45vw, 80svh);
+}
+
+/* Both images fill the box and get cropped like the carousel texture, so the crop opens up as it grows */
+.project-hero__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.project-hero__img[data-hero-cover] {
+  opacity: 0;
+}
+
+/* ---------- Project name: fixed, always visible ---------- */
+.project-page .project-info {
+  position: fixed;
+  z-index: 10;
+}
+
+/* ---------- Gallery ---------- */
+.project-gallery {
+  display: grid;
+  gap: var(--gutter);
+  /* Same width as the 16:9 hero image; extra bottom space so the fixed title never covers the last image */
+  padding: 0 10vw 30svh;
+}
+.project-gallery:empty {
+  display: none;
+}
+.project-gallery img,
+.project-gallery video {
+  display: block;
+  width: 100%;
+  height: auto;
+}

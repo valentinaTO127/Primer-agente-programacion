@@ -3,7 +3,8 @@ import info from '../data/info.json';
 // Reads a nested value with a dot path: get(info, 'work.labels.role') -> 'Role'
 const get = (object, path) => path.split('.').reduce((value, key) => value?.[key], object);
 
-// Fills every piece of page text from info.json (projects come from projects.json)
+// Fills every piece of page text from info.json (projects come from projects.json).
+// Shared by index.html and project.html, so blocks that only exist on one page are optional.
 export function fillContent() {
   document.title = info.meta.title;
   document.querySelector('meta[name="description"]').content = info.meta.description;
@@ -15,7 +16,7 @@ export function fillContent() {
 
   // Hero title: one line per array item
   const title = document.querySelector('.hero__title');
-  title.replaceChildren(
+  title?.replaceChildren(
     ...info.hero.titleLines.flatMap((line, index) => (index ? [document.createElement('br'), line] : [line]))
   );
 
@@ -24,9 +25,35 @@ export function fillContent() {
     link.textContent = info.contact.email;
   });
 
+  // Contact reveal image (path relative to the page, like the project images)
+  const revealImage = document.querySelector('.contact__reveal-image');
+  if (revealImage) revealImage.src = info.contact.revealImage;
+  const mobileImage = document.querySelector('.contact__mobile-image');
+  if (mobileImage) mobileImage.src = info.contact.mobileImage;
+
+  // Skills marquee: two identical groups; the second one is only visual, so screen readers skip it
+  const skillsTrack = document.querySelector('[data-skills]');
+  const skillsGroup = (hidden) => {
+    const list = document.createElement('ul');
+    list.className = 'marquee__group';
+    if (hidden) list.setAttribute('aria-hidden', 'true');
+    info.about.skills.forEach((skill) => {
+      const item = document.createElement('li');
+      item.className = 'marquee__item';
+      item.textContent = skill;
+      list.append(item);
+    });
+    return list;
+  };
+  skillsTrack?.replaceChildren(skillsGroup(false), skillsGroup(true));
+
+  // mailto: links open the mail app, so only web links get a new tab
   document.querySelectorAll('[data-socials]').forEach((list) => {
     list.innerHTML = info.contact.socials
-      .map((s) => `<li><a href="${s.url}" target="_blank" rel="noopener">${s.label}</a></li>`)
+      .map((s) => {
+        const newTab = s.url.startsWith('mailto:') ? '' : ' target="_blank" rel="noopener"';
+        return `<li><a href="${s.url}"${newTab}>${s.label}</a></li>`;
+      })
       .join('');
   });
 }

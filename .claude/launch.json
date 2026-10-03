@@ -4,8 +4,9 @@
     {
       "name": "portfolio-valentina",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "INPUT/codigo/portfolio-valentina", "--", "--port", "5173", "--strictPort"],
-      "port": 5173
+      "runtimeArgs": ["run", "dev", "--prefix", "INPUT/codigo/portfolio-valentina"],
+      "port": 5173,
+      "autoPort": true
     }
   ]
 }

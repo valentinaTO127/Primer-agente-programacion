@@ -5,6 +5,23 @@ import { scrollTo } from './scroll.js';
 const lerp = (from, to, amount) => from + (to - from) * amount;
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const CLICK_THRESHOLD = 5; // px of movement allowed before a pointerup stops counting as a click
+const PLANE_RATIO = 3 / 4; // width / height of every project image
+const PLANE_GAP = 0.4; // empty space between images, as a fraction of one image's width
+
+// Relative URL so it also works under the /portfoliio/ base on GitHub Pages
+const projectUrl = (project) => `project.html?id=${project.id}`;
+
+// Crops the texture like CSS object-fit: cover, so any image fills the plane without stretching
+function coverTexture(texture) {
+  const { width, height } = texture.image;
+  const imageRatio = width / height;
+  if (imageRatio > PLANE_RATIO) {
+    texture.repeat.set(PLANE_RATIO / imageRatio, 1);
+  } else {
+    texture.repeat.set(1, imageRatio / PLANE_RATIO);
+  }
+  texture.offset.set((1 - texture.repeat.x) / 2, (1 - texture.repeat.y) / 2);
+}
 
 // Scroll-driven WebGL carousel.
 // Single source of truth = the page scroll inside the .work section:
@@ -42,15 +59,15 @@ export function createCarousel(canvas, { onChange, reducedMotion }) {
     const viewH = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.position.z;
     const viewW = viewH * camera.aspect;
     let planeH = viewH * 0.42;
-    let planeW = planeH * 1.5;
+    let planeW = planeH * PLANE_RATIO;
     if (planeW > viewW * 0.75) {
       planeW = viewW * 0.75;
-      planeH = planeW / 1.5;
+      planeH = planeW / PLANE_RATIO;
     }
     Object.assign(layout, {
       planeW,
       planeH,
-      spacing: planeW * 1.15,
+      spacing: planeW * (1 + PLANE_GAP),
       offsetY: viewH * 0.1,
       viewW,
     });
@@ -115,8 +132,9 @@ export function createCarousel(canvas, { onChange, reducedMotion }) {
     if (!hit) return;
     const clicked = hit.object.userData.index;
     const active = Math.round(state.current);
-    // Clicking the active image advances to the next one (loops at the end)
-    goTo(clicked === active ? (active + 1) % count : clicked);
+    // Clicking the active image opens its project page; any other image just slides to the center
+    if (clicked === active) location.href = projectUrl(projects[clicked]);
+    else goTo(clicked);
   }
 
   // ---------- Keyboard ----------
@@ -159,12 +177,17 @@ export function createCarousel(canvas, { onChange, reducedMotion }) {
   state.activeIndex = 0;
 
   return {
+    // Jumps straight to a project (used when coming back from project.html)
+    jumpTo(index) {
+      scrollTo(scrollForIndex(clamp(index, 0, count - 1)), { immediate: true });
+    },
     // One promise per texture so the preloader can count them
     loadTextures() {
       const loader = new THREE.TextureLoader();
       return projects.map((project, index) =>
         loader.loadAsync(project.image).then((texture) => {
           texture.colorSpace = THREE.SRGBColorSpace;
+          coverTexture(texture);
           const { material } = meshes[index];
           material.map = texture;
           material.color.set(0xffffff);
@@ -182,7 +205,10 @@ export function createFallback(container, { onChange }) {
   document.querySelector('.work__canvas').hidden = true;
   container.hidden = false;
   container.innerHTML = projects
-    .map((p, i) => `<img src="${p.image}" alt="${p.title}" data-index="${i}" loading="lazy" />`)
+    .map(
+      (p, i) =>
+        `<a href="${projectUrl(p)}"><img src="${p.image}" alt="${p.title}" data-index="${i}" loading="lazy" /></a>`
+    )
     .join('');
 
   const observer = new IntersectionObserver(
