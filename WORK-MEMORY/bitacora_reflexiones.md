@@ -171,3 +171,16 @@ Hoy construí mi portafolio a partir del brief `INPUT/portfolio/ValentinaTorres.
   Aprendí que Pages sirve el sitio desde una subcarpeta (`/portfoliio/`), por eso hace falta
   `base` en `vite.config.js` y rutas de imágenes sin `/` inicial. Un workflow de GitHub Actions
   compila y publica en cada push; falta activar Pages en *Settings → Pages → GitHub Actions*.
+
+## 2026-10-03
+
+Hoy seguí con el portafolio: colores de acento, página de proyecto con animación de hero,
+galería automática por carpetas y reveals con scroll.
+
+- **Lo que aprendí:** a usar `mix-blend-mode` y a revelar imágenes con el scroll (GSAP +
+  ScrollTrigger con `scrub`).
+- **Lo que me costó:**
+  - Encontrar colores con buen contraste. El verde `#31E046` sobre el fondo crema da ~1.6:1 y
+    el mínimo para texto es 4.5:1, así que lo dejé para detalles (líneas, puntos, hovers) y usé
+    `#2F094F` para texto y títulos grandes.
+  - Promptear bien el resultado que quería: describir con precisión qué elemento y qué efecto.
