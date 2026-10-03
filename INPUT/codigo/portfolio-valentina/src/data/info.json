@@ -26,7 +26,8 @@
   },
   "project": {
     "back": "← Back to work",
-    "imageAlt": "image"
+    "imageAlt": "image",
+    "rotate": "Rotate your phone"
   },
   "about": {
     "heading": "About",
@@ -37,8 +38,6 @@
   "contact": {
     "heading": "Contacto",
     "phrase": "Rediseñemos el mundo juntos",
-    "revealImage": "images/contact.svg",
-    "mobileImage": "images/contact-mobile.svg",
     "labels": {
       "email": "Email",
       "social": "Social"

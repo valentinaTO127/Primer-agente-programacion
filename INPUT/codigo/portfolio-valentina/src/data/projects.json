@@ -29,6 +29,16 @@
       "about": "Video loop en Blender",
       "url": null,
       "image": "images/03.svg"
+    },
+    {
+      "id": 4,
+      "title": "Lettering Loop",
+      "role": "Animator",
+      "date": "2025",
+      "category": "Lettering Loop animation",
+      "about": "Lettering con fur, loop en Blender",
+      "url": null,
+      "image": "images/03.svg"
     }
   ]
 }

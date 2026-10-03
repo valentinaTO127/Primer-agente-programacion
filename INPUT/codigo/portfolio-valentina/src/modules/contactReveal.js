@@ -25,7 +25,7 @@ export function initContactReveal({ reducedMotion }) {
   const rTo = gsap.quickTo(circle, 'r', { duration, ease: 'power3', onUpdate: render });
 
   // x of the email/socials column's left edge, relative to the section.
-  // The image is also clipped there (--clip-right), so it can never be drawn over that column.
+  // The image box also ends there (--clip-right), so it can never be drawn over that column.
   let edge = 0;
   const measureEdge = () => {
     const section = box.getBoundingClientRect();

@@ -7,11 +7,14 @@ const files = import.meta.glob('../assets/projects/*/*.{jpg,jpeg,png,webp,avif,g
 });
 
 const VIDEO = /\.(mp4|webm)$/i;
+const COVER = /^1\./i; // "1.png" / "1.mp4": the hero the carousel image grows into
+const COVER_MOBILE = /^1m\./i; // "1m.png": same hero image for mobile
+const THUMB = /^projectImg\./i; // "projectImg.png": carousel image only, never shown on project.html
 const pad = (n) => String(n).padStart(2, '0');
 
-// Returns { cover, gallery } for one project id.
-// cover: URL of the file named "cover.*" (the 16:9 hero image) or null.
-// gallery: the rest of the files, sorted by name (01.jpg, 02.jpg, ... 10.jpg).
+// Returns the files of one project id:
+// cover / coverMobile / thumb: { url, isVideo } or null.
+// gallery: every other file, sorted by its number (2, 3, 4 ... 10), images and videos mixed.
 export function getProjectAssets(id) {
   const entries = Object.entries(files)
     .map(([path, url]) => {
@@ -21,9 +24,20 @@ export function getProjectAssets(id) {
     .filter((file) => file.folder.split('-')[0] === pad(id))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 
-  const cover = entries.find((file) => /^cover\./i.test(file.name));
+  const cover = entries.find((file) => COVER.test(file.name)) ?? null;
+  const coverMobile = entries.find((file) => COVER_MOBILE.test(file.name)) ?? null;
+  const thumb = entries.find((file) => THUMB.test(file.name)) ?? null;
   return {
-    cover: cover?.url ?? null,
-    gallery: entries.filter((file) => file !== cover),
+    cover,
+    coverMobile,
+    thumb,
+    gallery: entries.filter((file) => ![cover, coverMobile, thumb].includes(file)),
   };
+}
+
+// Image shown in the index carousel (and where the project.html hero starts):
+// projectImg -> 1m -> the "image" field in projects.json
+export function getCarouselImage(project) {
+  const { thumb, coverMobile } = getProjectAssets(project.id);
+  return thumb?.url ?? coverMobile?.url ?? project.image;
 }

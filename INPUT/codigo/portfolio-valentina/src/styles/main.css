@@ -390,10 +390,13 @@ html.lenis body {
   overflow-x: auto;
   scroll-snap-type: x mandatory;
 }
+/* Same look as the WebGL planes: subtle rounded corners */
 .work__fallback a {
   flex: none;
   height: 100%;
   scroll-snap-align: center;
+  border-radius: 8px;
+  overflow: hidden;
 }
 .work__fallback img {
   display: block;
@@ -496,7 +499,8 @@ html.lenis body {
   letter-spacing: -0.04em;
   line-height: 0.95;
 }
-/* Mobile / touch: a square image as a regular element above the phrase; the reveal image is hidden */
+/* Mobile / touch: the image as a regular element above the phrase, at its original aspect ratio (no crop);
+   the reveal image is hidden */
 .contact {
   position: relative;
   isolation: isolate;
@@ -508,9 +512,10 @@ html.lenis body {
   align-content: start;
 }
 .contact__mobile-image {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
+  display: block;
+  padding-left: 20%;
+  width: 80%;
+  height: auto;
 }
 .contact__reveal-image {
   display: none;
@@ -525,16 +530,21 @@ html.lenis body {
     display: block;
     position: absolute;
     inset: 0;
-    width: 100%;
+    /* Ends right before the email/socials column (--clip-right set from JS), so it's never drawn over it
+       and "center" means centered in the free area on the left */
+    width: calc(100% - var(--clip-right, 0px));
     height: 100%;
-    object-fit: cover;
+    /* Whole image visible (no crop), centered */
+    object-fit: contain;
+    object-position: center;
     pointer-events: none;
     z-index: 1;
     --r: 0px;
-    /* Cut before the email/socials column (value set from JS) */
-    clip-path: inset(0 var(--clip-right, 0px) 0 0);
     -webkit-mask-image: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #000 var(--r), transparent var(--r));
     mask-image: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #000 var(--r), transparent var(--r));
+    /* Masks tile by default: one single circle, never repeated */
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
   }
 }
 .contact__list {

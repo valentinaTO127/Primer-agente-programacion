@@ -1,12 +1,15 @@
-# Todos Juntos — images
+# Todos Juntos — files
 
-Drop this project's images here. They show up on `project.html` automatically (no code changes).
+Drop this project's files here. They show up automatically (no code changes).
 
 | File | Where it appears |
 |---|---|
-| `cover.jpg` (or .png / .webp) | Hero: the 16:9 image the carousel image grows into. Use a 16:9 image, e.g. 1920×1080 |
-| `01.jpg`, `02.jpg`, `03.jpg` … | Gallery below the hero, in filename order |
+| `1.png` (or .jpg / .webp) | `project.html?id=1` hero: the image the carousel image grows into (desktop), at its own aspect ratio |
+| `1.mp4` | Same, for video projects. On a portrait phone it is shown rotated 90° in fullscreen, after a "Rotate your phone" screen |
+| `1m.png` | Mobile version of `1.png` (< 768px). Optional: without it, mobile uses `1` |
+| `projectImg.png` | Index carousel image only (never shown on `project.html`) |
+| `2`, `3`, `4` … | Gallery below the hero, in number order. Images and videos can be mixed |
 
+- Carousel image: `projectImg` → `1m` → the `"image"` field in `projects.json`.
 - Accepted: jpg, jpeg, png, webp, avif, gif, svg, mp4, webm (videos play muted in a loop).
-- No `cover` yet? The carousel image is used instead.
-- Keep the folder name prefix (`01-`): it links the folder to the project with `"id": 1` in `projects.json` (leading zero ignored).
+- Keep the folder name prefix (`01-`): it links the folder to the project with `"id": 1` in `projects.json`.

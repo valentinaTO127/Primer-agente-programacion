@@ -1,4 +1,7 @@
 import info from '../data/info.json';
+// Imported (not public/ paths) so Vite bundles them with hashed URLs, like the project images
+import contactImageDesktop from '../assets/contactoImgDesk.png';
+import contactImageMobile from '../assets/contactoImgMobile.png';
 
 // Reads a nested value with a dot path: get(info, 'work.labels.role') -> 'Role'
 const get = (object, path) => path.split('.').reduce((value, key) => value?.[key], object);
@@ -25,11 +28,11 @@ export function fillContent() {
     link.textContent = info.contact.email;
   });
 
-  // Contact reveal image (path relative to the page, like the project images)
+  // Contact images: desktop cursor reveal and mobile image (CSS shows only one of them)
   const revealImage = document.querySelector('.contact__reveal-image');
-  if (revealImage) revealImage.src = info.contact.revealImage;
+  if (revealImage) revealImage.src = contactImageDesktop;
   const mobileImage = document.querySelector('.contact__mobile-image');
-  if (mobileImage) mobileImage.src = info.contact.mobileImage;
+  if (mobileImage) mobileImage.src = contactImageMobile;
 
   // Skills marquee: two identical groups; the second one is only visual, so screen readers skip it
   const skillsTrack = document.querySelector('[data-skills]');

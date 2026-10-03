@@ -19,12 +19,17 @@
 
     <main>
       <!-- Hero: starts as the Work section frame (same image size/position, same project info),
-           then the image grows into the 16:9 cover -->
+           then the image grows into the cover (1.png, or 1m.png on mobile) at its own aspect ratio.
+           Video projects (1.mp4) swap the <picture> for a <video> in project.js -->
       <section class="project-hero">
         <h2 class="work__label" data-text="work.label"></h2>
         <div class="project-hero__media">
           <img class="project-hero__img" data-hero-start alt="" />
-          <img class="project-hero__img" data-hero-cover alt="" />
+          <!-- Same breakpoint as the desktop styles in main.css (768px) -->
+          <picture>
+            <source media="(max-width: 767px)" data-hero-cover-mobile />
+            <img class="project-hero__img" data-hero-cover alt="" />
+          </picture>
         </div>
         <p class="work__hint" data-text="work.hint"></p>
       </section>
@@ -45,6 +50,12 @@
       <!-- Filled from src/assets/projects/<folder>/ -->
       <section class="project-gallery" data-gallery></section>
     </main>
+
+    <!-- Video projects on a portrait phone: shown while the video switches to rotated fullscreen -->
+    <div class="rotate-hint" role="status">
+      <div class="rotate-hint__phone" aria-hidden="true"></div>
+      <p class="rotate-hint__text" data-text="project.rotate"></p>
+    </div>
 
     <script type="module" src="/src/project.js"></script>
   </body>
