@@ -184,3 +184,21 @@ galería automática por carpetas y reveals con scroll.
     el mínimo para texto es 4.5:1, así que lo dejé para detalles (líneas, puntos, hovers) y usé
     `#2F094F` para texto y títulos grandes.
   - Promptear bien el resultado que quería: describir con precisión qué elemento y qué efecto.
+
+## 2026-10-15
+
+Hoy fue mi **primera experiencia con Supabase**: aprendí lo básico para conectar una página
+web a una base de datos en la nube (carpeta `INPUT/codigo/supabase1/`).
+
+- **Lo que aprendí:**
+  - **Conectar el proyecto:** el CDN expone el global `supabase`, y con
+    `supabase.createClient(URL, ANON_KEY)` se crea el cliente (`db`). La URL va sin `/rest/v1/`,
+    porque la librería agrega esa ruta sola.
+  - **Orden de los `<script>`:** los scripts clásicos comparten el ámbito global, así que cada
+    archivo usa lo que creó el anterior: CDN → `supabaseClient.js` → `prueba.js`. Si cambias el
+    orden o el nombre de una variable, sale un `ReferenceError`.
+  - **Primera consulta:** `await db.from('productos_practica').select('*')` devuelve
+    `{ data, error }`.
+  - **`await` en consola vs. en archivo:** en la consola funciona suelto, pero en un `.js`
+    clásico tiene que ir dentro de una función `async` (IIFE: `(async () => { ... })();`).
+  - **RLS:** si la tabla tiene Row Level Security sin policies, `select` devuelve `[]` sin error.
