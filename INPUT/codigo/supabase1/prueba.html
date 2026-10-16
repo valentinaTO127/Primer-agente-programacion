@@ -1,6 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <!-- Sin esta línea el celular muestra la página "alejada" como si fuera de escritorio -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; padding: 16px; }
+    /* overflow-x: la tabla tiene 7 columnas; en el celular se desliza de lado en vez de romper la página */
+    #resultado { overflow-x: auto; }
+    table { border-collapse: collapse; margin-top: 16px; }
+    th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; white-space: nowrap; }
+    th { background: #f0f0f0; }
+    /* object-fit: cover recorta la foto para llenar el cuadro sin deformarla
+       (las fotos vienen verticales y horizontales, así quedan todas iguales) */
+    td img { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; display: block; }
+
+    /* --- Galería ---
+       auto-fill + minmax(220px, 1fr): "mete tantas columnas como quepan,
+       cada una de mínimo 220px". En el celular cabe 1, en el PC caben 3-4,
+       sin escribir ningún media query. */
+    .galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin-top: 16px; }
+    /* position: relative → el badge de descuento (absolute) se ubica respecto a la tarjeta */
+    .card { position: relative; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; background: #fff; }
+    .card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; }
+    .card-body { padding: 12px; }
+    .card h3 { margin: 8px 0 4px; font-size: 1.05rem; }
+    .descripcion { margin: 0 0 8px; color: #555; font-size: 0.9rem; }
+    .precio { margin: 0; font-size: 1.1rem; }
+    .precio s { color: #999; font-size: 0.85rem; margin-right: 6px; }
+    .stock { margin: 6px 0 0; font-size: 0.8rem; color: #2a7a2a; }
+    .categorias { display: flex; flex-wrap: wrap; gap: 4px; }
+    .chip { background: #eee; border-radius: 999px; padding: 2px 8px; font-size: 0.75rem; }
+    .badge-descuento { position: absolute; top: 8px; left: 8px; background: #d62828; color: #fff; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; }
+    /* Producto no disponible: se ve apagado, pero sigue en la galería */
+    .agotado img { filter: grayscale(1); opacity: 0.6; }
+    .agotado .stock { color: #d62828; font-weight: bold; }
+  </style>
   <!-- CDN: trae la librería de Supabase ANTES que nuestros propios
        scripts — sin esta línea, "supabase.createClient" no existiría
        todavía cuando supabaseClient.js intente usarlo -->

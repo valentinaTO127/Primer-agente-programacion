@@ -202,3 +202,13 @@ web a una base de datos en la nube (carpeta `INPUT/codigo/supabase1/`).
   - **`await` en consola vs. en archivo:** en la consola funciona suelto, pero en un `.js`
     clásico tiene que ir dentro de una función `async` (IIFE: `(async () => { ... })();`).
   - **RLS:** si la tabla tiene Row Level Security sin policies, `select` devuelve `[]` sin error.
+
+## 2026-10-16
+
+Hoy aprendí a hacer consultas a bases de datos y renderizarlas con JS. No se me dificultó nada.
+
+- **Lo que trabajamos** (carpeta `INPUT/codigo/supabase1/`):
+  - Ver la página en el celular sirviéndola en la red local (`npx serve`, IP del PC, `<meta viewport>`).
+  - Mostrar el resultado de `select` en una tabla, formateando cada tipo: `int8` → `$150.000`, `float8` → `%`, `bool` → `Sí/No`, `json` → `join()`.
+  - Columna `img_url`: una URL es solo texto; se ve como imagen dentro de `<img src>`.
+  - De tabla a galería: el JS arma los datos, el CSS (`grid` + `auto-fill/minmax`) decide el acomodo.

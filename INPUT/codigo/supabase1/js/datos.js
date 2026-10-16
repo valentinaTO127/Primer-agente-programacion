@@ -1,6 +1,6 @@
 // 3rd script: data access layer (CRUD).
 // Uses `supabaseClient` defined in supabaseClient.js.
-
+/*
 const TABLE_NAME = "productos_practica"; // replace with your real table name
 
 async function getItems() {
@@ -42,3 +42,4 @@ async function deleteItem(id) {
   }
   return true;
 }
+*/
