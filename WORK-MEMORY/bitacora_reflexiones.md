@@ -212,3 +212,21 @@ Hoy aprendí a hacer consultas a bases de datos y renderizarlas con JS. No se me
   - Mostrar el resultado de `select` en una tabla, formateando cada tipo: `int8` → `$150.000`, `float8` → `%`, `bool` → `Sí/No`, `json` → `join()`.
   - Columna `img_url`: una URL es solo texto; se ve como imagen dentro de `<img src>`.
   - De tabla a galería: el JS arma los datos, el CSS (`grid` + `auto-fill/minmax`) decide el acomodo.
+
+## 2026-10-22
+
+Hoy aprendí a **insertar datos en tablas de una base de datos en Supabase**: pasé de solo leer
+(`select`) a escribir (`insert`), primero con un objeto fijo y luego con un formulario que llena
+el usuario (`INPUT/codigo/supabase1/prueba2.html` + `js/prueba2.js`).
+
+- **Lo que aprendí:**
+  - **`insert`:** `await db.from('productos_practica').insert([datos]).select()`. `insert()`
+    siempre recibe un **array** de objetos, aunque sea uno solo, y `.select()` devuelve la fila
+    creada con su `id` nuevo (`data[0]`).
+  - **Formulario → objeto:** escuchar `submit` (no `click`) y usar `event.preventDefault()` para
+    que la página no se recargue antes de que termine el `await`.
+  - **`.value` siempre es string:** hay que convertir antes de enviar (`Number()` para
+    `int8`/`float8`, `.checked` para `bool`, `split(',')` para el array `json`, `|| null` para
+    una URL vacía).
+  - **Floats en el form:** en JS no hay `int` vs `float` (todo es `Number`); lo que limitaba el
+    descuento era `step="1"` en el input. Con `step="0.01"` acepta `0.15`.

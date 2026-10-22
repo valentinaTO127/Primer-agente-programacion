@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <!-- Sin esta línea el celular muestra la página "alejada" como si fuera de escritorio -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- CDN: trae la librería de Supabase ANTES que nuestros propios
+       scripts — sin esta línea, "supabase.createClient" no existiría
+       todavía cuando supabaseClient.js intente usarlo -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: sans-serif; padding: 16px; }
+    /* Cada campo en su propia línea: texto del label arriba, input abajo */
+    #form-producto { display: grid; gap: 12px; max-width: 420px; margin: 16px 0; }
+    #form-producto label { display: grid; gap: 4px; font-size: 0.9rem; }
+    #form-producto input, #form-producto textarea { padding: 8px; font: inherit; border: 1px solid #ccc; border-radius: 6px; }
+    /* El checkbox va en línea con su texto, no debajo */
+    #form-producto .check { display: flex; align-items: center; gap: 8px; }
+    #form-producto button { padding: 10px; font: inherit; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <button id="btn-traer">Traer productos</button>
+  <div id="resultado"></div>
+
+  <!-- name="..." de cada input = nombre de la columna en Supabase.
+       Así en JS se lee como form.nombre.value, form.precio.value, etc.
+       required / min / max / step: el navegador valida ANTES de enviar -->
+  <form id="form-producto">
+    <h2>Nuevo producto</h2>
+    <label>Nombre
+      <input type="text" name="nombre" required>
+    </label>
+    <label>Descripción
+      <textarea name="descripcion" rows="3"></textarea>
+    </label>
+    <label>Precio
+      <input type="number" name="precio" min="0" step="1" required>
+    </label>
+    <label>Unidades
+      <input type="number" name="unidades" min="0" step="1" required>
+    </label>
+    <!-- Fracción, no porcentaje: 0.15 = 15%. step="0.01" permite decimales
+         (con step="1" el navegador rechazaría 0.15) -->
+    <label>Descuento (0 a 1, ej. 0.15 = 15%)
+      <input type="number" name="descuento" min="0" max="1" step="0.01" value="0">
+    </label>
+    <label class="check">
+      <input type="checkbox" name="disponible" checked> Disponible
+    </label>
+    <label>Categorías (separadas por coma)
+      <input type="text" name="categorias" placeholder="tecnología, audio">
+    </label>
+    <label>URL de la imagen
+      <input type="url" name="img_url" placeholder="https://...">
+    </label>
+    <button type="submit">Agregar producto</button>
+  </form>
+  <div id="notificacion"></div>
+
+  <!-- supabaseClient.js crea "db" (sección 4.3): el cliente ya
+       conectado a tu proyecto de Supabase. Lo vamos a usar en
+       prueba.js, por eso tiene que cargarse ANTES que ese archivo -->
+  <script src="js/supabaseClient.js"></script>
+  <!-- prueba.js: aquí escribes el código de los Pasos 2, 3 y 4 -->
+  <script  src="js/prueba2.js"></script>
+</body>
+</html>
