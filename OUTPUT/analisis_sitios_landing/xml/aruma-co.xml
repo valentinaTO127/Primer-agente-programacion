@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Aruma" url="https://www.aruma.co/">
+  <header>
+    <logo>aruma</logo>
+    <nav tipo="hamburguesa">
+      <enlace>Marcas</enlace>
+      <enlace>Maquillaje</enlace>
+      <enlace>Cuidado de la Piel</enlace>
+      <enlace>Capilar</enlace>
+      <enlace>Cuidado Corporal</enlace>
+      <enlace>Perfumes</enlace>
+      <enlace>Accesorios</enlace>
+      <enlace>Belleza Coreana</enlace>
+      <enlace>Eventos y regalos</enlace>
+      <enlace>Minis</enlace>
+      <enlace>Descuentos</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Carrusel de 7 slides con promociones: Aruma Sale, skincare en modo PRO, lanzamientos y productos destacados.</section>
+    <section tipo="nuevos-productos">Carrusel "Lo más nuevooo" con productos recién lanzados (kits, bronceadores, cuidado facial).</section>
+    <section tipo="tiendas">Banner con enlace a la página de tiendas físicas.</section>
+    <section tipo="categorias">Grilla de 6 categorías con imagen: Maquillaje, Facial, Capilar, Corporal, Fragancias, Accesorios.</section>
+    <section tipo="mas-vendido">Carrusel "Lo más vendido" con sueros, tónicos y cremas en oferta.</section>
+    <section tipo="redes">Sección "Lo viste en redes" con productos virales recomendados.</section>
+    <section tipo="banner-maquillaje">Banner "Makeup que rompe reglas" con llamado a la categoría de maquillaje.</section>
+    <section tipo="banner-skincare">Banner "Skincare que sí funciona" con llamado a la categoría de cuidado facial.</section>
+  </main>
+  <footer>
+    <redes>Instagram, TikTok, Facebook</redes>
+    <contacto>WhatsApp (wa.me/573223354642)</contacto>
+  </footer>
+</sitio>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Beauty of Joseon" url="https://beautyofjoseon.com/">
+  <header>
+    <logo>BEAUTY OF JOSEON</logo>
+    <nav tipo="hamburguesa">
+      <enlace>Shop</enlace>
+      <enlace>Save with Sets</enlace>
+      <enlace>Best Sellers</enlace>
+      <enlace>BOJ Rewards</enlace>
+      <enlace>About</enlace>
+      <enlace>Need Help?</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Carrusel de 9 slides con productos destacados: Dayscreen Moisturizer, Pore Firming Serum, Glow Serum, Green Plum Cleanser, Day Dew Sunscreen y colaboración BOJ X Ian Charms.</section>
+    <section tipo="best-sellers">Grilla de los productos más vendidos con calificación por estrellas, número de reseñas y descuentos (Day Dew Sunscreen, Revive Ritual Eye Duo, Glass Skin Duo, Rice Glow Ritual Set).</section>
+    <section tipo="lanzamiento">Banner del nuevo Tinted Mineral Dayscreen con llamado a la acción "Shop Now".</section>
+    <section tipo="buscador-tono">Herramienta interactiva para encontrar el tono del Tinted Mineral Dayscreen, con comparador de tonos y compra directa.</section>
+    <section tipo="rewards">Banner del programa de lealtad BOJ Rewards para canjear gemas por productos y beneficios.</section>
+    <section tipo="comunidad">Sección "Find Your Perfect Hanbang Match" con contenido de la comunidad y enlace a @beautyofjoseon en Instagram.</section>
+    <section tipo="blog">Dos artículos destacados: "The Right Order for Your Full Revive Routine" y "The Simplest Guide to Double Cleansing".</section>
+    <section tipo="newsletter">Formulario "Join Our Community" para suscribirse por correo a tips de K-beauty y descuentos.</section>
+  </main>
+  <footer>
+    <redes>Instagram, TikTok</redes>
+    <contacto>GOODAI GLOBAL INC., 541 Eonju-ro, Gangnam-gu, Seoul, Republic of Korea (enlace "Need Help?")</contacto>
+  </footer>
+</sitio>

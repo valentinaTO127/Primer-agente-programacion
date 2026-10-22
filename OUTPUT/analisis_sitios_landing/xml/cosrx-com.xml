@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="COSRX" url="https://www.cosrx.com/">
+  <header>
+    <logo>COSRX</logo>
+    <nav tipo="mega-menu">
+      <enlace>Best Sellers</enlace>
+      <enlace>By Skin Concern</enlace>
+      <enlace>By Product Type</enlace>
+      <enlace>By Ingredient</enlace>
+      <enlace>Hair Care</enlace>
+      <enlace>Body Care</enlace>
+      <enlace>Check your Rewards</enlace>
+      <enlace>Find Stores</enlace>
+      <enlace>Verify Authenticity</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Carrusel de promociones con el lanzamiento Blue Peptide Bakuchiol Mist y el banner de registro con 20% de descuento.</section>
+    <section tipo="categorias-rapidas">Pestañas rápidas de navegación por categoría: New, Snail Mucin, Derm Skincare, entre otras.</section>
+    <section tipo="producto-destacado">Banner del 5 Peptide Complex Treatment con precio, enlace "Learn more" y botón de compra.</section>
+    <section tipo="promocion">Banner "Free Gifts on Every Order" con el beneficio de lanzamiento.</section>
+    <section tipo="ai-shopping-agent">Sección "Meet your AI Shopping Agent" que recomienda productos según la preocupación de piel ingresada.</section>
+    <section tipo="producto-destacado-2">Segundo bloque de producto destacado con imagen de frasco antes del footer.</section>
+    <section tipo="faq">Preguntas frecuentes plegables sobre envío internacional y soporte ("Ship internationally?", "Assistance needed?").</section>
+    <section tipo="newsletter">Formulario "Stay connected with COSRX" para suscribirse por correo a novedades y beneficios de miembro.</section>
+  </main>
+  <footer>
+    <redes>Twitter, Facebook, Instagram, YouTube, TikTok</redes>
+    <contacto>Chat de soporte en vivo y sección de ayuda "Assistance needed?"; no se encontró correo ni teléfono visible en el home</contacto>
+  </footer>
+</sitio>

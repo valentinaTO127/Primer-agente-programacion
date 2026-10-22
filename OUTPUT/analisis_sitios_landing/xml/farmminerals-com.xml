@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Farm Minerals" url="https://www.farmminerals.com/">
+  <header>
+    <logo>Farm Minerals</logo>
+    <nav tipo="overlay-fullscreen">
+      <enlace>Products</enlace>
+      <enlace>About</enlace>
+      <enlace>Science</enlace>
+      <enlace>Blog</enlace>
+      <enlace>Contact</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Titular "Fertilizer, Reinvented." con el subtítulo "For Your Crops. For the Planet." y botón "Explore Products".</section>
+    <section tipo="prensa">Franja de logos de medios que han cubierto la marca, como TechCrunch y AgTech Navigator.</section>
+    <section tipo="problema">Planteamiento del problema: la mayoría del fertilizante aplicado no llega al cultivo, se evapora o se pierde, citando datos de la FAO.</section>
+    <section tipo="solucion-croptab">Presentación de CropTab, tecnología de cápsulas de carbono, con sus atributos: menor que una célula vegetal, fácil de integrar, cero emisiones de fabricación y aplicación por disolución en agua.</section>
+    <section tipo="metricas">Bloque de cifras de respaldo: 0 eventos de escorrentía, pruebas en 4 continentes, 100x menor costo de transporte, 0.5 toneladas de CO₂ ahorradas por acre y retorno de inversión igual o mayor a 5x.</section>
+    <section tipo="sostenibilidad">Mensaje sobre evitar el pago de créditos de compensación de carbono gracias a una producción limpia desde el origen.</section>
+    <section tipo="productos">Los tres productos de la marca: CropTab NPK (macronutrientes), NutriPeak (micronutrientes) y ElevateFeed (aditivos para alimento animal).</section>
+    <section tipo="pruebas-globales">Mapa de países donde se están probando los productos (incluye EE. UU., Irlanda, Reino Unido, Bolivia, RDC, Serbia, España, Vietnam, Israel, Singapur, Uzbekistán), próxima actualización de resultados y botón "Request Product".</section>
+    <section tipo="blog">Vista previa de tres artículos del blog técnico sobre la tecnología, la visión de la marca y la ciencia detrás del producto.</section>
+  </main>
+  <footer>
+    <redes>LinkedIn</redes>
+    <contacto>hello@farmminerals.com</contacto>
+  </footer>
+</sitio>

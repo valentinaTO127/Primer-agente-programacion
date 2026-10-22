@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="SKIN1004" url="https://www.skin1004.com/">
+  <header>
+    <logo>SKIN1004</logo>
+    <nav tipo="overlay-fullscreen">
+      <enlace>SALE</enlace>
+      <enlace>SHOP</enlace>
+      <enlace>All</enlace>
+      <enlace>Best</enlace>
+      <enlace>Save with sets</enlace>
+      <enlace>Mini &amp; Travel Sizes</enlace>
+      <enlace>Merch</enlace>
+      <enlace>Product Type</enlace>
+      <enlace>Product Line</enlace>
+      <enlace>BRAND</enlace>
+      <enlace>COLLECTION</enlace>
+      <enlace>FLAGSHIP</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Imagen de producto (Centella Ampoule) con el mensaje "Chosen by Hudson. Made by Nature." y botón "Shop Now".</section>
+    <section tipo="ampollas-destacadas">Carrusel de tres ampollas "Lab in Nature" (Matrixyl 10%, Niacinamide 10%, Retinol 0.2%) con precio y botón de compra directa.</section>
+    <section tipo="origen-marca">Sección audiovisual con árboles baobab de Madagascar y el mensaje "Find Serenity in the Embrace of Untouched Nature".</section>
+    <section tipo="valores">Bloque "Clean Beauty in Balance" con tres pilares de marca: ingredientes naturales, cruelty-free y sostenibilidad.</section>
+    <section tipo="galeria-social">Grilla de contenido de redes sociales y prensa (publicaciones, videos y menciones).</section>
+  </main>
+  <footer>
+    <redes>Facebook, Instagram, YouTube, TikTok, Pinterest</redes>
+    <contacto>hello@skin1004korea.com (servicio al cliente), prskin1004@skin1004korea.com (prensa), sales@skin1004korea.com (mayoristas)</contacto>
+  </footer>
+</sitio>

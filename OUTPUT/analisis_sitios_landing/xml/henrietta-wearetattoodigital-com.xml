@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitio nombre="Henrietta Said" url="https://henrietta.wearetattoodigital.com/">
+  <header>
+    <logo>HENRIETTA SAID</logo>
+    <nav tipo="overlay-fullscreen">
+      <enlace>Home</enlace>
+      <enlace>Our Products</enlace>
+      <enlace>Ancho Kimchi</enlace>
+      <enlace>Nashville Hot Chicken</enlace>
+      <enlace>Original Buffalo</enlace>
+      <enlace>Lemon Pepper</enlace>
+      <enlace>Scandal Pages</enlace>
+      <enlace>Our Story</enlace>
+      <enlace>Press</enlace>
+      <enlace>Contact Us</enlace>
+    </nav>
+  </header>
+  <main>
+    <section tipo="hero">Titular animado "Scandalously Spicy Snacks" con la mascota del maní con gafas y un ticker de atributos (sin sabores artificiales, sin gluten, cero azúcar, vegano, fibra, proteína).</section>
+    <section tipo="productos">Grilla de los cuatro sabores (Ancho Kimchi, Nashville Hot Chicken, Original Buffalo, Lemon Pepper) con descripción corta y botón "view product" para cada uno.</section>
+    <section tipo="beneficios">Bloque de atributos del producto: 7 gramos de proteína, 2 gramos de fibra, sabor a alitas, ingredientes veganos, apto para keto y maníes XL de Virginia.</section>
+    <section tipo="marca">Declaración de marca "Some Call Us Spicy, We Take That As a Compliment" con botón "view product".</section>
+    <section tipo="testimonios">Cuatro reseñas de clientes con iniciales, nombre y ciudad, cada una mencionando un sabor distinto.</section>
+    <section tipo="scandal-pages">Vista previa del blog "Scandal Pages" con llamado a explorar todos los artículos.</section>
+    <section tipo="quienes-somos">Sección "Who Is Henrietta Said" con la imagen marcada como "censored - image too spicy!".</section>
+    <section tipo="donde-comprar">Cierre "Our Spicy Selves Are on the Shelves" que invita a encontrar el producto en tienda y a contactar a la marca.</section>
+  </main>
+  <footer>
+    <redes>Facebook, Instagram, TikTok</redes>
+    <contacto>Formulario en la página /contact-us</contacto>
+  </footer>
+</sitio>
