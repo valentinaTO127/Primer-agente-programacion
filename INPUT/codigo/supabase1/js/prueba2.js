@@ -16,32 +16,75 @@ document.getElementById('btn-traer').addEventListener('click', async () => {
     // que ya usaste en el CRUD de la semana 7.
     document.getElementById('resultado').textContent = 'Error: ' + error.message;
     return;
-  } 
-  document.getElementById('resultado').textContent = JSON.stringify(data, null, 2);
-  
-  const nombres = data.map(producto => producto.nombre);
-  // nombres es ahora un array de solo strings:
-  // ["Audífonos Bluetooth X200", "Camiseta Básica Algodón", "Silla Gamer ProMax"]
-  // — ya no objetos completos
+  }
 
-  document.getElementById('resultado').innerHTML +=
-    '<ul>' + nombres.map(n => `<li>${n}</li>`).join('') + '</ul>';
-
-    
-  const precios = data.map(producto => producto.precio);
-
-  document.getElementById('resultado').innerHTML +=
-    '<ul>' + precios.map(p => `<li>${p}</li>`).join('') + '</ul>';
-
-  const unidades = data.map(producto => producto.unidades);
-  document.getElementById('resultado').innerHTML +=
-    '<ul>' + unidades.map(u => `<li>${u}</li>`).join('') + '</ul>';
-
-  
-  
-  
-
+  // Antes pintábamos el JSON crudo + 3 <ul> sueltas (nombres, precios, unidades)
+  // con innerHTML. Ahora cada producto es UNA tarjeta con todos sus datos juntos.
+  const galeria = document.getElementById('resultado');
+  galeria.replaceChildren(); // si das clic otra vez, no se duplican las tarjetas
+  data.forEach(producto => galeria.appendChild(crearTarjetaProducto(producto)));
 });
+
+// Formato de moneda colombiana: 150000 → "$ 150.000"
+const formatoPrecio = new Intl.NumberFormat('es-CO', {
+  style: 'currency', currency: 'COP', maximumFractionDigits: 0
+});
+
+// Recibe UN producto (objeto de Supabase) y devuelve un <article> listo para
+// agregar a la página. Todo con createElement + textContent: los datos vienen
+// de la base y cualquiera pudo escribirlos, así que nunca se tratan como HTML.
+function crearTarjetaProducto(producto) {
+  const tarjeta = document.createElement('article');
+  tarjeta.className = 'tarjeta';
+
+  // img_url puede ser null (se guardó vacío) → solo creamos <img> si hay URL,
+  // así no aparece una imagen rota
+  if (producto.img_url) {
+    const img = document.createElement('img');
+    img.src = producto.img_url;
+    img.alt = producto.nombre;
+    tarjeta.appendChild(img);
+  }
+
+  const nombre = document.createElement('h3');
+  nombre.textContent = producto.nombre;
+
+  const descripcion = document.createElement('p');
+  descripcion.className = 'descripcion';
+  descripcion.textContent = producto.descripcion || 'Sin descripción';
+
+  // descuento es fracción (0.15) → la mostramos como porcentaje (15%)
+  const precio = document.createElement('p');
+  precio.className = 'precio';
+  precio.textContent = formatoPrecio.format(producto.precio);
+  if (producto.descuento > 0) {
+    const descuento = document.createElement('span');
+    descuento.className = 'descuento';
+    descuento.textContent = `-${Math.round(producto.descuento * 100)}%`;
+    precio.appendChild(descuento);
+  }
+
+  // bool → texto legible + clase para el color
+  const estado = document.createElement('p');
+  estado.className = producto.disponible ? 'estado disponible' : 'estado agotado';
+  estado.textContent = `${producto.disponible ? 'Disponible' : 'No disponible'} · ${producto.unidades} unidades`;
+
+  // categorias es un array json; "?? []" por si viene null
+  const etiquetas = document.createElement('ul');
+  etiquetas.className = 'etiquetas';
+  (producto.categorias ?? []).forEach(categoria => {
+    const li = document.createElement('li');
+    li.textContent = categoria;
+    etiquetas.appendChild(li);
+  });
+
+  const id = document.createElement('p');
+  id.className = 'id';
+  id.textContent = `ID ${producto.id}`;
+
+  tarjeta.append(nombre, descripcion, precio, estado, etiquetas, id);
+  return tarjeta;
+}
 
 async function agregarProducto(datos) {
 
@@ -96,15 +139,143 @@ document.getElementById('form-producto').addEventListener('submit', async (event
 
     const nuevoProducto = await agregarProducto(nuevo);
     if (nuevoProducto) {
-        document.getElementById('notificacion').textContent = 'Producto agregado con ID: ' + nuevoProducto.id;
+        // Usamos los datos que DEVOLVIÓ Supabase (no los del form): así el
+        // mensaje confirma lo que de verdad quedó guardado en la tabla.
+        mostrarNotificacion(`✔ Producto "${nuevoProducto.nombre}" agregado con ID: ${nuevoProducto.id}`, 'exito');
         form.reset(); // limpia todos los campos para agregar otro
     } else {
-        document.getElementById('notificacion').textContent = 'Error al agregar el producto (revisa la consola).';
+        mostrarNotificacion('Error al agregar el producto (revisa la consola).', 'error');
+    }
+});
+
+// Muestra un mensaje en #notificacion y lo oculta solo después de unos segundos.
+// textContent (no innerHTML): el nombre lo escribe el usuario, así que se
+// trata como texto y nunca como HTML.
+let temporizadorNotificacion;
+function mostrarNotificacion(mensaje, tipo) {
+    const caja = document.getElementById('notificacion');
+    caja.textContent = mensaje;
+    caja.className = tipo;   // 'exito' o 'error' → el CSS cambia el color
+    caja.hidden = false;
+
+    // Si llega otro mensaje antes de que se oculte el anterior, reiniciamos
+    // el conteo para que el nuevo se vea completo.
+    clearTimeout(temporizadorNotificacion);
+    temporizadorNotificacion = setTimeout(() => { caja.hidden = true; }, 4000);
+}
+
+
+
+async function buscarProductoPorId(id) {
+  const { data, error } = await db
+    .from('productos_practica')
+    .select('*')
+    .eq('id', id)    // eq = "equal" (igual a) — equivalente a find(p => p.id === id)
+    .single();         // single() = "espero exactamente una fila, dámela
+                        // como objeto, no como array de un elemento"
+
+  if (error) return null;
+  return data;
+}
+
+async function buscarProductosPorNombre(texto) {
+  const { data, error } = await db
+    .from('productos_practica')
+    .select('*')
+    .ilike('nombre', `%${texto}%`);
+    // ilike = "like" insensible a mayúsculas/minúsculas.
+    // los símbolos % significan "cualquier texto antes/después" —
+    // equivalente a .toLowerCase().includes(texto)
+
+  if (error) return [];
+  return data;
+}
+
+// Pinta una lista de productos en #resultado-busqueda.
+// createElement + textContent (no innerHTML): el nombre viene de la base de
+// datos y cualquiera pudo escribirlo, así que se trata como texto, nunca como HTML.
+function renderizarResultados(productos) {
+    const contenedor = document.getElementById('resultado-busqueda');
+    contenedor.replaceChildren(); // borra los resultados de la búsqueda anterior
+
+    const lista = document.createElement('ul');
+    productos.forEach(producto => {
+        const item = document.createElement('li');
+        item.textContent = `ID ${producto.id} · ${producto.nombre} · $${producto.precio} · ${producto.unidades} unidades`;
+        lista.appendChild(item);
+    });
+    contenedor.appendChild(lista);
+}
+
+document.getElementById('form-buscar-id').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.target;
+
+    // .value es string ("4"); la columna id es numérica → Number()
+    const id = Number(form.idProducto.value);
+    const producto = await buscarProductoPorId(id);
+
+    // Si no hay fila, .single() devuelve un error (esperaba exactamente 1),
+    // y buscarProductoPorId lo convierte en null.
+    if (producto) {
+        renderizarResultados([producto]); // en array para reusar la misma función
+    } else {
+        document.getElementById('resultado-busqueda').replaceChildren();
+        mostrarNotificacion(`No existe un producto con ID ${id}`, 'error');
+    }
+});
+
+document.getElementById('form-buscar-nombre').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const form = event.target;
+
+    const texto = form.texto.value.trim();
+    const productos = await buscarProductosPorNombre(texto);
+
+    // A diferencia de .single(), una búsqueda sin coincidencias NO es error:
+    // devuelve [] → revisamos .length
+    if (productos.length > 0) {
+        renderizarResultados(productos);
+        mostrarNotificacion(`✔ ${productos.length} producto(s) encontrado(s) con "${texto}"`, 'exito');
+    } else {
+        document.getElementById('resultado-busqueda').replaceChildren();
+        mostrarNotificacion(`Ningún producto contiene "${texto}"`, 'error');
     }
 });
 
 
 
+async function modificarProducto(id, cambios) {
+
+  const { data, error } = await db
+    .from('productos_practica')
+    .update(cambios)   // solo actualiza las propiedades que vengan en "cambios"
+    .eq('id', id)        // ...de la fila donde el id coincida
+    .select();
+
+  if (error) {
+    console.log("Error al actualizar:", error);
+    return null;
+  }
+  // Si ningún id coincide, Supabase NO da error: devuelve data = [].
+  // data[0] queda undefined, y lo convertimos en null para tratarlo como fallo.
+  return data[0] ?? null;
+}
 
 
-    
+document.getElementById('btn-actualizar').addEventListener('click', async () => {
+    const cambios = { unidades: 40 };
+    const actualizado = await modificarProducto(4, cambios);
+
+    if (actualizado) {
+        // Recorremos solo las columnas que pedimos cambiar, y tomamos su valor
+        // de "actualizado" (lo que Supabase confirma que quedó guardado).
+        // { unidades: 37 } → "unidades = 37"
+        const detalle = Object.keys(cambios)
+            .map(campo => `${campo} = ${actualizado[campo]}`)
+            .join(', ');
+        mostrarNotificacion(`✔ Producto ID ${actualizado.id} actualizado: ${detalle}`, 'exito');
+    } else {
+        mostrarNotificacion('No se pudo actualizar (revisa el id o la consola).', 'error');
+    }
+});

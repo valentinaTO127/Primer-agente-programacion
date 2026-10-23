@@ -9,14 +9,183 @@
        todavía cuando supabaseClient.js intente usarlo -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: sans-serif; padding: 16px; }
+    /* Paleta terracota en variables: si quieres otro tono, cambias aquí
+       y se actualiza toda la página. Contraste revisado (mínimo 4.5:1 para
+       texto, como aprendiste en el portfolio): blanco sobre --terracota ≈ 5:1 */
+    :root {
+      --fondo: #FBF3EC;            /* crema arcilla clara */
+      --superficie: #FFFFFF;       /* tarjetas */
+      --arena: #F3E1D3;            /* fondos suaves: resultados, hover */
+      --borde: #E2C2AB;
+      --terracota: #B4532A;        /* color principal: botones */
+      --terracota-oscuro: #8A3B1E; /* hover y títulos */
+      --texto: #3B2A22;            /* café casi negro */
+      --texto-suave: #6E5446;
+      --exito: #5E6B2E;            /* verde oliva, combina con terracota */
+      --error: #9E2A1F;            /* rojo ladrillo */
+      --radio: 10px;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--fondo);
+      color: var(--texto);
+      max-width: 640px;
+      margin: 0 auto;          /* centra el contenido en pantallas anchas */
+      padding: 24px 16px 96px; /* abajo deja espacio para la notificación */
+      line-height: 1.5;
+    }
+    h2 {
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--terracota-oscuro);
+      margin: 0 0 4px;
+    }
+
+    /* Botones: un solo estilo para todos (Traer, Agregar, Buscar, Actualizar) */
+    button {
+      padding: 10px 16px;
+      font: inherit;
+      font-weight: 600;
+      color: #fff;
+      background: var(--terracota);
+      border: none;
+      border-radius: var(--radio);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button:hover { background: var(--terracota-oscuro); }
+    button:active { transform: scale(0.97); }
+
+    /* Inputs: borde arena; al enfocarlos se marcan en terracota */
+    input, textarea {
+      padding: 8px 10px;
+      font: inherit;
+      color: var(--texto);
+      background: var(--superficie);
+      border: 1px solid var(--borde);
+      border-radius: 8px;
+    }
+    input:focus, textarea:focus, button:focus-visible {
+      outline: 2px solid var(--terracota);
+      outline-offset: 2px;
+    }
+    /* accent-color pinta el checkbox con el color de la paleta */
+    input[type="checkbox"] { accent-color: var(--terracota); width: 18px; height: 18px; }
+
+    /* Galería de "Traer productos": el JS solo crea las tarjetas, el CSS decide
+       el acomodo. auto-fill + minmax = tantas columnas de mínimo 180px como
+       quepan; en el celular queda 1 columna, en escritorio 3 */
+    #resultado:not(:empty) {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 16px 0 32px;
+    }
+    .tarjeta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 14px;
+      background: var(--superficie);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      box-shadow: 0 2px 8px rgba(138, 59, 30, 0.08);
+    }
+    .tarjeta img {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;       /* recorta sin deformar la imagen */
+      border-radius: 6px;
+      background: var(--arena);
+    }
+    .tarjeta h3 { margin: 4px 0 0; font-size: 1rem; color: var(--terracota-oscuro); }
+    .tarjeta p { margin: 0; }
+    .tarjeta .descripcion { font-size: 0.85rem; color: var(--texto-suave); }
+    .tarjeta .precio { font-size: 1.1rem; font-weight: 700; }
+    .tarjeta .descuento {
+      margin-left: 8px;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      color: #fff;
+      background: var(--terracota);
+      border-radius: 4px;
+      vertical-align: middle;
+    }
+    .tarjeta .estado { font-size: 0.85rem; font-weight: 600; }
+    .tarjeta .estado.disponible { color: var(--exito); }
+    .tarjeta .estado.agotado { color: var(--error); }
+    .tarjeta .etiquetas { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; padding: 0; margin: 0; }
+    .tarjeta .etiquetas li {
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      background: var(--arena);
+      color: var(--terracota-oscuro);
+      border-radius: 999px;    /* "píldora": bordes totalmente redondos */
+    }
+    /* margin-top: auto empuja el ID al fondo, así todas las tarjetas
+       de una fila terminan alineadas aunque tengan textos de distinto largo */
+    .tarjeta .id { margin-top: auto; font-size: 0.75rem; color: var(--texto-suave); }
+
+    /* Cada formulario es una "tarjeta" blanca sobre el fondo crema */
+    #desplegable-producto, .form-buscar {
+      background: var(--superficie);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      box-shadow: 0 2px 8px rgba(138, 59, 30, 0.08);
+    }
+
+    /* Desplegable: el <summary> es la "barra" en la que se hace clic */
+    #desplegable-producto { margin: 24px 0; }
+    #desplegable-producto summary {
+      padding: 14px 20px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.5em;
+      font-weight: bold;
+      color: var(--terracota-oscuro);
+      cursor: pointer;
+      list-style: none;        /* quita el triángulo por defecto... */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #desplegable-producto summary::-webkit-details-marker { display: none; } /* ...también en Safari */
+    /* ...y lo reemplazamos por un "+" que gira a "×" cuando está abierto */
+    #desplegable-producto summary::after {
+      content: "+";
+      font-family: system-ui, sans-serif;
+      transition: transform 0.2s;
+    }
+    #desplegable-producto[open] summary::after { transform: rotate(45deg); }
+    #desplegable-producto summary:hover { background: var(--arena); border-radius: var(--radio); }
+    #desplegable-producto[open] summary { border-bottom: 1px solid var(--borde); }
+
     /* Cada campo en su propia línea: texto del label arriba, input abajo */
-    #form-producto { display: grid; gap: 12px; max-width: 420px; margin: 16px 0; }
-    #form-producto label { display: grid; gap: 4px; font-size: 0.9rem; }
-    #form-producto input, #form-producto textarea { padding: 8px; font: inherit; border: 1px solid #ccc; border-radius: 6px; }
+    #form-producto { display: grid; gap: 12px; padding: 20px; }
+    #form-producto label { display: grid; gap: 4px; font-size: 0.9rem; color: var(--texto-suave); }
     /* El checkbox va en línea con su texto, no debajo */
     #form-producto .check { display: flex; align-items: center; gap: 8px; }
-    #form-producto button { padding: 10px; font: inherit; cursor: pointer; }
+    #form-producto button[type="submit"] { margin-top: 4px; }
+
+    /* Buscadores: input y botón en la misma línea (align-items: end alinea
+       el botón con el input, no con el texto del label) */
+    .form-buscar { display: flex; align-items: end; gap: 8px; padding: 12px 16px; margin: 8px 0; }
+    .form-buscar label { display: grid; gap: 4px; flex: 1; font-size: 0.9rem; color: var(--texto-suave); }
+
+    /* Resultados de búsqueda: cada producto como una fila con borde terracota */
+    #resultado-busqueda ul { list-style: none; padding: 0; margin: 12px 0 24px; display: grid; gap: 8px; }
+    #resultado-busqueda li {
+      padding: 10px 14px;
+      background: var(--arena);
+      border-left: 4px solid var(--terracota);
+      border-radius: 6px;
+    }
+
+    /* Mensaje flotante abajo a la derecha: se ve aunque hayas hecho scroll */
+    #notificacion { position: fixed; bottom: 16px; right: 16px; max-width: 320px; padding: 12px 16px; border-radius: var(--radio); color: #fff; box-shadow: 0 4px 12px rgba(59, 42, 34, 0.25); }
+    #notificacion.exito { background: var(--exito); }
+    #notificacion.error { background: var(--error); }
+    /* Recuerda el bug del portfolio: cualquier regla display le gana a hidden */
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
@@ -24,11 +193,33 @@
   <button id="btn-traer">Traer productos</button>
   <div id="resultado"></div>
 
+  <!-- name="..." de cada input se lee en JS como form.idProducto.value, form.texto.value.
+       OJO: no usamos name="id" porque chocaría con form.id, que ya es el
+       atributo id del propio formulario ("form-buscar-id"). -->
+  <h2>Buscar productos</h2>
+  <form id="form-buscar-id" class="form-buscar">
+    <label>Buscar por ID
+      <input type="number" name="idProducto" min="1" step="1" required>
+    </label>
+    <button type="submit">Buscar</button>
+  </form>
+  <form id="form-buscar-nombre" class="form-buscar">
+    <label>Buscar por nombre
+      <input type="text" name="texto" placeholder="ej. audífonos" required>
+    </label>
+    <button type="submit">Buscar</button>
+  </form>
+  <div id="resultado-busqueda"></div>
+
   <!-- name="..." de cada input = nombre de la columna en Supabase.
        Así en JS se lee como form.nombre.value, form.precio.value, etc.
        required / min / max / step: el navegador valida ANTES de enviar -->
+  <!-- <details> + <summary> = desplegable nativo de HTML, sin JS:
+       el navegador abre/cierra solo al hacer clic en el <summary>.
+       El JS sigue encontrando #form-producto aunque esté cerrado. -->
+  <details id="desplegable-producto">
+  <summary>Nuevo producto</summary>
   <form id="form-producto">
-    <h2>Nuevo producto</h2>
     <label>Nombre
       <input type="text" name="nombre" required>
     </label>
@@ -57,7 +248,12 @@
     </label>
     <button type="submit">Agregar producto</button>
   </form>
-  <div id="notificacion"></div>
+  </details>
+
+  <div id="notificacion" hidden></div>
+
+
+  <button id="btn-actualizar">Actualizar producto</button>
 
   <!-- supabaseClient.js crea "db" (sección 4.3): el cliente ya
        conectado a tu proyecto de Supabase. Lo vamos a usar en

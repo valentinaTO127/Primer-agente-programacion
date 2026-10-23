@@ -230,3 +230,13 @@ el usuario (`INPUT/codigo/supabase1/prueba2.html` + `js/prueba2.js`).
     una URL vacía).
   - **Floats en el form:** en JS no hay `int` vs `float` (todo es `Number`); lo que limitaba el
     descuento era `step="1"` en el input. Con `step="0.01"` acepta `0.15`.
+
+## 2026-10-23
+
+Hoy aprendí a actualizar y buscar datos con bases de datos con Supabase.
+
+- **Lo que trabajamos** (`INPUT/codigo/supabase1/prueba2.html` + `js/prueba2.js`):
+  - **Actualizar:** `update(cambios).eq('id', id).select()`. Si ningún id coincide no hay error, devuelve `[]`.
+  - **Buscar:** por id con `.eq()` + `.single()` (sin fila → error → `null`) y por nombre con `.ilike('nombre', '%texto%')` (sin coincidencias → `[]`).
+  - **Notificaciones** al agregar, actualizar y buscar, con `textContent` y `setTimeout`.
+  - **Galería** de "Traer productos" con `createElement` en vez de `innerHTML`, estilos terracota y el formulario de agregar como desplegable (`<details>`).
