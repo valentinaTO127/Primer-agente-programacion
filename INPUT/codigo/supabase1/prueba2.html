@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <!-- Sin esta línea el celular muestra la página "alejada" como si fuera de escritorio -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- <title>: el texto de la pestaña del navegador (y el nombre al guardarla en favoritos) -->
+  <title>Inventario</title>
   <!-- CDN: trae la librería de Supabase ANTES que nuestros propios
        scripts — sin esta línea, "supabase.createClient" no existiría
        todavía cuando supabaseClient.js intente usarlo -->
@@ -56,6 +58,10 @@
       --editar-fondo: #FDE68A;
       --editar-hover: #FBD24E;     /* 5.3:1 con el texto */
       --editar-texto: #6B4E00;
+      /* Chips de categorías en azul (propias, para no cambiar --arena, que usan
+         otros fondos como el encabezado de la tabla). Texto sobre fondo = 7.2:1 */
+      --chip-fondo: #DBEAFE;
+      --chip-texto: #1E40AF;
       --sombra: rgba(15, 118, 110, 0.14);  /* turquesa; con fondo blanco, la sombra es lo único que separa las tarjetas */
       --sombra-fuerte: rgba(18, 48, 45, 0.25);
       --radio: 10px;
@@ -89,6 +95,8 @@
       --editar-fondo: #4A3A0A;
       --editar-hover: #5E4A0E;     /* 6.9:1 con el texto */
       --editar-texto: #FDE68A;
+      --chip-fondo: #1E3A5F;       /* azul oscuro + texto azul claro = 8.1:1 */
+      --chip-texto: #BFDBFE;
       --sombra: rgba(0, 0, 0, 0.35);
       --sombra-fuerte: rgba(0, 0, 0, 0.6);
       color-scheme: dark;          /* el navegador pinta sus controles nativos en oscuro */
@@ -146,6 +154,11 @@
        se apilan, sección 1 arriba y sección 2 abajo (el orden del HTML) */
     @media (max-width: 800px) {
       .layout { grid-template-columns: 1fr; }
+    }
+    h1 {
+      margin: 0 0 16px;
+      font-size: 2rem;
+      color: var(--titulo);
     }
     h2 {
       color: var(--titulo);
@@ -262,8 +275,8 @@
     .tarjeta .etiquetas li {
       padding: 2px 8px;
       font-size: 0.75rem;
-      background: var(--arena);
-      color: var(--titulo);
+      background: var(--chip-fondo);
+      color: var(--chip-texto);
       border-radius: 999px;    /* "píldora": bordes totalmente redondos */
     }
 
@@ -486,6 +499,10 @@
   <!-- Dos secciones lado a lado (ver .layout en el CSS).
        <section> en vez de <div>: le dice al navegador (y a lectores de
        pantalla) que cada una es una zona con sentido propio. -->
+  <!-- h1 = título principal: debe haber UNO por página (los lectores de
+       pantalla y Google lo usan para saber de qué trata) -->
+  <h1>Inventario</h1>
+
   <main class="layout">
 
   <!-- Sección 1: buscadores + formulario de producto -->
