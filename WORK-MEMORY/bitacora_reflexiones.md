@@ -240,3 +240,23 @@ Hoy aprendí a actualizar y buscar datos con bases de datos con Supabase.
   - **Buscar:** por id con `.eq()` + `.single()` (sin fila → error → `null`) y por nombre con `.ilike('nombre', '%texto%')` (sin coincidencias → `[]`).
   - **Notificaciones** al agregar, actualizar y buscar, con `textContent` y `setTimeout`.
   - **Galería** de "Traer productos" con `createElement` en vez de `innerHTML`, estilos terracota y el formulario de agregar como desplegable (`<details>`).
+
+## 2026-10-29
+
+Hoy aprendí a hacer **update y delete** en Supabase, y el profesor habló sobre las
+**relaciones entre tablas (1:1, 1:N y N:M)** y las **primary key y foreign key**.
+
+- **Lo que aprendí** (`INPUT/codigo/supabase1/prueba2.html` + `js/prueba2.js`):
+  - **Update:** `update(cambios).eq('id', id).select()`, reutilizando el mismo form de crear
+    (input `hidden` con el id decide si es `insert` o `update`). Si ningún id coincide (o RLS no
+    deja), Supabase no da error: devuelve `[]`.
+  - **Delete:** `delete().eq('id', id).select()` + modal de confirmación con `<dialog>`. Sin el
+    `.select()`, `!error` diría "eliminado" aunque no se haya borrado ninguna fila.
+- **Lo que vimos en clase:**
+  - **Primary key (PK):** columna que identifica cada fila de forma única (ej. `id` en
+    `productos_practica`).
+  - **Foreign key (FK):** columna que guarda la PK de **otra** tabla para relacionarlas.
+  - **Relaciones:** 1:1 (una fila ↔ una fila), 1:N (una fila ↔ muchas, la FK va en el lado "N")
+    y N:M (muchas ↔ muchas, necesita una tabla intermedia con dos FK).
+- **Además en la página:** botones Editar/Eliminar en cada tarjeta, búsquedas en la galería,
+  vista galería/tabla, layout en dos secciones, modo oscuro y paleta turquesa con contraste revisado.

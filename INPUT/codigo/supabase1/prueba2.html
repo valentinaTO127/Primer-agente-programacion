@@ -8,36 +8,147 @@
        scripts — sin esta línea, "supabase.createClient" no existiría
        todavía cuando supabaseClient.js intente usarlo -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Elige el tema ANTES de que se pinte la página. Si esto estuviera en
+       prueba2.js (al final del body), la página se vería un instante en modo
+       claro y luego "parpadearía" a oscuro.
+       Prioridad: 1) lo que el usuario eligió con el botón (localStorage)
+                  2) la configuración del sistema (prefers-color-scheme) -->
+  <script>
+    let temaGuardado = null;
+    // try/catch: en modo incógnito o con almacenamiento bloqueado,
+    // localStorage puede lanzar un error en vez de devolver null
+    try { temaGuardado = localStorage.getItem('tema'); } catch (e) {}
+    document.documentElement.dataset.tema = temaGuardado ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+  </script>
   <style>
-    /* Paleta terracota en variables: si quieres otro tono, cambias aquí
-       y se actualiza toda la página. Contraste revisado (mínimo 4.5:1 para
-       texto, como aprendiste en el portfolio): blanco sobre --terracota ≈ 5:1 */
+    /* Paleta en variables: si quieres otro tono, cambias aquí y se actualiza
+       toda la página. Acentos, textos y bordes en TURQUESAS; los fondos
+       (--fondo, --superficie, --arena) se mantienen.
+       Contraste revisado (4.5:1 para texto, como aprendiste en el portfolio;
+       3:1 para bordes de controles como los inputs) */
     :root {
-      --fondo: #FBF3EC;            /* crema arcilla clara */
+      /* Fondo blanco, igual que las tarjetas (--superficie): lo que las separa
+         del fondo es SOLO su sombra (--sombra) */
+      --fondo: #FFFFFF;
       --superficie: #FFFFFF;       /* tarjetas */
-      --arena: #F3E1D3;            /* fondos suaves: resultados, hover */
-      --borde: #E2C2AB;
-      --terracota: #B4532A;        /* color principal: botones */
-      --terracota-oscuro: #8A3B1E; /* hover y títulos */
-      --texto: #3B2A22;            /* café casi negro */
-      --texto-suave: #6E5446;
-      --exito: #5E6B2E;            /* verde oliva, combina con terracota */
-      --error: #9E2A1F;            /* rojo ladrillo */
+      --arena: #d3f1f3;            /* fondos suaves: chips, encabezado de tabla, hover */
+      --borde: #c9d3e3;            /* separadores decorativos */
+      /* Borde de inputs: WCAG pide 3:1 para el contorno de un control (para
+         saber DÓNDE escribir). Este da 3.6:1 sobre blanco */
+      --borde-input: #5F8F8A;
+      /* "--primario" (antes "--terracota"): el nombre describe la FUNCIÓN, no el
+         color. Si mañana cambias otra vez de tono, el nombre sigue siendo cierto */
+      --primario: #0F766E;         /* turquesa oscuro: botones. Texto blanco encima = 5.5:1 */
+      --boton-hover: #115E59;      /* turquesa profundo: fondo de botones al pasar el mouse */
+      --titulo: #115E59;           /* títulos, chips y botón secundario: 7.6:1 */
+      --texto: #12302D;            /* verde azulado casi negro: 14:1 */
+      --texto-suave: #44605C;      /* 6.8:1 sobre blanco, 5.7:1 sobre --arena */
+      --texto-boton: #FFFFFF;      /* texto sobre --primario, --exito y --error */
+      /* Éxito y error se quedan verde y rojo A PROPÓSITO: son colores con
+         significado ("salió bien" / "falló"); en turquesa se confundirían con el resto */
+      --exito: #5E6B2E;            /* verde oliva: FONDO de la notificación */
+      --error: #9E2A1F;            /* rojo ladrillo: FONDO de la notificación */
+      --texto-exito: #5E6B2E;      /* mismo verde, pero usado como TEXTO */
+      --texto-error: #9E2A1F;
+      /* Botón Editar en amarillo: el amarillo es claro, así que el texto va OSCURO
+         (blanco sobre amarillo no llega ni a 2:1). Café oscuro sobre amarillo = 6.2:1 */
+      --editar-fondo: #FDE68A;
+      --editar-hover: #FBD24E;     /* 5.3:1 con el texto */
+      --editar-texto: #6B4E00;
+      --sombra: rgba(15, 118, 110, 0.14);  /* turquesa; con fondo blanco, la sombra es lo único que separa las tarjetas */
+      --sombra-fuerte: rgba(18, 48, 45, 0.25);
       --radio: 10px;
+      color-scheme: light;         /* inputs, flechas del number y scrollbar del navegador en claro */
     }
+
+    /* --- Modo oscuro ---
+       Solo se redefinen las variables: como TODO el CSS usa var(--...),
+       la página entera cambia sin tocar ninguna otra regla.
+       Por eso antes separamos "--exito" (fondo) de "--texto-exito" (texto):
+       en oscuro un fondo necesita ser oscuro, y un texto, claro.
+       Contraste revisado (mínimo 4.5:1):
+         --texto sobre --superficie ≈ 13:1 · --texto-suave ≈ 9:1
+         --titulo sobre --superficie ≈ 10:1 · blanco sobre --primario ≈ 4.85:1 */
+    :root[data-tema="oscuro"] {
+      --fondo: #06060c;            /* café profundo, no negro puro (cansa menos la vista) */
+      --superficie: #151a1f;       /* tarjetas: un poco más claras que el fondo */
+      --arena: #25353a;
+      --borde: #2F4A47;            /* turquesa grisáceo oscuro */
+      --borde-input: #6FA39C;      /* 6.2:1 sobre --superficie */
+      /* Un poco más claro que el de modo claro: ese (#0F766E) se pierde contra
+         las tarjetas oscuras. Este da 3.6:1 contra ellas y 4.86:1 con texto blanco */
+      --primario: #0F7F76;
+      --titulo: #7DD3C8;           /* turquesa claro: en fondo oscuro el acento debe ser claro (10:1) */
+      --texto: #E2F1EF;
+      --texto-suave: #A3C2BE;
+      --texto-exito: #A9BA6A;      /* verde oliva claro */
+      --texto-error: #F08A7A;      /* rojo ladrillo claro */
+      /* En oscuro se invierte: fondo amarillo oscuro + texto amarillo claro (8.9:1).
+         Un amarillo claro brillante encandilaría sobre la página oscura */
+      --editar-fondo: #4A3A0A;
+      --editar-hover: #5E4A0E;     /* 6.9:1 con el texto */
+      --editar-texto: #FDE68A;
+      --sombra: rgba(0, 0, 0, 0.35);
+      --sombra-fuerte: rgba(0, 0, 0, 0.6);
+      color-scheme: dark;          /* el navegador pinta sus controles nativos en oscuro */
+    }
+
+    /* Botón de tema: redondo, arriba a la derecha, fijo al hacer scroll */
+    #btn-tema {
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      width: 44px;                 /* 44px: tamaño mínimo cómodo para el dedo en el celular */
+      height: 44px;
+      padding: 0;
+      font-size: 1.2rem;
+      background: var(--superficie);
+      border: 1px solid var(--borde);
+      border-radius: 50%;
+      box-shadow: 0 2px 8px var(--sombra);
+    }
+    #btn-tema:hover { background: var(--arena); }
 
     body {
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       background: var(--fondo);
       color: var(--texto);
-      max-width: 640px;
+      max-width: 1200px;       /* más ancho: ahora caben dos secciones lado a lado */
       margin: 0 auto;          /* centra el contenido en pantallas anchas */
-      padding: 24px 16px 96px; /* abajo deja espacio para la notificación */
+      padding: 72px 8px 96px;  /* arriba: espacio para el botón de tema; lados: 8px; abajo: para la notificación */
       line-height: 1.5;
     }
+
+    /* --- Layout en dos secciones ---
+       Antes era 1fr 2fr (sección 2 = 2/3 del ancho ≈ 66,7%).
+       Para que la sección 2 sea 10% MÁS ANCHA: 66,7% × 1,1 ≈ 73,3% del ancho,
+       y la sección 1 queda con el 26,7% restante → 73,3 / 26,7 ≈ 2,75.
+       (Ojo: 2fr → 2.2fr NO sirve, porque la sección 1 también cuenta en el total:
+       daría 2,2 / 3,2 ≈ 68,8%, apenas un 3% más ancha.)
+       minmax(300px, 1fr): la sección 1 nunca baja de 300px, así el form
+       no queda apretado. align-items: start → cada sección mide lo que
+       necesita su contenido, en vez de estirarse a la altura de la otra. */
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(300px, 1fr) 2.75fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .panel {
+      padding: 16px;
+      /* Sin borde: la sombra sola ya separa la sección del fondo */
+      border-radius: var(--radio);
+      box-shadow: 0 2px 8px var(--sombra);
+      min-width: 0;            /* sin esto, un hijo ancho (galería) puede desbordar la columna del grid */
+    }
+    /* En pantallas angostas (celular/tablet) no caben dos columnas:
+       se apilan, sección 1 arriba y sección 2 abajo (el orden del HTML) */
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+    }
     h2 {
-      font-family: Georgia, "Times New Roman", serif;
-      color: var(--terracota-oscuro);
+      color: var(--titulo);
       margin: 0 0 4px;
     }
 
@@ -46,38 +157,40 @@
       padding: 10px 16px;
       font: inherit;
       font-weight: 600;
-      color: #fff;
-      background: var(--terracota);
+      color: var(--texto-boton);
+      background: var(--primario);
       border: none;
       border-radius: var(--radio);
       cursor: pointer;
       transition: background 0.2s, transform 0.1s;
     }
-    button:hover { background: var(--terracota-oscuro); }
+    button:hover { background: var(--boton-hover); }
     button:active { transform: scale(0.97); }
 
-    /* Inputs: borde arena; al enfocarlos se marcan en terracota */
+    /* Inputs: borde turquesa grisáceo; al enfocarlos se marcan en --primario */
     input, textarea {
       padding: 8px 10px;
       font: inherit;
       color: var(--texto);
       background: var(--superficie);
-      border: 1px solid var(--borde);
+      border: 1px solid var(--borde-input);
       border-radius: 8px;
     }
     input:focus, textarea:focus, button:focus-visible {
-      outline: 2px solid var(--terracota);
+      outline: 2px solid var(--primario);
       outline-offset: 2px;
     }
     /* accent-color pinta el checkbox con el color de la paleta */
-    input[type="checkbox"] { accent-color: var(--terracota); width: 18px; height: 18px; }
+    input[type="checkbox"] { accent-color: var(--primario); width: 18px; height: 18px; }
 
     /* Galería de "Traer productos": el JS solo crea las tarjetas, el CSS decide
-       el acomodo. auto-fill + minmax = tantas columnas de mínimo 180px como
-       quepan; en el celular queda 1 columna, en escritorio 3 */
+       el acomodo. auto-fill + minmax = tantas columnas de mínimo 198px como
+       quepan; en el celular queda 1 columna, en escritorio 3-4.
+       198px = 180px + 10%: la imagen mide el 100% del ancho de la tarjeta,
+       así que agrandar la tarjeta es lo que agranda la imagen */
     #resultado:not(:empty) {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(198px, 1fr));
       gap: 16px;
       margin: 16px 0 32px;
     }
@@ -85,63 +198,90 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      padding: 14px;
+      --padding-tarjeta: 14px;  /* variable: la imagen la usa para "comerse" ese padding */
+      padding: var(--padding-tarjeta);
       background: var(--superficie);
-      border: 1px solid var(--borde);
+      /* Sin borde: el fondo --superficie y la sombra marcan la tarjeta */
       border-radius: var(--radio);
-      box-shadow: 0 2px 8px rgba(138, 59, 30, 0.08);
+      box-shadow: 0 2px 8px var(--sombra);
     }
+    /* --- Transición al mostrar productos ---
+       Cada tarjeta nueva aparece desvaneciéndose y subiendo 8px.
+       Es una @keyframes (no una transition) porque la tarjeta es un elemento
+       NUEVO: una transition solo anima un cambio de un valor que ya existía,
+       y una tarjeta recién creada no tenía un "antes" desde donde animar. */
+    @keyframes aparecer {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .tarjeta {
+      /* both = antes de empezar ya está invisible (no "parpadea" durante el retraso) */
+      animation: aparecer 0.35s ease-out both;
+      /* Cascada: cada tarjeta espera 40ms más que la anterior (--i lo pone el JS).
+         min(..., 400ms): con 50 productos, la última no tarda 2 segundos en salir */
+      animation-delay: min(calc(var(--i, 0) * 40ms), 400ms);
+    }
+    /* Accesibilidad: si la persona pidió "reducir movimiento" en su sistema
+       (el movimiento puede marear), las tarjetas aparecen sin animación */
+    @media (prefers-reduced-motion: reduce) {
+      .tarjeta { animation: none; }
+    }
+
+    /* Imagen "a sangre": pegada a los bordes de la tarjeta, sin espacio alrededor.
+       El padding de la tarjeta no se quita (lo necesitan los textos): la imagen
+       lo compensa con margin NEGATIVO del mismo tamaño arriba y a los lados,
+       y crece ese mismo espacio de ancho (100% + padding izquierdo + derecho).
+       Resultado: ~10-14% más ancha que antes, según el ancho de la tarjeta. */
     .tarjeta img {
-      width: 100%;
+      width: calc(100% + 2 * var(--padding-tarjeta));
+      max-width: none;
+      margin: calc(-1 * var(--padding-tarjeta)) calc(-1 * var(--padding-tarjeta)) 0;
       aspect-ratio: 1 / 1;
       object-fit: cover;       /* recorta sin deformar la imagen */
-      border-radius: 6px;
+      /* Solo las esquinas de arriba redondeadas, iguales a las de la tarjeta */
+      border-radius: var(--radio) var(--radio) 0 0;
       background: var(--arena);
     }
-    .tarjeta h3 { margin: 4px 0 0; font-size: 1rem; color: var(--terracota-oscuro); }
+    .tarjeta h3 { margin: 4px 0 0; font-size: 1rem; color: var(--titulo); }
     .tarjeta p { margin: 0; }
     .tarjeta .descripcion { font-size: 0.85rem; color: var(--texto-suave); }
-    .tarjeta .precio { font-size: 1.1rem; font-weight: 700; }
+    .tarjeta .precio { font-size: 1.1rem; }
     .tarjeta .descuento {
       margin-left: 8px;
       padding: 2px 6px;
       font-size: 0.75rem;
-      color: #fff;
-      background: var(--terracota);
+      color: var(--texto-boton);
+      background: var(--error);    /* rojo: llama la atención sobre la oferta. Texto blanco = 7.5:1 */
       border-radius: 4px;
       vertical-align: middle;
     }
-    .tarjeta .estado { font-size: 0.85rem; font-weight: 600; }
-    .tarjeta .estado.disponible { color: var(--exito); }
-    .tarjeta .estado.agotado { color: var(--error); }
+    .tarjeta .estado { font-size: 0.85rem; }
+    .tarjeta .estado.disponible { color: var(--texto-exito); }
+    .tarjeta .estado.agotado { color: var(--texto-error); }
     .tarjeta .etiquetas { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; padding: 0; margin: 0; }
     .tarjeta .etiquetas li {
       padding: 2px 8px;
       font-size: 0.75rem;
       background: var(--arena);
-      color: var(--terracota-oscuro);
+      color: var(--titulo);
       border-radius: 999px;    /* "píldora": bordes totalmente redondos */
     }
-    /* margin-top: auto empuja el ID al fondo, así todas las tarjetas
-       de una fila terminan alineadas aunque tengan textos de distinto largo */
-    .tarjeta .id { margin-top: auto; font-size: 0.75rem; color: var(--texto-suave); }
 
     /* Cada formulario es una "tarjeta" blanca sobre el fondo crema */
     #desplegable-producto, .form-buscar {
       background: var(--superficie);
       border: 1px solid var(--borde);
       border-radius: var(--radio);
-      box-shadow: 0 2px 8px rgba(138, 59, 30, 0.08);
+      box-shadow: 0 2px 8px var(--sombra);
     }
 
     /* Desplegable: el <summary> es la "barra" en la que se hace clic */
     #desplegable-producto { margin: 24px 0; }
     #desplegable-producto summary {
       padding: 14px 20px;
-      font-family: Georgia, "Times New Roman", serif;
       font-size: 1.5em;
       font-weight: bold;
-      color: var(--terracota-oscuro);
+      color: var(--titulo);
       cursor: pointer;
       list-style: none;        /* quita el triángulo por defecto... */
       display: flex;
@@ -166,22 +306,171 @@
     #form-producto .check { display: flex; align-items: center; gap: 8px; }
     #form-producto button[type="submit"] { margin-top: 4px; }
 
+    /* "Cargar producto" vive DENTRO de la tarjeta del desplegable, así que le
+       quitamos el borde/sombra de .form-buscar para que no sea tarjeta dentro de tarjeta */
+    #desplegable-producto .form-buscar { border: none; box-shadow: none; margin: 0; padding: 20px 20px 0; }
+
+    /* Botón secundario (Cancelar): menos llamativo que el principal.
+       :hover propio porque el de "button:hover" pondría fondo oscuro sobre texto oscuro */
+    .btn-secundario { color: var(--titulo); background: var(--arena); }
+    .btn-secundario:hover { background: var(--borde); }
+    /* Editar en amarillo. Va DESPUÉS de .btn-secundario: tienen la misma
+       especificidad (una clase), así que gana la regla que está más abajo */
+    .btn-editar { color: var(--editar-texto); background: var(--editar-fondo); }
+    .btn-editar:hover { background: var(--editar-hover); }
+    /* Botón Editar de cada tarjeta: más pequeño que los botones principales.
+       margin-top: auto lo empuja al fondo, así los botones de una fila quedan
+       alineados aunque las tarjetas tengan textos de distinto largo */
+    /* Fila de botones de la tarjeta: margin-top: auto la empuja al fondo, así los
+       botones de una fila de tarjetas quedan alineados. flex: 1 = mismo ancho para ambos */
+    .acciones-tarjeta { display: flex; gap: 8px; margin-top: auto; }
+    .acciones-tarjeta button { flex: 1; padding: 6px 12px; font-size: 0.85rem; }
+
+    /* Eliminar: borde y texto rojos, sin relleno → se nota que es "peligroso"
+       pero no compite con el botón principal. Al pasar el mouse se rellena */
+    .btn-eliminar { color: var(--texto-error); background: transparent; border: 1px solid var(--texto-error); }
+    .btn-eliminar:hover { color: var(--texto-boton); background: var(--error); border-color: var(--error); }
+
+    /* --- Modal de confirmación (<dialog>) --- */
+    #modal-eliminar {
+      /* width: ocupa 480px, pero en el celular nunca más que la pantalla menos 32px */
+      width: min(480px, calc(100% - 32px));
+      max-width: none;              /* el navegador le pone un max-width propio al <dialog> */
+      /* padding en el <form>, NO en el <dialog>: así cualquier clic dentro de
+         la caja cae en el form o sus hijos, y solo el clic en el fondo oscuro
+         tiene event.target === dialog (ver el listener de "clic afuera" en el JS) */
+      padding: 0;
+      color: var(--texto);          /* <dialog> no hereda el color del body */
+      background: var(--superficie);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      box-shadow: 0 8px 24px var(--sombra-fuerte);
+    }
+    /* ::backdrop = la capa que tapa la página detrás del modal */
+    #modal-eliminar::backdrop { background: rgba(0, 0, 0, 0.5); }
+    #modal-eliminar form { padding: 32px; }
+    #modal-eliminar p { margin: 0 0 12px; font-size: 1.2rem; line-height: 1.4; }
+    #modal-eliminar .aviso { font-size: 0.95rem; color: var(--texto-suave); }
+    .modal-botones { display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; }
+    .modal-botones button { padding: 12px 24px; font-size: 1rem; }
+    /* Botón Eliminar del modal: relleno rojo, es la acción definitiva */
+    .btn-peligro { background: var(--error); }
+    .btn-peligro:hover { background: var(--error); filter: brightness(0.85); }
+
     /* Buscadores: input y botón en la misma línea (align-items: end alinea
        el botón con el input, no con el texto del label) */
     .form-buscar { display: flex; align-items: end; gap: 8px; padding: 12px 16px; margin: 8px 0; }
-    .form-buscar label { display: grid; gap: 4px; flex: 1; font-size: 0.9rem; color: var(--texto-suave); }
+    /* min-width: 0 → deja que el label se encoja. Por defecto un hijo de flex
+       NO baja del ancho de su contenido, y un <input> trae un ancho propio
+       (~20 caracteres): por eso empujaba el botón Buscar fuera de la sección */
+    .form-buscar label { display: grid; gap: 4px; flex: 1; min-width: 0; font-size: 0.9rem; color: var(--texto-suave); }
+    /* El input llena su label (en vez de usar su ancho por defecto)... */
+    .form-buscar input { width: 100%; min-width: 0; box-sizing: border-box; }
+    /* ...y el botón nunca se aplasta ni parte "Buscar" en dos líneas */
+    .form-buscar button { flex-shrink: 0; }
 
-    /* Resultados de búsqueda: cada producto como una fila con borde terracota */
-    #resultado-busqueda ul { list-style: none; padding: 0; margin: 12px 0 24px; display: grid; gap: 8px; }
-    #resultado-busqueda li {
-      padding: 10px 14px;
+    /* Título de la galería: "Todos los productos (5)" o "Resultados para ..." */
+    #titulo-galeria { margin-top: 16px; font-size: 1.2rem; }
+
+    /* Barra de la sección 2: Traer/Ocultar a la izquierda, cambio de vista a la derecha */
+    .barra-galeria { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+    /* --- Vista TABLA ---
+       Mismas tarjetas <article>, otro acomodo: cada una pasa de "columna"
+       (flex) a "fila" (grid con columnas fijas).
+       container-type: el @container de abajo mira el ancho de ESTA sección,
+       no el de la pantalla (la sección 2 puede ser angosta en una pantalla ancha) */
+    #panel-productos {
+      box-shadow: none;        /* sección 2 sin sombra: las tarjetas ya tienen la suya */
+      container-type: inline-size;
+      /* Una sola definición de columnas para encabezado Y filas → siempre alineados */
+      /* Una sola definición de columnas para encabezado Y filas → siempre alineados.
+         Acciones en 170px FIJOS (antes "auto"): el encabezado y cada fila son grids
+         separados, y con "auto" cada uno calculaba su propio ancho → en el encabezado
+         la columna medía solo lo que mide la palabra "Acciones" y quedaba corrida */
+      --columnas-tabla: 56px minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1.4fr) 170px;
+    }
+
+    /* Los encabezados solo se ven en vista tabla y cuando hay productos.
+       :has() = "el panel que TIENE un #resultado no vacío" */
+    .encabezado-tabla { display: none; }
+    #panel-productos.vista-tabla:has(#resultado:not(:empty)) .encabezado-tabla {
+      display: grid;
+      grid-template-columns: var(--columnas-tabla);
+      column-gap: 12px;
+      margin-top: 16px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--titulo);
       background: var(--arena);
-      border-left: 4px solid var(--terracota);
-      border-radius: 6px;
+      border-radius: var(--radio) var(--radio) 0 0;
+    }
+
+    /* Una sola columna de filas pegadas (sin borde exterior; solo las
+       líneas finas entre filas, ver .vista-tabla .tarjeta) */
+    #panel-productos.vista-tabla #resultado:not(:empty) {
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-top: 0;
+      border-radius: 0 0 var(--radio) var(--radio);
+      overflow: hidden;        /* recorta las esquinas de la última fila */
+    }
+
+    /* grid-template-areas "dibuja" la fila con nombres. Ventaja: cada elemento
+       va a su celda por NOMBRE, así si un producto no tiene imagen, el resto
+       no se corre de columna */
+    .vista-tabla .tarjeta {
+      display: grid;
+      grid-template-columns: var(--columnas-tabla);
+      grid-template-areas:
+        "img nombre precio estado    acciones"
+        "img desc   precio etiquetas acciones";
+      column-gap: 12px;
+      row-gap: 2px;
+      align-items: center;
+      padding: 10px 12px;
+      border: none;
+      border-bottom: 1px solid var(--borde);
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .vista-tabla .tarjeta:last-child { border-bottom: none; }
+    .vista-tabla .tarjeta:hover { background: var(--fondo); }
+    /* En la tabla la imagen vuelve a ser una miniatura normal (sin margin negativo) */
+    .vista-tabla .tarjeta img { grid-area: img; width: 100%; margin: 0; border-radius: 6px; }
+    .vista-tabla .tarjeta h3 { grid-area: nombre; margin: 0; }
+    .vista-tabla .tarjeta .descripcion { grid-area: desc; }
+    .vista-tabla .tarjeta .precio { grid-area: precio; font-size: 1rem; }
+    .vista-tabla .tarjeta .estado { grid-area: estado; }
+    .vista-tabla .tarjeta .etiquetas { grid-area: etiquetas; }
+    .vista-tabla .acciones-tarjeta { grid-area: acciones; margin-top: 0; justify-content: center; }
+    /* Título "Acciones" centrado sobre los botones (es el último span del encabezado) */
+    .encabezado-tabla span:last-child { text-align: center; }
+    .vista-tabla .acciones-tarjeta button { flex: none; }
+
+    /* Sección 2 angosta (celular): 5 columnas no caben → fila compacta de 2
+       columnas: imagen a la izquierda, el resto apilado; sin encabezados */
+    @container (max-width: 560px) {
+      #panel-productos.vista-tabla:has(#resultado:not(:empty)) .encabezado-tabla { display: none; }
+      #panel-productos.vista-tabla #resultado:not(:empty) { margin-top: 16px; border-radius: var(--radio); }
+      .vista-tabla .tarjeta {
+        grid-template-columns: 56px minmax(0, 1fr);
+        grid-template-areas:
+          "img nombre"
+          "img precio"
+          "img estado"
+          "etiquetas etiquetas"
+          "acciones acciones";
+        row-gap: 4px;
+      }
+      .vista-tabla .tarjeta .descripcion { display: none; } /* en el celular sobra */
+      .vista-tabla .acciones-tarjeta { margin-top: 6px; }
+      .vista-tabla .acciones-tarjeta button { flex: 1; }
     }
 
     /* Mensaje flotante abajo a la derecha: se ve aunque hayas hecho scroll */
-    #notificacion { position: fixed; bottom: 16px; right: 16px; max-width: 320px; padding: 12px 16px; border-radius: var(--radio); color: #fff; box-shadow: 0 4px 12px rgba(59, 42, 34, 0.25); }
+    #notificacion { position: fixed; bottom: 16px; right: 16px; max-width: 320px; padding: 12px 16px; border-radius: var(--radio); color: var(--texto-boton); box-shadow: 0 4px 12px var(--sombra-fuerte); }
     #notificacion.exito { background: var(--exito); }
     #notificacion.error { background: var(--error); }
     /* Recuerda el bug del portfolio: cualquier regla display le gana a hidden */
@@ -190,8 +479,17 @@
 </head>
 <body>
 
-  <button id="btn-traer">Traer productos</button>
-  <div id="resultado"></div>
+  <!-- aria-label: el emoji solo no le dice nada a un lector de pantalla;
+       el JS lo actualiza según el modo -->
+  <button type="button" id="btn-tema" aria-label="Cambiar a modo oscuro">🌙</button>
+
+  <!-- Dos secciones lado a lado (ver .layout en el CSS).
+       <section> en vez de <div>: le dice al navegador (y a lectores de
+       pantalla) que cada una es una zona con sentido propio. -->
+  <main class="layout">
+
+  <!-- Sección 1: buscadores + formulario de producto -->
+  <section class="panel">
 
   <!-- name="..." de cada input se lee en JS como form.idProducto.value, form.texto.value.
        OJO: no usamos name="id" porque chocaría con form.id, que ya es el
@@ -209,7 +507,6 @@
     </label>
     <button type="submit">Buscar</button>
   </form>
-  <div id="resultado-busqueda"></div>
 
   <!-- name="..." de cada input = nombre de la columna en Supabase.
        Así en JS se lee como form.nombre.value, form.precio.value, etc.
@@ -217,9 +514,22 @@
   <!-- <details> + <summary> = desplegable nativo de HTML, sin JS:
        el navegador abre/cierra solo al hacer clic en el <summary>.
        El JS sigue encontrando #form-producto aunque esté cerrado. -->
+  <!-- El MISMO form sirve para crear y para editar:
+       - idEditar vacío  → modo "Nuevo"  → insert
+       - idEditar con id → modo "Editar" → update
+       "Cargar" es un form aparte porque HTML no permite un <form> dentro de otro. -->
   <details id="desplegable-producto">
-  <summary>Nuevo producto</summary>
+  <summary id="titulo-producto">Nuevo producto</summary>
+  <form id="form-cargar" class="form-buscar">
+    <label>¿Editar uno existente? Escribe su ID
+      <input type="number" name="idCargar" min="1" step="1" required>
+    </label>
+    <button type="submit">Cargar</button>
+  </form>
   <form id="form-producto">
+    <!-- type="hidden": el usuario no lo ve, pero el JS sí lo lee.
+         Guarda QUÉ producto se está editando -->
+    <input type="hidden" name="idEditar">
     <label>Nombre
       <input type="text" name="nombre" required>
     </label>
@@ -246,14 +556,55 @@
     <label>URL de la imagen
       <input type="url" name="img_url" placeholder="https://...">
     </label>
-    <button type="submit">Agregar producto</button>
+    <button type="submit" id="btn-guardar">Agregar producto</button>
+    <!-- type="button": sin esto, todo <button> dentro de un form es "submit"
+         y Cancelar enviaría el formulario -->
+    <button type="button" id="btn-cancelar-edicion" class="btn-secundario" hidden>Cancelar edición</button>
   </form>
   </details>
 
+  </section>
+
+  <!-- Sección 2: botón Traer/Ocultar + galería de productos.
+       Aquí también se pintan los resultados de los buscadores de la sección 1 -->
+  <!-- id="panel-productos": el JS le pone/quita la clase "vista-tabla" y el
+       CSS cambia el acomodo. Las tarjetas son LAS MISMAS en las dos vistas. -->
+  <section class="panel" id="panel-productos">
+    <div class="barra-galeria">
+      <button id="btn-traer">Traer productos</button>
+      <button type="button" id="btn-vista" class="btn-secundario">Ver como tabla</button>
+    </div>
+    <h2 id="titulo-galeria" hidden></h2>
+    <!-- Encabezados de la tabla. Van FUERA de #resultado a propósito:
+         actualizarTituloGaleria cuenta los hijos de #resultado, y esta fila
+         se contaría como un producto más.
+         aria-hidden: es solo decoración visual, cada tarjeta ya tiene sus textos -->
+    <div class="encabezado-tabla" aria-hidden="true">
+      <span></span><span>Producto</span><span>Precio</span><span>Estado</span><span>Acciones</span>
+    </div>
+    <div id="resultado"></div>
+  </section>
+
+  </main>
+
   <div id="notificacion" hidden></div>
 
-
-  <button id="btn-actualizar">Actualizar producto</button>
+  <!-- <dialog> = modal nativo de HTML: con showModal() el navegador lo centra,
+       oscurece el fondo, bloquea el resto de la página y lo cierra con Esc.
+       method="dialog": al pulsar un botón del form, en vez de enviarlo, cierra
+       el modal y guarda el value del botón en modal.returnValue -->
+  <dialog id="modal-eliminar">
+    <form method="dialog">
+      <p>¿Estás seguro que quieres eliminar <strong id="modal-nombre"></strong>?</p>
+      <p class="aviso">Esta acción no se puede deshacer.</p>
+      <div class="modal-botones">
+        <!-- Cancelar va PRIMERO: showModal() enfoca el primer botón, así un
+             Enter por accidente cancela en vez de borrar -->
+        <button value="cancelar" class="btn-secundario">Cancelar</button>
+        <button value="confirmar" class="btn-peligro">Eliminar</button>
+      </div>
+    </form>
+  </dialog>
 
   <!-- supabaseClient.js crea "db" (sección 4.3): el cliente ya
        conectado a tu proyecto de Supabase. Lo vamos a usar en
