@@ -221,7 +221,51 @@ function llenarFormulario(form, producto) {
     form.disponible.checked = producto.disponible;
     form.categorias.value = (producto.categorias ?? []).join(', ');
     form.img_url.value = producto.img_url ?? '';
+    // Asignar .value desde JS NO dispara el evento "input" (solo lo dispara
+    // el usuario al escribir), así que la previsualización se actualiza a mano
+    actualizarPreview(form.img_url.value);
 }
+
+// --- Previsualización de la imagen ---
+// El navegador descarga la imagen apenas cambia img.src, y avisa cómo le fue
+// con dos eventos: "load" (llegó una imagen) o "error" (URL mal escrita,
+// no existe o no es una imagen). Los listeners se registran UNA vez aquí
+// afuera; si estuvieran dentro de actualizarPreview se acumularían.
+const previewImagen = document.getElementById('preview-imagen');
+const imgPreview = previewImagen.querySelector('img');
+const textoPreview = previewImagen.querySelector('figcaption');
+
+imgPreview.addEventListener('load', () => {
+    imgPreview.hidden = false;
+    previewImagen.classList.remove('error');
+    textoPreview.textContent = 'Así se verá en la galería';
+});
+
+imgPreview.addEventListener('error', () => {
+    // Si src quedó vacío a propósito (ver abajo) no es un error real
+    if (!imgPreview.getAttribute('src')) return;
+    imgPreview.hidden = true;        // sin ícono de imagen rota
+    previewImagen.classList.add('error');
+    textoPreview.textContent = 'No se pudo cargar la imagen (revisa la URL)';
+});
+
+function actualizarPreview(url) {
+    url = url.trim();
+    if (!url) {
+        previewImagen.hidden = true;
+        imgPreview.removeAttribute('src'); // deja de mostrar la imagen anterior
+        return;
+    }
+    previewImagen.hidden = false;
+    previewImagen.classList.remove('error');
+    textoPreview.textContent = 'Cargando…';
+    imgPreview.src = url; // dispara "load" o "error" más tarde
+}
+
+// "input" = cada vez que el usuario escribe, pega o borra en el campo
+document.getElementById('form-producto').img_url.addEventListener('input', (event) => {
+    actualizarPreview(event.target.value);
+});
 
 // Cambia textos y botones según el modo, para que el usuario sepa si va a
 // crear uno nuevo o a sobrescribir uno existente.
@@ -238,6 +282,8 @@ function ponerModoNuevo() {
     // reset() NO vacía un input hidden: en ellos .value cambia el valor "por
     // defecto", así que reset() lo deja igual. Hay que vaciarlo a mano.
     form.idEditar.value = '';
+    // reset() tampoco dispara "input": escondemos la previsualización a mano
+    actualizarPreview('');
     document.getElementById('titulo-producto').textContent = 'Nuevo producto';
     document.getElementById('btn-guardar').textContent = 'Agregar producto';
     document.getElementById('btn-cancelar-edicion').hidden = true;

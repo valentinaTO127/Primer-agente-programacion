@@ -260,3 +260,36 @@ Hoy aprendí a hacer **update y delete** en Supabase, y el profesor habló sobre
     y N:M (muchas ↔ muchas, necesita una tabla intermedia con dos FK).
 - **Además en la página:** botones Editar/Eliminar en cada tarjeta, búsquedas en la galería,
   vista galería/tabla, layout en dos secciones, modo oscuro y paleta turquesa con contraste revisado.
+
+## 2026-10-30
+
+Hoy aprendí a **registrar y autenticar usuarios con Supabase** (`INPUT/codigo/supabase1/cliente.html`
++ `js/cliente.js`).
+
+- **Lo que aprendí:**
+  - **Registro:** `db.auth.signUp({ email, password })` crea el usuario en `auth.users` (tabla interna
+    de Supabase) con un `uuid` como id. Después, un `insert` en `clientes_practica` guarda su perfil
+    usando ese mismo `data.user.id`.
+  - **Login:** `db.auth.signInWithPassword()` no crea usuarios, solo verifica. Si sale bien, `db`
+    guarda la sesión y la manda sola en cada petición (es lo que lee `auth.uid()` en las policies).
+  - **Error del día — `22P02 invalid input syntax for type bigint`:** el `id` de `clientes_practica`
+    era `int8` y el de Auth es `uuid`. Conecta con la clase de ayer: el perfil es una relación 1:1,
+    y una FK tiene que ser del mismo tipo que la PK a la que apunta.
+- **Además en la página:** estilos con la paleta de `prueba2.html`, un solo formulario a la vez con
+  un texto clickeable para cambiar entre Registrarse e Iniciar sesión, y el panel centrado con
+  `display: grid` + `place-items: center`. En `prueba2.html`: panel de vidrio, previsualización de
+  la imagen, galería más grande, hover con `scale` y esquinas menos redondeadas.
+- **Segunda parte — leer y actualizar los datos del cliente con sesión iniciada:**
+  - **Primero leer, después escribir:** al entrar, `select('*').eq('id', user.id).maybeSingle()`
+    trae la fila del cliente y se muestra en una **ficha** (`<dl>` con `textContent`). El form de
+    "Actualizar datos" se llena desde lo guardado (`perfilActual`), no desde lo que quedó escrito.
+  - **Update:** `update({ nombre, telefono, direccion }).eq('id', user.id).select()`. El correo
+    es `readonly` y no se manda (cambiarlo en la tabla no lo cambia en Auth), y el rol tampoco.
+  - **Seguridad en la base, no en el form:** policies de RLS con `auth.uid() = id` para leer y
+    editar solo la fila propia, y `grant update (nombre, telefono, direccion)` para que `rol` no
+    se pueda cambiar ni desde la consola. Esconder un campo no lo protege.
+  - **Layout:** un `<aside>` con `<nav>` como menú (Mis datos / Actualizar datos) que cambia la
+    vista con `hidden`; la opción activa se marca con `aria-current`. Grid para poner Cerrar sesión
+    (ahora rojo) en la misma fila del título, `:has()` para que la sección mida 60% solo con sesión,
+    y un `<div class="campo">` por pareja label + input para tener 2 columnas.
+  - Botón de modo claro/oscuro copiado de `prueba2.html`, con la misma clave `tema` en `localStorage`.

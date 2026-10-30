@@ -45,6 +45,7 @@
       --boton-hover: #115E59;      /* turquesa profundo: fondo de botones al pasar el mouse */
       --titulo: #115E59;           /* títulos, chips y botón secundario: 7.6:1 */
       --texto: #12302D;            /* verde azulado casi negro: 14:1 */
+      --titulo-pagina: #000000;    /* h1 "Inventario": negro (21:1 sobre blanco) */
       --texto-suave: #44605C;      /* 6.8:1 sobre blanco, 5.7:1 sobre --arena */
       --texto-boton: #FFFFFF;      /* texto sobre --primario, --exito y --error */
       /* Éxito y error se quedan verde y rojo A PROPÓSITO: son colores con
@@ -64,7 +65,20 @@
       --chip-texto: #1E40AF;
       --sombra: rgba(15, 118, 110, 0.14);  /* turquesa; con fondo blanco, la sombra es lo único que separa las tarjetas */
       --sombra-fuerte: rgba(18, 48, 45, 0.25);
-      --radio: 10px;
+      /* Esquinas: 10px → 5px (menos redondeadas). Como casi todo usa
+         var(--radio), este solo cambio afecta tarjetas, botones, paneles,
+         formularios, modal y notificación. Los radios "chicos" (inputs,
+         miniaturas, descuento) también bajaron a la mitad, a mano */
+      --radio: 5px;
+      /* --- Efecto vidrio (sección 1) ---
+           Manchas de color del fondo: el blur del vidrio necesita algo DETRÁS
+           que desenfocar; sobre blanco liso el vidrio se vería igual que blanco */
+      --mancha-1: rgba(45, 212, 191, 0.45);   /* turquesa */
+      --mancha-2: rgba(96, 165, 250, 0.40);   /* azul (como los chips) */
+      --mancha-3: rgba(15, 118, 110, 0.25);   /* turquesa oscuro (--primario) */
+      --vidrio: rgba(255, 255, 255, 0.45);    /* panel: blanco translúcido */
+      --vidrio-interno: rgba(255, 255, 255, 0.55); /* tarjetas de adentro: un poco más opacas */
+      --vidrio-borde: rgba(255, 255, 255, 0.7);    /* borde claro = "canto" del vidrio */
       color-scheme: light;         /* inputs, flechas del number y scrollbar del navegador en claro */
     }
 
@@ -87,6 +101,9 @@
       --primario: #0F7F76;
       --titulo: #7DD3C8;           /* turquesa claro: en fondo oscuro el acento debe ser claro (10:1) */
       --texto: #E2F1EF;
+      /* En oscuro el h1 NO puede ser negro: sobre #06060c sería invisible
+         (≈1.1:1). Se queda en turquesa claro, como antes */
+      --titulo-pagina: #7DD3C8;
       --texto-suave: #A3C2BE;
       --texto-exito: #A9BA6A;      /* verde oliva claro */
       --texto-error: #F08A7A;      /* rojo ladrillo claro */
@@ -99,7 +116,15 @@
       --chip-texto: #BFDBFE;
       --sombra: rgba(0, 0, 0, 0.35);
       --sombra-fuerte: rgba(0, 0, 0, 0.6);
-      color-scheme: dark;          /* el navegador pinta sus controles nativos en oscuro */
+      /* Vidrio oscuro: manchas más tenues (si brillan mucho encandilan) y
+         panel gris oscuro translúcido en vez de blanco */
+      --mancha-1: rgba(45, 212, 191, 0.18);
+      --mancha-2: rgba(96, 165, 250, 0.15);
+      --mancha-3: rgba(15, 127, 118, 0.22);
+      --vidrio: rgba(21, 26, 31, 0.5);
+      --vidrio-interno: rgba(21, 26, 31, 0.55);
+      --vidrio-borde: rgba(255, 255, 255, 0.1);
+      color-scheme: dark;         /* el navegador pinta sus controles nativos en oscuro */
     }
 
     /* Botón de tema: redondo, arriba a la derecha, fijo al hacer scroll */
@@ -120,9 +145,19 @@
 
     body {
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: var(--fondo);
+      /* Tres manchas radiales encima del color base. Cada radial-gradient va
+         de un color a "transparent", así se ve el siguiente por debajo.
+         fixed: las manchas se quedan quietas al hacer scroll (el vidrio
+         "se desliza" sobre ellas). El body pinta TODA la ventana, no solo
+         sus 1200px: si <html> no tiene fondo, el navegador usa el del body */
+      background:
+        radial-gradient(circle at 10% 20%, var(--mancha-1), transparent 40%),
+        radial-gradient(circle at 35% 75%, var(--mancha-2), transparent 45%),
+        radial-gradient(circle at 85% 10%, var(--mancha-3), transparent 40%),
+        var(--fondo);
+      background-attachment: fixed;
       color: var(--texto);
-      max-width: 1200px;       /* más ancho: ahora caben dos secciones lado a lado */
+      max-width: 90vw;      /* más ancho: ahora caben dos secciones lado a lado */
       margin: 0 auto;          /* centra el contenido en pantallas anchas */
       padding: 72px 8px 96px;  /* arriba: espacio para el botón de tema; lados: 8px; abajo: para la notificación */
       line-height: 1.5;
@@ -150,6 +185,27 @@
       box-shadow: 0 2px 8px var(--sombra);
       min-width: 0;            /* sin esto, un hijo ancho (galería) puede desbordar la columna del grid */
     }
+    /* --- Sección 1 de vidrio ---
+       Las 3 piezas del efecto:
+       1) fondo translúcido (--vidrio): deja ver lo de atrás
+       2) backdrop-filter: blur → desenfoca lo que está DETRÁS del panel
+          (filter: blur desenfocaría el panel mismo, con su texto)
+       3) borde claro semitransparente: simula el canto del vidrio */
+    .panel-vidrio {
+      background: var(--vidrio);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);  /* Safari */
+      backdrop-filter: blur(16px) saturate(140%);
+      border: 1px solid var(--vidrio-borde);
+    }
+    /* Las tarjetas de adentro también translúcidas: si fueran --superficie
+       (blanco sólido) taparían el vidrio. Los inputs siguen sólidos para que
+       el texto que se escribe se lea bien */
+    .panel-vidrio #desplegable-producto,
+    .panel-vidrio .form-buscar {
+      background: var(--vidrio-interno);
+      border-color: var(--vidrio-borde);
+    }
+
     /* En pantallas angostas (celular/tablet) no caben dos columnas:
        se apilan, sección 1 arriba y sección 2 abajo (el orden del HTML) */
     @media (max-width: 800px) {
@@ -158,7 +214,9 @@
     h1 {
       margin: 0 0 16px;
       font-size: 2rem;
-      color: var(--titulo);
+      /* Variable propia (no --titulo): --titulo también la usan h2, chips y
+         botones, y esos deben seguir en turquesa */
+      color: var(--titulo-pagina);
     }
     h2 {
       color: var(--titulo);
@@ -187,7 +245,7 @@
       color: var(--texto);
       background: var(--superficie);
       border: 1px solid var(--borde-input);
-      border-radius: 8px;
+      border-radius: 4px;
     }
     input:focus, textarea:focus, button:focus-visible {
       outline: 2px solid var(--primario);
@@ -197,13 +255,20 @@
     input[type="checkbox"] { accent-color: var(--primario); width: 18px; height: 18px; }
 
     /* Galería de "Traer productos": el JS solo crea las tarjetas, el CSS decide
-       el acomodo. auto-fill + minmax = tantas columnas de mínimo 198px como
-       quepan; en el celular queda 1 columna, en escritorio 3-4.
-       198px = 180px + 10%: la imagen mide el 100% del ancho de la tarjeta,
-       así que agrandar la tarjeta es lo que agranda la imagen */
+       el acomodo. La imagen mide el 100% del ancho de la tarjeta, así que
+       agrandar la tarjeta es lo que agranda la imagen.
+       Columnas de ancho FIJO (301px), no minmax(..., 1fr): con 1fr el ancho
+       real lo decide el espacio que sobra, y subir el mínimo de 198px a 238px
+       no cambiaba nada en escritorio (seguían cabiendo 3 de ~264px).
+       Historia: 264px → 317px (264 × 1,2 = +20%) → 301px (317 × 0,95 = -5%).
+       Caben 2 por fila.
+       min(301px, 100%): en un celular angosto (< 301px de espacio) la columna
+       se encoge al ancho disponible en vez de desbordar la sección.
+       justify-content: center → el espacio que sobra queda repartido a los lados */
     #resultado:not(:empty) {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(198px, 1fr));
+      grid-template-columns: repeat(auto-fill, min(280px, 100%));
+      justify-content: center;
       gap: 16px;
       margin: 16px 0 32px;
     }
@@ -236,8 +301,26 @@
     }
     /* Accesibilidad: si la persona pidió "reducir movimiento" en su sistema
        (el movimiento puede marear), las tarjetas aparecen sin animación */
+    /* --- Hover en vista galería: la tarjeta crece un poquito ---
+       Se usa la propiedad "scale" y NO "transform: scale()": la animación
+       "aparecer" usa transform con fill-mode "both", y una animación terminada
+       con "both" SIGUE aplicando su último valor (transform: none), que le gana
+       a cualquier regla normal → un transform en :hover nunca se vería.
+       "scale" es una propiedad aparte, así que no choca con la animación.
+       La transition va en la tarjeta (no en :hover) para que sea suave al
+       entrar Y al salir. La sombra también crece: parece que "se levanta" */
+    #panel-productos:not(.vista-tabla) .tarjeta {
+      transition: scale 0.25s ease, box-shadow 0.25s ease;
+    }
+    #panel-productos:not(.vista-tabla) .tarjeta:hover {
+      scale: 1.03;
+      box-shadow: 0 8px 20px var(--sombra);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .tarjeta { animation: none; }
+      /* Sin crecer, pero la sombra sí cambia: el hover se sigue notando */
+      #panel-productos:not(.vista-tabla) .tarjeta:hover { scale: none; }
     }
 
     /* Imagen "a sangre": pegada a los bordes de la tarjeta, sin espacio alrededor.
@@ -265,7 +348,7 @@
       font-size: 0.75rem;
       color: var(--texto-boton);
       background: var(--error);    /* rojo: llama la atención sobre la oferta. Texto blanco = 7.5:1 */
-      border-radius: 4px;
+      border-radius: 2px;
       vertical-align: middle;
     }
     .tarjeta .estado { font-size: 0.85rem; }
@@ -319,9 +402,35 @@
     #form-producto .check { display: flex; align-items: center; gap: 8px; }
     #form-producto button[type="submit"] { margin-top: 4px; }
 
+    /* Previsualización de la imagen: mismo 1:1 + object-fit: cover que las
+       tarjetas de la galería, así ves cómo va a quedar el producto */
+    #preview-imagen {
+      margin: 0;               /* <figure> trae margin de 40px a los lados */
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+      padding: 10px;
+      background: var(--vidrio-interno);
+      border: 1px dashed var(--borde-input);
+      border-radius: var(--radio);
+    }
+    #preview-imagen img {
+      width: 100%;
+      max-width: 220px;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: 4px;
+      background: var(--arena);
+    }
+    #preview-imagen figcaption { font-size: 0.85rem; color: var(--texto-suave); }
+    /* La clase .error la pone el JS cuando la URL no carga */
+    #preview-imagen.error figcaption { color: var(--texto-error); }
+
     /* "Cargar producto" vive DENTRO de la tarjeta del desplegable, así que le
        quitamos el borde/sombra de .form-buscar para que no sea tarjeta dentro de tarjeta */
-    #desplegable-producto .form-buscar { border: none; box-shadow: none; margin: 0; padding: 20px 20px 0; }
+    /* background: transparent → con el vidrio, si tuviera su propio fondo
+       translúcido se sumaría al del desplegable y se vería una capa más clara */
+    #desplegable-producto .form-buscar { background: transparent; border: none; box-shadow: none; margin: 0; padding: 20px 20px 0; }
 
     /* Botón secundario (Cancelar): menos llamativo que el principal.
        :hover propio porque el de "button:hover" pondría fondo oscuro sobre texto oscuro */
@@ -451,7 +560,7 @@
     .vista-tabla .tarjeta:last-child { border-bottom: none; }
     .vista-tabla .tarjeta:hover { background: var(--fondo); }
     /* En la tabla la imagen vuelve a ser una miniatura normal (sin margin negativo) */
-    .vista-tabla .tarjeta img { grid-area: img; width: 100%; margin: 0; border-radius: 6px; }
+    .vista-tabla .tarjeta img { grid-area: img; width: 100%; margin: 0; border-radius: 3px; }
     .vista-tabla .tarjeta h3 { grid-area: nombre; margin: 0; }
     .vista-tabla .tarjeta .descripcion { grid-area: desc; }
     .vista-tabla .tarjeta .precio { grid-area: precio; font-size: 1rem; }
@@ -506,7 +615,7 @@
   <main class="layout">
 
   <!-- Sección 1: buscadores + formulario de producto -->
-  <section class="panel">
+  <section class="panel panel-vidrio">
 
   <!-- name="..." de cada input se lee en JS como form.idProducto.value, form.texto.value.
        OJO: no usamos name="id" porque chocaría con form.id, que ya es el
@@ -573,6 +682,13 @@
     <label>URL de la imagen
       <input type="url" name="img_url" placeholder="https://...">
     </label>
+    <!-- Previsualización de img_url: el JS le cambia el src mientras escribes.
+         <figure> + <figcaption>: una imagen con su texto asociado.
+         hidden: sin URL no hay nada que mostrar -->
+    <figure id="preview-imagen" hidden>
+      <img alt="Previsualización de la imagen del producto">
+      <figcaption></figcaption>
+    </figure>
     <button type="submit" id="btn-guardar">Agregar producto</button>
     <!-- type="button": sin esto, todo <button> dentro de un form es "submit"
          y Cancelar enviaría el formulario -->

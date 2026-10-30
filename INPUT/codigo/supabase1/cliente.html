@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi cuenta</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Mismo script de tema que prueba2.html: como las dos páginas se sirven
+         desde el mismo sitio, comparten localStorage → si elegiste oscuro en
+         prueba2.html, esta página también abre en oscuro -->
+    <script>
+      let temaGuardado = null;
+      try { temaGuardado = localStorage.getItem('tema'); } catch (e) {}
+      document.documentElement.dataset.tema = temaGuardado ||
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+    </script>
+    <style>
+      /* Paleta COPIADA de prueba2.html. Ojo: si cambias un color allá,
+         hay que cambiarlo aquí también (están duplicados a propósito) */
+      :root {
+        --fondo: #FFFFFF;
+        --superficie: #FFFFFF;
+        --arena: #d3f1f3;
+        --borde: #c9d3e3;
+        --borde-input: #5F8F8A;
+        --primario: #0F766E;
+        --boton-hover: #115E59;
+        --titulo: #115E59;
+        --texto: #12302D;
+        --texto-suave: #44605C;
+        --texto-boton: #FFFFFF;
+        /* Rojo ladrillo (el mismo --error de prueba2.html). Texto blanco = 7.5:1.
+           Sirve igual en oscuro: es FONDO de botón con texto blanco, así que
+           no hace falta redefinirlo en :root[data-tema="oscuro"] */
+        --error: #9E2A1F;
+        --sombra: rgba(15, 118, 110, 0.14);
+        --radio: 5px;
+        --mancha-1: rgba(45, 212, 191, 0.45);
+        --mancha-2: rgba(96, 165, 250, 0.40);
+        --mancha-3: rgba(15, 118, 110, 0.25);
+        --vidrio: rgba(255, 255, 255, 0.45);
+        --vidrio-interno: rgba(255, 255, 255, 0.55);
+        --vidrio-borde: rgba(255, 255, 255, 0.7);
+        color-scheme: light;
+      }
+      :root[data-tema="oscuro"] {
+        --fondo: #06060c;
+        --superficie: #151a1f;
+        --arena: #25353a;
+        --borde: #2F4A47;
+        --borde-input: #6FA39C;
+        --primario: #0F7F76;
+        --titulo: #7DD3C8;
+        --texto: #E2F1EF;
+        --texto-suave: #A3C2BE;
+        --sombra: rgba(0, 0, 0, 0.35);
+        --mancha-1: rgba(45, 212, 191, 0.18);
+        --mancha-2: rgba(96, 165, 250, 0.15);
+        --mancha-3: rgba(15, 127, 118, 0.22);
+        --vidrio: rgba(21, 26, 31, 0.5);
+        --vidrio-interno: rgba(21, 26, 31, 0.55);
+        --vidrio-borde: rgba(255, 255, 255, 0.1);
+        color-scheme: dark;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at 10% 20%, var(--mancha-1), transparent 40%),
+          radial-gradient(circle at 35% 75%, var(--mancha-2), transparent 45%),
+          radial-gradient(circle at 85% 10%, var(--mancha-3), transparent 40%),
+          var(--fondo);
+        background-attachment: fixed;
+        color: var(--texto);
+        line-height: 1.5;
+        margin: 0;
+        /* min-height: el fondo y el centrado ocupan toda la ventana aunque
+           haya poco contenido */
+        min-height: 100vh;
+        padding: 48px 16px;
+        box-sizing: border-box;
+        /* Centrado en los DOS ejes: el body es un grid de una sola celda y
+           place-items: center pone el panel en el medio, a lo ancho y a lo alto.
+           Funciona porque min-height: 100vh hace que el body mida al menos
+           toda la ventana; sin eso solo mediría lo que mide el panel y no
+           habría espacio de sobra en el que centrarlo */
+        display: grid;
+        place-items: center;
+      }
+
+      /* Panel de vidrio, igual que la sección 1 de prueba2.html.
+         Una sola columna: ahora se ve un solo formulario a la vez,
+         así que el panel es más angosto (antes 760px con 2 columnas) */
+      #panel-cuenta {
+        /* width: 100% hace falta ahora: dentro de un grid con place-items: center
+           el panel se encogería al ancho de su contenido. Así ocupa todo lo
+           que puede, sin pasar de 420px */
+        width: 100%;
+        max-width: 420px;
+        box-sizing: border-box;  /* los 420px incluyen el padding */
+        padding: 24px;
+        display: grid;
+        gap: 16px;
+        background: var(--vidrio);
+        -webkit-backdrop-filter: blur(16px) saturate(140%);
+        backdrop-filter: blur(16px) saturate(140%);
+        border: 1px solid var(--vidrio-borde);
+        border-radius: var(--radio);
+        box-shadow: 0 2px 8px var(--sombra);
+      }
+
+      h2 { margin: 0; font-size: 2rem; color: var(--titulo); }
+      h3 { margin: 0 0 4px; color: var(--titulo); }
+
+      /* Mensaje de estado: aviso con barra de color a la izquierda */
+      #estado-sesion {
+        margin: 0;
+        padding: 10px 14px;
+        color: var(--texto);
+        background: var(--vidrio-interno);
+        border-left: 4px solid var(--primario);
+        border-radius: var(--radio);
+      }
+
+      /* Cada form es una tarjeta. En el HTML el <label> y el <input> son
+         hermanos (no anidados), así que el grid los pone uno debajo del otro */
+      form {
+        display: grid;
+        gap: 4px;
+        align-content: start;    /* sin esto, el form más corto estira sus filas */
+        padding: 20px;
+        background: var(--vidrio-interno);
+        border: 1px solid var(--vidrio-borde);
+        border-radius: var(--radio);
+      }
+      label { margin-top: 8px; font-size: 0.9rem; color: var(--texto-suave); }
+
+      input {
+        padding: 8px 10px;
+        font: inherit;
+        color: var(--texto);
+        background: var(--superficie);
+        border: 1px solid var(--borde-input);
+        border-radius: 4px;
+      }
+      input:focus, button:focus-visible {
+        outline: 2px solid var(--primario);
+        outline-offset: 2px;
+      }
+
+      button {
+        padding: 10px 16px;
+        font: inherit;
+        font-weight: 600;
+        color: var(--texto-boton);
+        background: var(--primario);
+        border: none;
+        border-radius: var(--radio);
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+      }
+      button:hover { background: var(--boton-hover); }
+      button:active { transform: scale(0.97); }
+      form button { margin-top: 16px; }
+
+      /* Cerrar sesión arriba a la derecha, en la misma fila que "Mi cuenta".
+         El panel pasa a 2 columnas: 1fr (el título) y auto (lo que mida el
+         botón). Todo lo demás ocupa las 2 columnas (1 / -1).
+         Con grid y no con position: absolute → el botón ocupa su propio
+         espacio y nunca se monta encima del título en pantallas angostas.
+         Sin sesión el botón tiene hidden: la columna auto mide 0 */
+      #panel-cuenta { grid-template-columns: 1fr auto; }
+      #panel-cuenta > * { grid-column: 1 / -1; }
+      #panel-cuenta > h2 { grid-column: 1; }
+      /* Rojo: cerrar sesión es una acción de "salida", distinta de las
+         turquesa (guardar, entrar). Texto blanco del estilo general de button.
+         align-self: center → centrado a la altura del título */
+      #btn-logout {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: center;
+        background: var(--error);
+      }
+      /* Hover: el mismo rojo más oscuro con filter (como .btn-peligro de
+         prueba2.html). Sin esta regla, "button:hover" lo pondría turquesa */
+      #btn-logout:hover { background: var(--error); filter: brightness(0.85); }
+
+      /* Texto "¿No tienes cuenta? Registrarse" debajo del botón principal */
+      .cambiar-form {
+        margin: 12px 0 0;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--texto-suave);
+      }
+      /* Botón con aspecto de enlace: le quitamos todo lo de "button".
+         "form .enlace" (clase + etiqueta) le gana a "form button" (2 etiquetas),
+         así el margin-top: 16px de los botones de form no se le aplica */
+      form .enlace {
+        margin: 0;
+        padding: 0;
+        font-weight: 600;
+        color: var(--titulo);
+        background: none;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      form .enlace:hover { background: none; text-decoration-thickness: 2px; }
+      form .enlace:active { transform: none; }
+
+      @media (max-width: 640px) {
+        #panel-cuenta { padding: 16px; }
+      }
+
+      /* El mismo bug del portfolio: "form { display: grid }" le gana al
+         atributo hidden, y los dos forms se verían a la vez. Con esta regla,
+         hidden siempre gana */
+      [hidden] { display: none !important; }
+
+      /* Botón de tema (copiado de prueba2.html): redondo, arriba a la derecha,
+         fijo. #btn-tema (un id) le gana a "button" (una etiqueta) sin importar
+         en qué orden estén las reglas */
+      #btn-tema {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        width: 44px;             /* tamaño mínimo cómodo para el dedo */
+        height: 44px;
+        padding: 0;
+        font-size: 1.2rem;
+        background: var(--superficie);
+        border: 1px solid var(--borde);
+        border-radius: 50%;
+        box-shadow: 0 2px 8px var(--sombra);
+      }
+      #btn-tema:hover { background: var(--arena); }
+
+      /* --- Zona del cliente (con sesión) --- */
+      /* Con la zona del cliente visible, la SECCIÓN (el panel completo, con
+         su padding) mide el 60% del ancho de la pantalla.
+         :has() = "el panel que TIENE un #zona-cliente sin hidden" — el login
+         y el registro siguen en 420px.
+         max-width (no width): con width: 100% de arriba, el panel nunca
+         pasa del espacio disponible */
+      #panel-cuenta:has(#zona-cliente:not([hidden])) {
+        max-width: 60vw;
+      }
+
+      /* Aside a la izquierda (180px fijos) + contenido con el resto */
+      #zona-cliente {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 16px;
+        align-items: start;
+      }
+      #menu-cliente {
+        padding: 12px;
+        background: var(--vidrio-interno);
+        border: 1px solid var(--vidrio-borde);
+        border-radius: var(--radio);
+      }
+      #menu-cliente nav { display: grid; gap: 4px; }
+      /* Botones del menú: sin relleno, como opciones de una lista.
+         text-align: left → un <button> centra su texto por defecto */
+      #menu-cliente button {
+        text-align: left;
+        color: var(--titulo);
+        background: transparent;
+      }
+      #menu-cliente button:hover { background: var(--arena); }
+      /* La opción activa: el JS le pone aria-current="true" y el CSS la
+         pinta como botón principal. Un mismo atributo sirve para el estilo
+         Y para que el lector de pantalla diga "actual" */
+      #menu-cliente button[aria-current="true"] {
+        color: var(--texto-boton);
+        background: var(--primario);
+      }
+
+      /* Ficha: misma "tarjeta" que los forms */
+      #ficha-perfil {
+        padding: 20px;
+        background: var(--vidrio-interno);
+        border: 1px solid var(--vidrio-borde);
+        border-radius: var(--radio);
+      }
+      /* Los 4 datos en 2 columnas, igual que el form */
+      #ficha-perfil dl {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin: 12px 0 0;
+      }
+      #ficha-perfil dt { font-size: 0.9rem; color: var(--texto-suave); }
+      #ficha-perfil dd {
+        margin: 0;               /* <dd> trae una sangría de 40px */
+        font-weight: 600;
+        overflow-wrap: anywhere; /* un correo largo parte línea en vez de desbordar */
+      }
+      #mensaje-ficha { margin: 16px 0 0; font-size: 0.9rem; }
+      #mensaje-ficha:empty { display: none; }
+
+      /* Celular: el 60% de ~390px serían ~234px, muy apretado → la sección
+         usa todo el ancho; el aside pasa ARRIBA como barra horizontal y la
+         ficha queda en 1 columna */
+      @media (max-width: 640px) {
+        #panel-cuenta:has(#zona-cliente:not([hidden])) { max-width: none; }
+        #zona-cliente { grid-template-columns: 1fr; }
+        #menu-cliente nav { grid-template-columns: 1fr 1fr; }
+        #menu-cliente button { text-align: center; }
+        #ficha-perfil dl { grid-template-columns: 1fr; }
+      }
+
+      /* --- Form "Actualizar datos" --- */
+      /* Campos en 2 columnas: Nombre | Correo, Teléfono | Dirección.
+         align-items: start → la celda del correo es más alta (tiene la nota)
+         y sin esto estiraría a "Nombre" para igualarla */
+      #form-perfil {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 16px;
+        align-items: start;
+      }
+      /* Título, botón y mensaje ocupan las 2 columnas */
+      #form-perfil > h3,
+      #form-perfil > button,
+      #mensaje-perfil { grid-column: 1 / -1; }
+      .campo { display: grid; gap: 4px; }
+      /* Celular: 2 columnas no caben → una sola */
+      @media (max-width: 640px) {
+        #form-perfil { grid-template-columns: 1fr; }
+      }
+      /* Correo de solo lectura: fondo --arena y sin borde de input, para que
+         se note que NO es un campo para escribir */
+      input[readonly] {
+        color: var(--texto-suave);
+        background: var(--arena);
+        border-color: transparent;
+        cursor: not-allowed;
+      }
+      .nota { font-size: 0.8rem; color: var(--texto-suave); }
+      #mensaje-perfil { margin: 8px 0 0; font-size: 0.9rem; text-align: center; }
+      #mensaje-perfil:empty { display: none; }  /* sin mensaje no ocupa espacio */
+      /* disabled: mientras guarda, o si no se encontró el perfil */
+      button:disabled { opacity: 0.6; cursor: not-allowed; }
+    </style>
+  </head>
+  <body>
+    <!-- aria-label: el emoji solo no le dice nada a un lector de pantalla;
+         el JS lo actualiza según el modo -->
+    <button type="button" id="btn-tema" aria-label="Cambiar a modo oscuro">🌙</button>
+
+    <section id="panel-cuenta">
+      <h2>Mi cuenta</h2>
+      <!-- hidden: sin sesión no hay nada que cerrar. El JS lo muestra.
+           Va justo después del título (no al final): así con Tab es lo primero
+           que se alcanza, en el mismo orden en que se ve -->
+      <button id="btn-logout" type="button" hidden>Cerrar sesión</button>
+      <p id="estado-sesion">No has iniciado sesión.</p>
+
+      <!-- Solo se ve UN form a la vez: registro arranca oculto (hidden) y el JS
+           los intercambia con los botones .enlace -->
+      <form id="form-registro" hidden>
+        <h3>Registrarme</h3>
+        <label for="registro-nombre">Nombre</label>
+        <input id="registro-nombre" type="text" required />
+
+        <label for="registro-correo">Correo</label>
+        <input id="registro-correo" type="email" required />
+
+        <label for="registro-password">Contraseña</label>
+        <input id="registro-password" type="password" minlength="6" required />
+
+        <button type="submit">Crear cuenta</button>
+        <!-- <button> con aspecto de enlace, no <a>: un <a> LLEVA a otra página;
+             esto HACE algo en la misma página. type="button" para que no
+             envíe el formulario -->
+        <p class="cambiar-form">¿Ya tienes cuenta?
+          <button type="button" class="enlace" data-mostrar="login">Iniciar sesión</button>
+        </p>
+      </form>
+
+      <form id="form-login">
+        <h3>Iniciar sesión</h3>
+        <label for="login-correo">Correo</label>
+        <input id="login-correo" type="email" required />
+
+        <label for="login-password">Contraseña</label>
+        <input id="login-password" type="password" required />
+
+        <button type="submit">Iniciar sesión</button>
+        <p class="cambiar-form">¿No tienes cuenta?
+          <button type="button" class="enlace" data-mostrar="registro">Registrarse</button>
+        </p>
+      </form>
+
+      <!-- Zona del cliente: solo con sesión iniciada.
+           <aside> = contenido "al costado" del principal; aquí, el menú.
+           El JS muestra UNA vista a la vez en .contenido-cliente:
+           la ficha (ver) o el form (editar) -->
+      <div id="zona-cliente" hidden>
+        <aside id="menu-cliente">
+          <!-- <nav>: le dice al lector de pantalla que esto es un menú.
+               data-vista: qué vista abre cada botón (mismo patrón que
+               data-mostrar del login/registro) -->
+          <nav aria-label="Mi cuenta">
+            <button type="button" data-vista="ver">Mis datos</button>
+            <button type="button" data-vista="editar" id="btn-menu-editar">Actualizar datos</button>
+          </nav>
+        </aside>
+
+        <div class="contenido-cliente">
+          <!-- Vista "ver": los datos como TEXTO, no como inputs.
+               <dl> = lista de definiciones: <dt> el nombre del dato,
+               <dd> su valor. Es justo lo que es una ficha -->
+          <article id="ficha-perfil">
+            <h3>Mis datos</h3>
+            <dl>
+              <div class="dato"><dt>Nombre</dt><dd id="ficha-nombre"></dd></div>
+              <div class="dato"><dt>Correo</dt><dd id="ficha-correo"></dd></div>
+              <div class="dato"><dt>Teléfono</dt><dd id="ficha-telefono"></dd></div>
+              <div class="dato"><dt>Dirección</dt><dd id="ficha-direccion"></dd></div>
+            </dl>
+            <p id="mensaje-ficha" aria-live="polite"></p>
+          </article>
+
+      <!-- Vista "editar". El JS primero LEE la fila del cliente en
+           clientes_practica y pone sus datos en estos campos; al enviar, hace
+           UPDATE de esa misma fila -->
+      <form id="form-perfil" hidden>
+        <h3>Actualizar datos</h3>
+        <!-- Cada label + input va dentro de un .campo: así cada PAREJA es UNA
+             celda del grid de 2 columnas. Sin el div, label e input serían
+             celdas separadas y quedarían uno al lado del otro -->
+        <div class="campo">
+          <label for="perfil-nombre">Nombre</label>
+          <input id="perfil-nombre" type="text" required />
+        </div>
+
+        <!-- readonly (no disabled): se puede leer y seleccionar, pero no editar.
+             El JS tampoco lo manda en el update: cambiarlo aquí no lo cambiaría
+             en Auth, y el inicio de sesión seguiría usando el correo viejo -->
+        <div class="campo">
+          <label for="perfil-correo">Correo</label>
+          <input id="perfil-correo" type="email" readonly />
+          <small class="nota">El correo no se puede cambiar.</small>
+        </div>
+
+        <!-- type="tel": en el celular abre el teclado numérico -->
+        <div class="campo">
+          <label for="perfil-telefono">Teléfono</label>
+          <input id="perfil-telefono" type="tel" />
+        </div>
+
+        <div class="campo">
+          <label for="perfil-direccion">Dirección</label>
+          <input id="perfil-direccion" type="text" />
+        </div>
+
+        <button type="submit" id="btn-guardar-perfil">Guardar cambios</button>
+        <!-- aria-live: un lector de pantalla lee el mensaje cuando cambia -->
+        <p id="mensaje-perfil" aria-live="polite"></p>
+      </form>
+        </div>
+      </div>
+    </section>
+
+    <script src="js/supabaseClient.js"></script>
+    <script src="js/cliente.js"></script>
+  </body>
+</html>
