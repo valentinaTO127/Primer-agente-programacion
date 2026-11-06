@@ -172,7 +172,7 @@ async function leerPerfil(id) {
     .from('clientes_practica')
     .select('*')
     .eq('id', id)
-    .maybeSingle(); // sin fila → data = null SIN error (igual que en prueba2.js)
+    .maybeSingle(); // sin fila → data = null SIN error (igual que en admin.js)
 
   if (error) console.log('Error al leer el perfil:', error);
   return { perfil: data, error };
@@ -334,7 +334,7 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
   mostrarEstadoSesion();
 });
 
-// --- Modo claro / oscuro (copiado de prueba2.js) ---
+// --- Modo claro / oscuro (copiado de admin.js) ---
 // El tema INICIAL ya lo eligió el <script> del <head> (para que no parpadee).
 // Aquí solo manejamos el botón y los cambios del sistema.
 const botonTema = document.getElementById('btn-tema');
@@ -353,7 +353,7 @@ aplicarTema(document.documentElement.dataset.tema); // sincroniza el ícono al c
 botonTema.addEventListener('click', () => {
   const nuevo = document.documentElement.dataset.tema === 'oscuro' ? 'claro' : 'oscuro';
   aplicarTema(nuevo);
-  // Misma clave 'tema' que prueba2.js → la elección vale para las dos páginas
+  // Misma clave 'tema' que admin.js → la elección vale para las dos páginas
   try { localStorage.setItem('tema', nuevo); } catch (e) {}
 });
 

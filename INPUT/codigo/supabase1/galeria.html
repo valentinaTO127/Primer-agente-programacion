@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tienda</title>
+  <!-- CDN de Supabase: va antes que supabaseClient.js, igual que en las otras páginas -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Mismo script de tema que admin.html y cliente.html: comparten la clave
+       'tema' en localStorage, así que la elección vale para las tres páginas -->
+  <script>
+    let temaGuardado = null;
+    try { temaGuardado = localStorage.getItem('tema'); } catch (e) {}
+    document.documentElement.dataset.tema = temaGuardado ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+  </script>
+  <style>
+    /* Paleta COPIADA de admin.html. Ojo: si cambias un color allá, hay que
+       cambiarlo aquí también (están duplicados a propósito, como en cliente.html) */
+    :root {
+      --fondo: #FFFFFF;
+      --superficie: #FFFFFF;
+      --arena: #d3f1f3;
+      --borde: #c9d3e3;
+      --borde-input: #5F8F8A;
+      --primario: #0F766E;
+      --boton-hover: #115E59;
+      --titulo: #115E59;
+      --texto: #12302D;
+      --titulo-pagina: #000000;
+      --texto-suave: #44605C;
+      --texto-boton: #FFFFFF;
+      --exito: #5E6B2E;
+      --error: #9E2A1F;
+      --texto-exito: #5E6B2E;
+      --texto-error: #9E2A1F;
+      --chip-fondo: #DBEAFE;
+      --chip-texto: #1E40AF;
+      --sombra: rgba(15, 118, 110, 0.14);
+      --sombra-fuerte: rgba(18, 48, 45, 0.25);
+      --radio: 5px;
+      --mancha-1: rgba(45, 212, 191, 0.45);
+      --mancha-2: rgba(96, 165, 250, 0.40);
+      --mancha-3: rgba(15, 118, 110, 0.25);
+      --vidrio: rgba(255, 255, 255, 0.45);
+      --vidrio-interno: rgba(255, 255, 255, 0.55);
+      --vidrio-borde: rgba(255, 255, 255, 0.7);
+      color-scheme: light;
+    }
+    :root[data-tema="oscuro"] {
+      --fondo: #06060c;
+      --superficie: #151a1f;
+      --arena: #25353a;
+      --borde: #2F4A47;
+      --borde-input: #6FA39C;
+      --primario: #0F7F76;
+      --titulo: #7DD3C8;
+      --texto: #E2F1EF;
+      --titulo-pagina: #7DD3C8;
+      --texto-suave: #A3C2BE;
+      --texto-exito: #A9BA6A;
+      --texto-error: #F08A7A;
+      --chip-fondo: #1E3A5F;
+      --chip-texto: #BFDBFE;
+      --sombra: rgba(0, 0, 0, 0.35);
+      --sombra-fuerte: rgba(0, 0, 0, 0.6);
+      --mancha-1: rgba(45, 212, 191, 0.18);
+      --mancha-2: rgba(96, 165, 250, 0.15);
+      --mancha-3: rgba(15, 127, 118, 0.22);
+      --vidrio: rgba(21, 26, 31, 0.5);
+      --vidrio-interno: rgba(21, 26, 31, 0.55);
+      --vidrio-borde: rgba(255, 255, 255, 0.1);
+      color-scheme: dark;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 10% 20%, var(--mancha-1), transparent 40%),
+        radial-gradient(circle at 35% 75%, var(--mancha-2), transparent 45%),
+        radial-gradient(circle at 85% 10%, var(--mancha-3), transparent 40%),
+        var(--fondo);
+      background-attachment: fixed;
+      color: var(--texto);
+      line-height: 1.5;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    /* Botones e inputs: mismo estilo que admin.html y cliente.html */
+    button {
+      padding: 10px 16px;
+      font: inherit;
+      font-weight: 600;
+      color: var(--texto-boton);
+      background: var(--primario);
+      border: none;
+      border-radius: var(--radio);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+    button:hover { background: var(--boton-hover); }
+    button:active { transform: scale(0.97); }
+    button:focus-visible, a:focus-visible {
+      outline: 2px solid var(--primario);
+      outline-offset: 2px;
+    }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button:disabled:hover { background: var(--primario); }
+    button:disabled:active { transform: none; }
+    .btn-secundario { color: var(--titulo); background: var(--arena); }
+    .btn-secundario:hover, .btn-secundario:disabled:hover { background: var(--borde); }
+
+    /* --- Header ---
+       sticky: se queda arriba al hacer scroll. Vidrio, igual que los paneles.
+       El panel del carrito NO va dentro del header: backdrop-filter haría que
+       su position: fixed se midiera contra el header y no contra la ventana
+       (el mismo problema que tuviste con perspective en el body) */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 12px;
+      padding: 12px clamp(16px, 4vw, 40px);
+      background: var(--vidrio);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      backdrop-filter: blur(16px) saturate(140%);
+      border-bottom: 1px solid var(--vidrio-borde);
+      box-shadow: 0 2px 8px var(--sombra);
+    }
+    /* margin-right: auto empuja todo lo demás hacia la derecha */
+    header h1 { margin: 0 auto 0 0; font-size: 1.6rem; color: var(--titulo-pagina); }
+    header a { font-weight: 600; color: var(--titulo); text-underline-offset: 3px; }
+
+    #btn-tema {
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      font-size: 1.2rem;
+      background: var(--superficie);
+      border: 1px solid var(--borde);
+      border-radius: 50%;
+      box-shadow: 0 2px 8px var(--sombra);
+    }
+    #btn-tema:hover { background: var(--arena); }
+
+    #btn-carrito { display: flex; align-items: center; gap: 8px; }
+    #contador-carrito {
+      min-width: 22px;
+      padding: 0 6px;
+      box-sizing: border-box;
+      font-size: 0.8rem;
+      font-weight: 700;
+      line-height: 22px;
+      text-align: center;
+      color: var(--primario);
+      background: var(--texto-boton);
+      border-radius: 999px;
+    }
+
+    /* --- Contenido --- */
+    main {
+      max-width: 1200px;
+      box-sizing: border-box;  /* los 1200px incluyen el padding */
+      margin: 0 auto;
+      /* Mismo padding lateral del header: así los títulos quedan alineados */
+      padding: 32px clamp(16px, 4vw, 40px) 96px;
+    }
+    main > h2 { margin: 0 0 4px; font-size: 2rem; color: var(--titulo); }
+    #intro-galeria { margin: 0 0 24px; color: var(--texto-suave); }
+    #estado-galeria, #sin-resultados {
+      margin: 0;
+      padding: 10px 14px;
+      background: var(--vidrio-interno);
+      border-left: 4px solid var(--primario);
+      border-radius: var(--radio);
+    }
+
+    /* --- Buscador y categorías --- */
+    #filtros {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: var(--vidrio-interno);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      backdrop-filter: blur(16px) saturate(140%);
+      border: 1px solid var(--vidrio-borde);
+      border-radius: var(--radio);
+    }
+    .campo-buscador { display: grid; gap: 4px; }
+    .campo-buscador label { font-size: 0.9rem; color: var(--texto-suave); }
+    /* Mismo input de admin.html y cliente.html */
+    #buscador {
+      padding: 8px 10px;
+      font: inherit;
+      color: var(--texto);
+      background: var(--superficie);
+      border: 1px solid var(--borde-input);
+      border-radius: 4px;
+    }
+    #buscador:focus { outline: 2px solid var(--primario); outline-offset: 2px; }
+
+    #filtro-categorias { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip-categoria {
+      min-height: 36px;
+      padding: 4px 14px;
+      font-size: 0.9rem;
+      color: var(--chip-texto);
+      background: var(--chip-fondo);
+      border-radius: 999px;    /* "píldora", como las categorías de la tarjeta */
+    }
+    .chip-categoria:hover { color: var(--titulo); background: var(--arena); }
+    /* aria-pressed lo pone el JS: el mismo atributo le dice al lector de
+       pantalla cuál está activa y le dice al CSS cuál pintar */
+    .chip-categoria[aria-pressed="true"],
+    .chip-categoria[aria-pressed="true"]:hover {
+      color: var(--texto-boton);
+      background: var(--primario);
+    }
+
+    .filtros-pie {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 34px;  /* la altura del botón: si no, las tarjetas saltan cuando aparece */
+    }
+    #resultados-filtro { margin: 0; font-size: 0.9rem; color: var(--texto-suave); }
+    #btn-limpiar-filtros { padding: 6px 12px; font-size: 0.9rem; }
+
+    /* Mínimo 260px y 1fr como máximo: las tarjetas llenan el ancho, alineadas con
+       el título. min(260px, 100%): en un celular angosto no desbordan */
+    #galeria {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+      gap: 16px;
+    }
+
+    /* --- Tarjeta: copiada de admin.html --- */
+    @keyframes aparecer {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .tarjeta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      --padding-tarjeta: 14px;
+      padding: var(--padding-tarjeta);
+      background: var(--superficie);
+      border-radius: var(--radio);
+      box-shadow: 0 2px 8px var(--sombra);
+      animation: aparecer 0.35s ease-out both;
+      animation-delay: min(calc(var(--i, 0) * 40ms), 400ms);
+      /* "scale" y no "transform": la animación aparecer ya usa transform */
+      transition: scale 0.25s ease, box-shadow 0.25s ease;
+    }
+    .tarjeta:hover { scale: 1.03; box-shadow: 0 8px 20px var(--sombra); }
+
+    .tarjeta img, .sin-imagen {
+      box-sizing: border-box;
+      width: calc(100% + 2 * var(--padding-tarjeta));
+      max-width: none;
+      margin: calc(-1 * var(--padding-tarjeta)) calc(-1 * var(--padding-tarjeta)) 0;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      border-radius: var(--radio) var(--radio) 0 0;
+      background: var(--arena);
+    }
+    /* Sin imagen (o URL rota): mismo tamaño, para que las tarjetas queden alineadas */
+    .sin-imagen {
+      display: grid;
+      place-items: center;
+      font-size: 0.85rem;
+      color: var(--texto-suave);
+    }
+    .tarjeta h3 { margin: 4px 0 0; font-size: 1rem; color: var(--titulo); }
+    .tarjeta p { margin: 0; }
+    .tarjeta .descripcion { font-size: 0.85rem; color: var(--texto-suave); }
+    .tarjeta .precio { font-size: 1.1rem; font-weight: 600; }
+    .tarjeta .precio-anterior {
+      margin-left: 6px;
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--texto-suave);
+      text-decoration: line-through;
+    }
+    .tarjeta .descuento {
+      margin-left: 8px;
+      padding: 2px 6px;
+      font-size: 0.75rem;
+      color: var(--texto-boton);
+      background: var(--error);
+      border-radius: 2px;
+      vertical-align: middle;
+    }
+    .tarjeta .estado { font-size: 0.85rem; }
+    .tarjeta .estado.disponible { color: var(--texto-exito); }
+    .tarjeta .estado.agotado { color: var(--texto-error); }
+    .tarjeta .etiquetas { display: flex; flex-wrap: wrap; gap: 4px; list-style: none; padding: 0; margin: 0; }
+    .tarjeta .etiquetas li {
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      background: var(--chip-fondo);
+      color: var(--chip-texto);
+      border-radius: 999px;
+    }
+
+    /* Selector − cantidad + y Agregar. margin-top: auto lo manda al fondo de la
+       tarjeta: así los botones quedan alineados aunque cambie el largo del texto */
+    .acciones-tarjeta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: auto;
+      padding-top: 10px;
+    }
+    .btn-cantidad {
+      flex: none;
+      width: 44px;             /* 44px: tamaño mínimo cómodo para el dedo */
+      height: 44px;
+      padding: 0;
+      font-size: 1.1rem;
+    }
+    .cantidad { min-width: 24px; font-weight: 700; text-align: center; }
+    .btn-agregar { flex: 1; min-height: 44px; padding: 8px 10px; }
+    .btn-agregar.agregado, .btn-agregar.agregado:hover, .btn-agregar.agregado:disabled:hover { background: var(--exito); opacity: 1; }
+
+    /* --- Panel del carrito ---
+       translateX(100%) lo deja fuera de la ventana; la clase "abierto" lo trae.
+       inert (lo pone el JS) evita llegar con Tab a un panel que no se ve */
+    #panel-carrito {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      width: min(400px, 100%);
+      height: 100dvh;
+      background: var(--superficie);
+      box-shadow: -8px 0 24px var(--sombra-fuerte);
+      transform: translateX(100%);
+      visibility: hidden;
+      /* visibility espera a que termine de salir, para que se vea la animación */
+      transition: transform 0.3s ease, visibility 0s linear 0.3s;
+    }
+    #panel-carrito.abierto {
+      transform: none;
+      visibility: visible;
+      transition: transform 0.3s ease, visibility 0s;
+    }
+    .carrito-encabezado {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--borde);
+    }
+    .carrito-encabezado h2 { margin: 0; color: var(--titulo); }
+
+    #mensaje-carrito { margin: 0; padding: 40px 20px; text-align: center; color: var(--texto-suave); }
+
+    /* flex: 1 + overflow: la lista hace scroll; el total se queda fijo abajo */
+    #lista-carrito {
+      flex: 1;
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      margin: 0;
+      padding: 16px 20px;
+      overflow-y: auto;
+      list-style: none;
+    }
+    .item-carrito {
+      display: grid;
+      grid-template-columns: 56px minmax(0, 1fr);
+      gap: 4px 12px;
+      padding: 12px;
+      background: var(--arena);
+      border-radius: var(--radio);
+    }
+    .item-carrito img, .item-carrito .sin-miniatura {
+      grid-row: span 2;
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      background: var(--superficie);
+      border-radius: 3px;
+    }
+    .item-info { min-width: 0; }
+    .item-info strong { display: block; color: var(--titulo); overflow-wrap: anywhere; }
+    .item-info span { font-size: 0.85rem; color: var(--texto-suave); }
+    .item-controles { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    .item-controles .btn-cantidad { width: 32px; height: 32px; background: var(--primario); }
+    .item-controles .btn-cantidad:hover { background: var(--boton-hover); }
+    .item-subtotal { margin-left: auto; font-weight: 700; }
+    .btn-quitar {
+      padding: 0;
+      font-size: 0.85rem;
+      color: var(--texto-error);
+      background: none;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .btn-quitar:hover { background: none; text-decoration-thickness: 2px; }
+
+    .carrito-pie { padding: 16px 20px; border-top: 1px solid var(--borde); }
+    .carrito-total { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+    #total-carrito { font-size: 1.5rem; font-weight: 700; color: var(--titulo); }
+    #btn-pago { width: 100%; }
+
+    /* Capa oscura detrás del panel */
+    #capa-carrito {
+      position: fixed;
+      inset: 0;
+      z-index: 150;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    /* Mensaje flotante: igual que en admin.html, pero por encima del panel */
+    #notificacion {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 300;
+      max-width: min(320px, calc(100% - 32px));
+      box-sizing: border-box;
+      padding: 12px 16px;
+      color: var(--texto-boton);
+      border-radius: var(--radio);
+      box-shadow: 0 4px 12px var(--sombra-fuerte);
+    }
+    #notificacion.exito { background: var(--exito); }
+    #notificacion.error { background: var(--error); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tarjeta { animation: none; }
+      .tarjeta:hover { scale: none; }
+      #panel-carrito, #panel-carrito.abierto { transition: none; }
+    }
+
+    /* El bug del portfolio: cualquier regla display le gana a hidden */
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Tienda</h1>
+    <a href="cliente.html">Mi cuenta</a>
+    <!-- aria-label: el emoji solo no le dice nada a un lector de pantalla;
+         el JS lo actualiza según el modo -->
+    <button type="button" id="btn-tema" aria-label="Cambiar a modo oscuro">🌙</button>
+    <button type="button" id="btn-carrito" aria-controls="panel-carrito">
+      🛒 Carrito
+      <span id="contador-carrito">0</span>
+    </button>
+  </header>
+
+  <main>
+    <h2>Nuestros productos</h2>
+    <p id="intro-galeria">Elige la cantidad de cada producto y agrégalo al carrito.</p>
+
+    <!-- aria-live: un lector de pantalla lee el mensaje cuando cambia -->
+    <p id="estado-galeria" aria-live="polite">Cargando productos…</p>
+
+    <!-- hidden hasta que haya productos que filtrar. El JS crea las categorías
+         a partir de los productos, así una categoría nueva aparece sola -->
+    <form id="filtros" role="search" hidden>
+      <div class="campo-buscador">
+        <label for="buscador">Buscar productos</label>
+        <input id="buscador" type="search" placeholder="ej. audífonos" autocomplete="off">
+      </div>
+      <div id="filtro-categorias" role="group" aria-label="Filtrar por categoría"></div>
+      <div class="filtros-pie">
+        <p id="resultados-filtro" aria-live="polite"></p>
+        <button type="button" id="btn-limpiar-filtros" class="btn-secundario" hidden>Limpiar filtros</button>
+      </div>
+    </form>
+
+    <p id="sin-resultados" hidden>Ningún producto coincide con tu búsqueda.</p>
+
+    <!-- Las tarjetas las crea galeria.js -->
+    <div id="galeria"></div>
+  </main>
+
+  <div id="capa-carrito" hidden></div>
+
+  <!-- Va fuera del header a propósito (ver el comentario de "header" en el CSS) -->
+  <aside id="panel-carrito" aria-labelledby="titulo-carrito" inert>
+    <div class="carrito-encabezado">
+      <h2 id="titulo-carrito">Tu carrito</h2>
+      <button type="button" id="btn-cerrar-carrito" class="btn-secundario" aria-label="Cerrar carrito">✕</button>
+    </div>
+
+    <p id="mensaje-carrito">Tu carrito está vacío.</p>
+    <ul id="lista-carrito" hidden></ul>
+
+    <div class="carrito-pie">
+      <div class="carrito-total">
+        <span>Total</span>
+        <span id="total-carrito">$ 0</span>
+      </div>
+      <button type="button" id="btn-pago" disabled>Proceder al pago</button>
+    </div>
+  </aside>
+
+  <div id="notificacion" role="status" hidden></div>
+
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/galeria.js"></script>
+</body>
+</html>

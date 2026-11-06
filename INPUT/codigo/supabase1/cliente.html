@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mi cuenta</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Mismo script de tema que prueba2.html: como las dos páginas se sirven
+    <!-- Mismo script de tema que admin.html: como las dos páginas se sirven
          desde el mismo sitio, comparten localStorage → si elegiste oscuro en
-         prueba2.html, esta página también abre en oscuro -->
+         admin.html, esta página también abre en oscuro -->
     <script>
       let temaGuardado = null;
       try { temaGuardado = localStorage.getItem('tema'); } catch (e) {}
@@ -15,7 +15,7 @@
         (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
     </script>
     <style>
-      /* Paleta COPIADA de prueba2.html. Ojo: si cambias un color allá,
+      /* Paleta COPIADA de admin.html. Ojo: si cambias un color allá,
          hay que cambiarlo aquí también (están duplicados a propósito) */
       :root {
         --fondo: #FFFFFF;
@@ -29,7 +29,7 @@
         --texto: #12302D;
         --texto-suave: #44605C;
         --texto-boton: #FFFFFF;
-        /* Rojo ladrillo (el mismo --error de prueba2.html). Texto blanco = 7.5:1.
+        /* Rojo ladrillo (el mismo --error de admin.html). Texto blanco = 7.5:1.
            Sirve igual en oscuro: es FONDO de botón con texto blanco, así que
            no hace falta redefinirlo en :root[data-tema="oscuro"] */
         --error: #9E2A1F;
@@ -88,7 +88,7 @@
         place-items: center;
       }
 
-      /* Panel de vidrio, igual que la sección 1 de prueba2.html.
+      /* Panel de vidrio, igual que la sección 1 de admin.html.
          Una sola columna: ahora se ve un solo formulario a la vez,
          así que el panel es más angosto (antes 760px con 2 columnas) */
       #panel-cuenta {
@@ -182,7 +182,7 @@
         background: var(--error);
       }
       /* Hover: el mismo rojo más oscuro con filter (como .btn-peligro de
-         prueba2.html). Sin esta regla, "button:hover" lo pondría turquesa */
+         admin.html). Sin esta regla, "button:hover" lo pondría turquesa */
       #btn-logout:hover { background: var(--error); filter: brightness(0.85); }
 
       /* Texto "¿No tienes cuenta? Registrarse" debajo del botón principal */
@@ -216,7 +216,7 @@
          hidden siempre gana */
       [hidden] { display: none !important; }
 
-      /* Botón de tema (copiado de prueba2.html): redondo, arriba a la derecha,
+      /* Botón de tema (copiado de admin.html): redondo, arriba a la derecha,
          fijo. #btn-tema (un id) le gana a "button" (una etiqueta) sin importar
          en qué orden estén las reglas */
       #btn-tema {

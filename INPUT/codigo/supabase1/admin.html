@@ -11,7 +11,7 @@
        todavía cuando supabaseClient.js intente usarlo -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Elige el tema ANTES de que se pinte la página. Si esto estuviera en
-       prueba2.js (al final del body), la página se vería un instante en modo
+       admin.js (al final del body), la página se vería un instante en modo
        claro y luego "parpadearía" a oscuro.
        Prioridad: 1) lo que el usuario eligió con el botón (localStorage)
                   2) la configuración del sistema (prefers-color-scheme) -->
@@ -597,13 +597,129 @@
     #notificacion.error { background: var(--error); }
     /* Recuerda el bug del portfolio: cualquier regla display le gana a hidden */
     [hidden] { display: none !important; }
+
+    /* --- Acceso de administrador ---
+       Una sola columna: se ve un solo form a la vez, así que el panel es
+       angosto, igual que en cliente.html */
+    #zona-acceso-admin {
+      display: grid;
+      gap: 12px;
+      max-width: 420px;
+      box-sizing: border-box;  /* los 420px incluyen el padding */
+      margin: 0 auto 16px;
+    }
+    #zona-acceso-admin > p { margin: 0; }
+    #zona-acceso-admin > button { justify-self: start; }
+    /* Cuadrado de 44px (mínimo cómodo para el dedo) con el ícono centrado */
+    #btn-logout-admin {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+    }
+    /* Copiado de cliente.html: cada form es una tarjeta. Con #zona-acceso-admin
+       para no afectar los forms del Inventario. Input y botón no se copian:
+       sus reglas generales ya son iguales en las dos páginas */
+    #zona-acceso-admin form {
+      display: grid;
+      gap: 4px;
+      align-content: start;    /* sin esto, el form más corto estira sus filas */
+      padding: 20px;
+      background: var(--vidrio-interno);
+      border: 1px solid var(--vidrio-borde);
+      border-radius: var(--radio);
+    }
+    #zona-acceso-admin h3 { margin: 0 0 4px; color: var(--titulo); }
+    #zona-acceso-admin label { margin-top: 8px; font-size: 0.9rem; color: var(--texto-suave); }
+    #zona-acceso-admin form button { margin-top: 16px; }
+
+    /* Copiado de cliente.html: "¿No tienes cuenta? Registrarse" debajo del botón */
+    .cambiar-form {
+      margin: 12px 0 0;
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--texto-suave);
+    }
+    /* Botón con aspecto de enlace. Aquí el selector lleva #zona-acceso-admin
+       (en cliente.html no): debe ganarle a "#zona-acceso-admin form button" */
+    #zona-acceso-admin form .enlace {
+      margin: 0;
+      padding: 0;
+      font-weight: 600;
+      color: var(--titulo);
+      background: none;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    #zona-acceso-admin form .enlace:hover { background: none; text-decoration-thickness: 2px; }
+    #zona-acceso-admin form .enlace:active { transform: none; }
   </style>
 </head>
 <body>
 
+  <!-- Los dos forms arrancan hidden: así, si ya había sesión, no aparecen un
+       instante mientras admin.js la comprueba -->
+  <section id="zona-acceso-admin" class="panel panel-vidrio">
+    <h2>Acceso de administrador</h2>
+    <p id="estado-sesion-admin" role="status">Comprobando sesión…</p>
+
+    <!-- Va aquí, no dentro de #panel-admin: una cuenta SIN perfil de admin
+         también necesita poder cerrar sesión -->
+    <!-- Solo ícono: aria-label le da el nombre al lector de pantalla y title
+         muestra el texto al pasar el mouse. El <svg> usa currentColor, así
+         toma el color del botón en modo claro y oscuro -->
+    <button id="btn-logout-admin" type="button" aria-label="Cerrar sesión" title="Cerrar sesión" hidden>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <path d="M16 17l5-5-5-5" />
+        <path d="M21 12H9" />
+      </svg>
+    </button>
+
+    <form id="form-registro-admin" hidden>
+      <h3>Registrar administrador</h3>
+      <label for="admin-registro-nombre">Nombre</label>
+      <input id="admin-registro-nombre" type="text" required>
+
+      <label for="admin-registro-correo">Correo</label>
+      <input id="admin-registro-correo" type="email" required>
+
+      <label for="admin-registro-password">Contraseña</label>
+      <input id="admin-registro-password" type="password" minlength="6" required>
+
+      <button type="submit">Crear cuenta de administrador</button>
+      <!-- <button> con aspecto de enlace, no <a>: no lleva a otra página, hace
+           algo en esta. type="button" para que no envíe el formulario -->
+      <p class="cambiar-form">¿Ya tienes cuenta?
+        <button type="button" class="enlace" data-mostrar="login">Iniciar sesión</button>
+      </p>
+    </form>
+
+    <form id="form-login-admin" hidden>
+      <h3>Iniciar sesión</h3>
+      <label for="admin-login-correo">Correo</label>
+      <input id="admin-login-correo" type="email" required>
+
+      <label for="admin-login-password">Contraseña</label>
+      <input id="admin-login-password" type="password" required>
+
+      <button type="submit">Iniciar sesión</button>
+      <p class="cambiar-form">¿No tienes cuenta?
+        <button type="button" class="enlace" data-mostrar="registro">Registrarse</button>
+      </p>
+    </form>
+  </section>
+
   <!-- aria-label: el emoji solo no le dice nada a un lector de pantalla;
        el JS lo actualiza según el modo -->
   <button type="button" id="btn-tema" aria-label="Cambiar a modo oscuro">🌙</button>
+
+  <!-- El panel real (Inventario) queda oculto hasta que admin.js confirme
+       sesión iniciada Y que existe fila en admins_practica.
+       Ojo: hidden solo decide qué se VE. Lo que protege los datos son las
+       policies de RLS en Supabase. -->
+  <div id="panel-admin" hidden>
 
   <!-- Dos secciones lado a lado (ver .layout en el CSS).
        <section> en vez de <div>: le dice al navegador (y a lectores de
@@ -720,6 +836,8 @@
 
   </main>
 
+  </div><!-- /#panel-admin -->
+
   <div id="notificacion" hidden></div>
 
   <!-- <dialog> = modal nativo de HTML: con showModal() el navegador lo centra,
@@ -739,11 +857,14 @@
     </form>
   </dialog>
 
+
+
+
   <!-- supabaseClient.js crea "db" (sección 4.3): el cliente ya
        conectado a tu proyecto de Supabase. Lo vamos a usar en
-       prueba.js, por eso tiene que cargarse ANTES que ese archivo -->
+       admin.js, por eso tiene que cargarse ANTES que ese archivo -->
   <script src="js/supabaseClient.js"></script>
-  <!-- prueba.js: aquí escribes el código de los Pasos 2, 3 y 4 -->
-  <script  src="js/prueba2.js"></script>
+  <!-- admin.js: acceso de administrador + CRUD de productos -->
+  <script  src="js/admin.js"></script>
 </body>
 </html>

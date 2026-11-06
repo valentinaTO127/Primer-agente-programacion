@@ -1,3 +1,127 @@
+document.getElementById('form-registro-admin').addEventListener('submit', async (evento) => {
+  evento.preventDefault();
+  const form = evento.target;
+
+  const { data, error } = await db.auth.signUp({
+    email: form.elements['admin-registro-correo'].value,
+    password: form.elements['admin-registro-password'].value,
+  });
+
+  if (error) {
+    document.getElementById('estado-sesion-admin').innerText = 'Error al registrar: ' + error.message;
+    return;
+  }
+
+  // Sin sesión (Confirm email activo) auth.uid() vale null en la base, así que
+  // la policy de admins_practica rechazaría el insert. Mejor decirlo aquí.
+  if (!data.session) {
+    document.getElementById('estado-sesion-admin').innerText = 'Cuenta creada, pero Supabase pide confirmar el correo y no se pudo crear el perfil de administrador.';
+    form.reset();
+    return;
+  }
+
+  const { error: errorPerfil } = await db.from('admins_practica').insert([{
+    id: data.user.id,
+    nombre: form.elements['admin-registro-nombre'].value.trim(),
+    correo: form.elements['admin-registro-correo'].value.trim(),
+  }]);
+
+  form.reset();
+  // signUp ya dejó la sesión iniciada: actualizamos la pantalla según esa sesión
+  await mostrarEstadoSesionAdmin();
+
+  // Va DESPUÉS: mostrarEstadoSesionAdmin escribe su propio mensaje
+  if (errorPerfil) {
+    document.getElementById('estado-sesion-admin').innerText = 'Cuenta creada, pero falló el perfil: ' + errorPerfil.message;
+  }
+});
+
+document.getElementById('form-login-admin').addEventListener('submit', async (evento) => {
+  evento.preventDefault();
+  const form = evento.target;
+
+  const { error } = await db.auth.signInWithPassword({
+    email: form.elements['admin-login-correo'].value,
+    password: form.elements['admin-login-password'].value,
+  });
+
+  if (error) {
+    document.getElementById('estado-sesion-admin').innerText = 'Error al iniciar sesión: ' + error.message;
+    return;
+  }
+
+  form.reset(); // no dejamos la contraseña escrita en un form oculto
+  mostrarEstadoSesionAdmin();
+});
+
+// ÚNICO lugar que decide qué se ve. Arranca en "no es admin" y solo cambia si
+// la base lo confirma: ante cualquier error, el panel se queda oculto.
+async function mostrarEstadoSesionAdmin() {
+  const { data } = await db.auth.getUser();
+  const conSesion = Boolean(data.user); // objeto → true, null → false
+  let esAdmin = false;
+  let mensaje = 'No has iniciado sesión.';
+
+  if (conSesion) {
+    // Importante: tener sesión no basta — confirmamos que además exista
+    // su fila en admins_practica. (cliente.html comparte la sesión con esta
+    // página, así que aquí también puede llegar un cliente.)
+    const { data: perfil, error } = await db
+      .from('admins_practica')
+      .select('nombre')
+      .eq('id', data.user.id)
+      .maybeSingle(); // sin fila → data = null SIN error: "error" queda para fallos reales
+
+    if (error) {
+      console.log('Error al verificar el administrador:', error);
+      mensaje = 'No se pudo verificar tu cuenta (revisa la consola).';
+    } else if (perfil) {
+      esAdmin = true;
+      mensaje = 'Bienvenido Administrador';
+    } else {
+      mensaje = 'Sesión iniciada, pero sin perfil de administrador.';
+    }
+  }
+
+  document.getElementById('panel-admin').hidden = !esAdmin;
+  document.getElementById('btn-logout-admin').hidden = !conSesion;
+  document.getElementById('form-registro-admin').hidden = true; // se abre con su enlace
+  document.getElementById('form-login-admin').hidden = conSesion;
+  document.getElementById('estado-sesion-admin').innerText = mensaje;
+
+  if (!esAdmin) limpiarPanelAdmin();
+}
+
+// Ocultar no borra: sin esto, los productos y lo escrito seguirían en la
+// página (escondidos) hasta que entre otra persona. Mismo cuidado que cliente.js
+function limpiarPanelAdmin() {
+  ocultarGaleria();
+  document.querySelectorAll('#panel-admin form').forEach(form => form.reset());
+  ponerModoNuevo(); // reset() no vacía el id oculto ni la previsualización
+  document.getElementById('desplegable-producto').open = false;
+}
+
+// --- Un solo formulario a la vez (mismo patrón que cliente.js) ---
+// Recibe 'login' o 'registro' y esconde el otro
+function mostrarFormularioAdmin(cual) {
+  document.getElementById('form-login-admin').hidden = cual !== 'login';
+  document.getElementById('form-registro-admin').hidden = cual !== 'registro';
+  // Pone el cursor en el primer campo del form que se acaba de mostrar
+  document.querySelector(`#form-${cual}-admin input`).focus();
+}
+
+// Cada enlace dice en data-mostrar qué form abre
+document.querySelectorAll('#zona-acceso-admin .enlace').forEach(boton => {
+  boton.addEventListener('click', () => mostrarFormularioAdmin(boton.dataset.mostrar));
+});
+
+document.getElementById('btn-logout-admin').addEventListener('click', async () => {
+  await db.auth.signOut();
+  mostrarEstadoSesionAdmin();
+});
+
+
+
 // --- Galería (sección 2) ---
 // La usan "Traer productos" Y los dos buscadores: todos pintan tarjetas en el
 // mismo lugar. Por eso son funciones aparte y no código dentro de cada listener.
@@ -603,3 +727,8 @@ function crearBotonEliminar(producto) {
   });
   return eliminar;
 }
+
+// Al cargar la página, revisa si ya había una sesión activa. Va al FINAL del
+// archivo: limpiarPanelAdmin usa const de más arriba, que no existen hasta
+// que el script llega a su línea.
+mostrarEstadoSesionAdmin();

@@ -293,3 +293,12 @@ Hoy aprendí a **registrar y autenticar usuarios con Supabase** (`INPUT/codigo/s
     (ahora rojo) en la misma fila del título, `:has()` para que la sección mida 60% solo con sesión,
     y un `<div class="campo">` por pareja label + input para tener 2 columnas.
   - Botón de modo claro/oscuro copiado de `prueba2.html`, con la misma clave `tema` en `localStorage`.
+
+## 2026-11-06
+
+Hoy me adelanté de la clase pasada y aprendí a **agregar policies en Supabase**.
+
+- **Lo que trabajamos** (`INPUT/codigo/supabase1/`):
+  - **Renombrar archivos:** `prueba2.html` y `js/prueba2.js` pasaron a `admin.html` y `js/admin.js`, actualizando el `<script>` y los comentarios que los mencionaban.
+  - **Acceso de administrador:** registro y login con `admins_practica`, un solo formulario a la vez y el Inventario oculto hasta confirmar la sesión y la fila de admin. `hidden` solo decide qué se ve: lo que protege los datos son las policies.
+  - **Galería para clientes:** `galeria.html` + `js/galeria.js`, a partir del ejemplo "OBJETOS - GALERIA 3" (licencia MIT, Julian Bejarano), con productos de Supabase, carrito en `localStorage`, buscador y filtro por categorías.
