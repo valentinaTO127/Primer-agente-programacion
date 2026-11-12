@@ -609,15 +609,26 @@
       margin: 0 auto 16px;
     }
     #zona-acceso-admin > p { margin: 0; }
-    #zona-acceso-admin > button { justify-self: start; }
-    /* Cuadrado de 44px (mínimo cómodo para el dedo) con el ícono centrado */
+    /* Cerrar sesión: fijo arriba a la derecha, al lado de #btn-tema.
+       right: 64px = 12px (margen de #btn-tema) + 44px (su ancho) + 8px de aire.
+       Cuadrado de 44px (mínimo cómodo para el dedo) con el ícono centrado */
     #btn-logout-admin {
+      position: fixed;
+      top: 12px;
+      right: 64px;
       display: grid;
       place-items: center;
       width: 44px;
       height: 44px;
       padding: 0;
+      /* Rojo: cerrar sesión es una acción de "salida", distinta de las
+         turquesa (guardar, entrar). Mismo --error que .btn-peligro y que
+         #btn-logout de cliente.html. Ícono blanco = 7.5:1 */
+      background: var(--error);
+      box-shadow: 0 2px 8px var(--sombra);
     }
+    /* Sin esta regla, "button:hover" lo pondría turquesa */
+    #btn-logout-admin:hover { background: var(--error); filter: brightness(0.85); }
     /* Copiado de cliente.html: cada form es una tarjeta. Con #zona-acceso-admin
        para no afectar los forms del Inventario. Input y botón no se copian:
        sus reglas generales ya son iguales en las dos páginas */
@@ -664,19 +675,6 @@
     <h2>Acceso de administrador</h2>
     <p id="estado-sesion-admin" role="status">Comprobando sesión…</p>
 
-    <!-- Va aquí, no dentro de #panel-admin: una cuenta SIN perfil de admin
-         también necesita poder cerrar sesión -->
-    <!-- Solo ícono: aria-label le da el nombre al lector de pantalla y title
-         muestra el texto al pasar el mouse. El <svg> usa currentColor, así
-         toma el color del botón en modo claro y oscuro -->
-    <button id="btn-logout-admin" type="button" aria-label="Cerrar sesión" title="Cerrar sesión" hidden>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-        <path d="M16 17l5-5-5-5" />
-        <path d="M21 12H9" />
-      </svg>
-    </button>
-
     <form id="form-registro-admin" hidden>
       <h3>Registrar administrador</h3>
       <label for="admin-registro-nombre">Nombre</label>
@@ -714,6 +712,20 @@
   <!-- aria-label: el emoji solo no le dice nada a un lector de pantalla;
        el JS lo actualiza según el modo -->
   <button type="button" id="btn-tema" aria-label="Cambiar a modo oscuro">🌙</button>
+
+  <!-- Fuera de #zona-acceso-admin y de #panel-admin: con sesión de admin la
+       tarjeta de acceso se oculta, y una cuenta SIN perfil de admin no ve el
+       Inventario. Aquí afuera, el botón sirve en los dos casos -->
+  <!-- Solo ícono: aria-label le da el nombre al lector de pantalla y title
+       muestra el texto al pasar el mouse. El <svg> usa currentColor, así
+       toma el color del texto del botón (blanco sobre el rojo) -->
+  <button id="btn-logout-admin" type="button" aria-label="Cerrar sesión" title="Cerrar sesión" hidden>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="M16 17l5-5-5-5" />
+      <path d="M21 12H9" />
+    </svg>
+  </button>
 
   <!-- El panel real (Inventario) queda oculto hasta que admin.js confirme
        sesión iniciada Y que existe fila en admins_practica.

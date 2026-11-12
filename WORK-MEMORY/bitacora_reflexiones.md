@@ -302,3 +302,16 @@ Hoy me adelanté de la clase pasada y aprendí a **agregar policies en Supabase*
   - **Renombrar archivos:** `prueba2.html` y `js/prueba2.js` pasaron a `admin.html` y `js/admin.js`, actualizando el `<script>` y los comentarios que los mencionaban.
   - **Acceso de administrador:** registro y login con `admins_practica`, un solo formulario a la vez y el Inventario oculto hasta confirmar la sesión y la fila de admin. `hidden` solo decide qué se ve: lo que protege los datos son las policies.
   - **Galería para clientes:** `galeria.html` + `js/galeria.js`, a partir del ejemplo "OBJETOS - GALERIA 3" (licencia MIT, Julian Bejarano), con productos de Supabase, carrito en `localStorage`, buscador y filtro por categorías.
+
+## 2026-11-12
+
+Lo que más me costó hoy fue entender la **sesión compartida** entre páginas.
+
+- **Lo que aprendí:**
+  - **La sesión vive en el navegador, no en la página:** `admin.html`, `cliente.html` y `galeria.html` comparten la sesión de Supabase porque la guarda el `localStorage` del mismo origen. Si inicio sesión como admin y después abro "Mi cuenta", entro con la cuenta de admin. Por eso la galería puede leer la sesión con `getUser()` después de que el login redirige.
+  - **RLS filtra, no avisa:** cuando un `select` no puede ver una fila, Supabase devuelve `data = null` **sin error**. Para el JS, "no tengo permiso" y "la fila no existe" se ven igual. Así salió el mensaje "No encontramos tu perfil en clientes_practica." (todavía falta revisar con qué cuenta estaba conectada y si la fila existe).
+- **Lo que trabajamos** (`INPUT/codigo/supabase1/`):
+  - **`admin.html`:** con sesión de admin se oculta la tarjeta de acceso, y el botón de cerrar sesión quedó rojo, con `position: fixed` al lado del botón de tema, para que sirva en todos los estados.
+  - **`galeria.html`, tarjetas:** solo `[Agregar]`. Cuando el producto ya está en el carrito aparece el stepper `[−] n [+]`, y el número sale del carrito (una sola fuente de verdad). Los `−` y `+` del panel del carrito tienen texto blanco.
+  - **Menú del usuario:** el header muestra el nombre del cliente y, con hover o clic, las opciones Mi cuenta y Pedidos (`cliente.html?vista=…`, que se lee con `URLSearchParams`). Después del login se redirige a la galería.
+  - **Pedidos:** por ahora es una vista vacía. Lo siguiente es crear las tablas `pedidos` y `pedido_items`.

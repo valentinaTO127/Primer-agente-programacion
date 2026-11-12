@@ -135,6 +135,43 @@
     header h1 { margin: 0 auto 0 0; font-size: 1.6rem; color: var(--titulo-pagina); }
     header a { font-weight: 600; color: var(--titulo); text-underline-offset: 3px; }
 
+    /* --- Menú del usuario ---
+       position: relative en el contenedor → la lista (absolute) se ubica
+       contra ÉL, justo debajo del botón, y no contra la página */
+    #menu-usuario { position: relative; }
+    #btn-usuario { display: flex; align-items: center; gap: 6px; min-height: 44px; }
+    /* max-width + ellipsis: un nombre largo no rompe el header */
+    #nombre-usuario { max-width: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    #lista-usuario {
+      position: absolute;
+      top: 100%;               /* pegada al borde de abajo del botón: sin hueco,
+                                  el mouse no "sale" del menú al bajar */
+      right: 0;
+      z-index: 10;
+      display: none;
+      min-width: 180px;
+      margin: 0;
+      padding: 6px;
+      list-style: none;
+      background: var(--superficie);
+      border: 1px solid var(--borde);
+      border-radius: var(--radio);
+      box-shadow: 0 4px 12px var(--sombra);
+    }
+    /* Se abre con hover (mouse) o con la clase .abierto, que pone el JS al
+       hacer clic. El clic cubre el celular (no hay hover) y el teclado
+       (Enter/Espacio sobre el botón) */
+    #menu-usuario:hover #lista-usuario,
+    #menu-usuario.abierto #lista-usuario { display: grid; gap: 2px; }
+    #lista-usuario a {
+      display: block;
+      padding: 10px 12px;      /* área cómoda para el dedo */
+      border-radius: var(--radio);
+      text-decoration: none;
+    }
+    #lista-usuario a:hover,
+    #lista-usuario a:focus-visible { background: var(--arena); }
+
     #btn-tema {
       width: 44px;
       height: 44px;
@@ -310,8 +347,9 @@
       border-radius: 999px;
     }
 
-    /* Selector − cantidad + y Agregar. margin-top: auto lo manda al fondo de la
-       tarjeta: así los botones quedan alineados aunque cambie el largo del texto */
+    /* [Agregar] o el stepper [−] n [+] (el JS muestra uno a la vez con hidden).
+       margin-top: auto lo manda al fondo de la tarjeta: así los botones quedan
+       alineados aunque cambie el largo del texto */
     .acciones-tarjeta {
       display: flex;
       align-items: center;
@@ -328,7 +366,10 @@
     }
     .cantidad { min-width: 24px; font-weight: 700; text-align: center; }
     .btn-agregar { flex: 1; min-height: 44px; padding: 8px 10px; }
-    .btn-agregar.agregado, .btn-agregar.agregado:hover, .btn-agregar.agregado:disabled:hover { background: var(--exito); opacity: 1; }
+    /* Mismo ancho que [Agregar] (flex: 1): al cambiar de estado la tarjeta no
+       salta. El número (flex: 1) ocupa el centro y empuja − y + a los bordes */
+    .stepper { flex: 1; display: flex; align-items: center; gap: 8px; }
+    .stepper .cantidad { flex: 1; font-size: 1.1rem; }
 
     /* --- Panel del carrito ---
        translateX(100%) lo deja fuera de la ventana; la clase "abierto" lo trae.
@@ -396,7 +437,9 @@
     .item-info strong { display: block; color: var(--titulo); overflow-wrap: anywhere; }
     .item-info span { font-size: 0.85rem; color: var(--texto-suave); }
     .item-controles { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-    .item-controles .btn-cantidad { width: 32px; height: 32px; background: var(--primario); }
+    /* color: .btn-secundario los deja con texto turquesa (--titulo), que sobre
+       el fondo --primario casi no se ve. Blanco = el mismo texto de todo botón primario */
+    .item-controles .btn-cantidad { width: 32px; height: 32px; color: var(--texto-boton); background: var(--primario); }
     .item-controles .btn-cantidad:hover { background: var(--boton-hover); }
     .item-subtotal { margin-left: auto; font-weight: 700; }
     .btn-quitar {
@@ -452,7 +495,24 @@
 
   <header>
     <h1>Tienda</h1>
-    <a href="cliente.html">Mi cuenta</a>
+    <!-- Los dos arrancan hidden: galeria.js revisa la sesión y muestra UNO.
+         Así no aparece "Iniciar sesión" un instante a quien ya entró -->
+    <a id="enlace-login" href="cliente.html" hidden>Iniciar sesión</a>
+
+    <!-- Menú del usuario: el botón muestra su nombre y abre la lista.
+         aria-expanded le dice al lector de pantalla si la lista está abierta;
+         aria-controls, cuál lista abre -->
+    <div id="menu-usuario" hidden>
+      <button type="button" id="btn-usuario" class="btn-secundario" aria-expanded="false" aria-controls="lista-usuario">
+        <span id="nombre-usuario"></span>
+        <span aria-hidden="true">▾</span>
+      </button>
+      <!-- ?vista=… le dice a cliente.html qué vista abrir al cargar -->
+      <ul id="lista-usuario">
+        <li><a href="cliente.html?vista=ver">Mi cuenta</a></li>
+        <li><a href="cliente.html?vista=pedidos">Pedidos</a></li>
+      </ul>
+    </div>
     <!-- aria-label: el emoji solo no le dice nada a un lector de pantalla;
          el JS lo actualiza según el modo -->
     <button type="button" id="btn-tema" aria-label="Cambiar a modo oscuro">🌙</button>
@@ -464,7 +524,7 @@
 
   <main>
     <h2>Nuestros productos</h2>
-    <p id="intro-galeria">Elige la cantidad de cada producto y agrégalo al carrito.</p>
+    <p id="intro-galeria">Agrega productos al carrito y ajusta la cantidad con − y +.</p>
 
     <!-- aria-live: un lector de pantalla lee el mensaje cuando cambia -->
     <p id="estado-galeria" aria-live="polite">Cargando productos…</p>

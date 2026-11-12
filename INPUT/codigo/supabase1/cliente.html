@@ -275,8 +275,17 @@
         background: var(--primario);
       }
 
-      /* Ficha: misma "tarjeta" que los forms */
-      #ficha-perfil {
+      #enlace-tienda {
+        justify-self: start;     /* el enlace mide su texto, no todo el ancho */
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--titulo);
+        text-underline-offset: 3px;
+      }
+
+      /* Ficha y Pedidos: misma "tarjeta" que los forms */
+      #ficha-perfil,
+      #vista-pedidos {
         padding: 20px;
         background: var(--vidrio-interno);
         border: 1px solid var(--vidrio-borde);
@@ -304,7 +313,8 @@
       @media (max-width: 640px) {
         #panel-cuenta:has(#zona-cliente:not([hidden])) { max-width: none; }
         #zona-cliente { grid-template-columns: 1fr; }
-        #menu-cliente nav { grid-template-columns: 1fr 1fr; }
+        /* 3 opciones (Mis datos, Actualizar datos, Pedidos) → 3 columnas */
+        #menu-cliente nav { grid-template-columns: repeat(3, 1fr); }
         #menu-cliente button { text-align: center; }
         #ficha-perfil dl { grid-template-columns: 1fr; }
       }
@@ -353,6 +363,8 @@
            Va justo después del título (no al final): así con Tab es lo primero
            que se alcanza, en el mismo orden en que se ve -->
       <button id="btn-logout" type="button" hidden>Cerrar sesión</button>
+      <!-- Visible con y sin sesión: siempre hay forma de volver a la galería -->
+      <a href="galeria.html" id="enlace-tienda">← Volver a la tienda</a>
       <p id="estado-sesion">No has iniciado sesión.</p>
 
       <!-- Solo se ve UN form a la vez: registro arranca oculto (hidden) y el JS
@@ -403,6 +415,7 @@
           <nav aria-label="Mi cuenta">
             <button type="button" data-vista="ver">Mis datos</button>
             <button type="button" data-vista="editar" id="btn-menu-editar">Actualizar datos</button>
+            <button type="button" data-vista="pedidos">Pedidos</button>
           </nav>
         </aside>
 
@@ -458,6 +471,14 @@
         <!-- aria-live: un lector de pantalla lee el mensaje cuando cambia -->
         <p id="mensaje-perfil" aria-live="polite"></p>
       </form>
+
+          <!-- Vista "pedidos". Por ahora vacía: todavía no existe la tabla de
+               pedidos en Supabase ni el pago guarda nada -->
+          <article id="vista-pedidos" hidden>
+            <h3>Pedidos</h3>
+            <p>Aún no tienes pedidos.</p>
+            <a href="galeria.html">Ver productos</a>
+          </article>
         </div>
       </div>
     </section>

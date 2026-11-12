@@ -180,61 +180,72 @@ function crearPrecio(producto) {
   return precio;
 }
 
-// Selector − cantidad + y botón Agregar de UNA tarjeta.
-// "cantidad" vive aquí adentro: cada tarjeta recuerda la suya (closure).
+// Botones de UNA tarjeta. Dos estados, según lo que haya en el carrito:
+//   0 unidades   → [Agregar]   (o [Agotado] si no hay stock)
+//   1 o más      → [−] n [+]   (stepper)
+// La tarjeta no guarda su propia cantidad: lee siempre "carrito". Así el
+// número de la tarjeta y el del panel del carrito nunca se contradicen.
 function crearAcciones(producto) {
-  let cantidad = 1;
-  let temporizador;
-
   const acciones = document.createElement('div');
   acciones.className = 'acciones-tarjeta';
-
-  const restar = crearBotonCantidad('−', `Quitar una unidad de ${producto.nombre}`);
-  const sumar = crearBotonCantidad('+', `Agregar una unidad de ${producto.nombre}`);
-
-  const texto = document.createElement('span');
-  texto.className = 'cantidad';
 
   const agregar = document.createElement('button');
   agregar.type = 'button';
   agregar.className = 'btn-agregar';
 
-  // Pone al día los botones según lo que todavía se puede agregar
+  const stepper = document.createElement('div');
+  stepper.className = 'stepper';
+
+  const restar = crearBotonCantidad('−', '');
+  const sumar = crearBotonCantidad('+', `Agregar una unidad de ${producto.nombre}`);
+
+  const texto = document.createElement('span');
+  texto.className = 'cantidad';
+  // aria-live: el lector de pantalla anuncia el número nuevo al cambiar
+  texto.setAttribute('aria-live', 'polite');
+
+  stepper.append(restar, texto, sumar);
+
+  // Pone al día la tarjeta a partir del carrito. La llama actualizarCarrito()
+  // cada vez que el carrito cambia (desde la tarjeta o desde el panel)
   function refrescar() {
-    const quedan = stockDe(producto) - cantidadEnCarrito(producto.id);
-    cantidad = Math.min(cantidad, Math.max(quedan, 1));
+    const stock = stockDe(producto);
+    const enCarrito = cantidadEnCarrito(producto.id);
 
-    texto.textContent = cantidad;
-    restar.disabled = cantidad <= 1;
-    sumar.disabled = cantidad >= quedan;
-    agregar.disabled = quedan <= 0;
+    agregar.hidden = enCarrito > 0;
+    stepper.hidden = enCarrito === 0;
 
-    if (agregar.classList.contains('agregado')) return; // deja ver el "✓ Agregado"
-    if (stockDe(producto) === 0) agregar.textContent = 'Agotado';
-    else agregar.textContent = quedan > 0 ? 'Agregar' : 'En el carrito';
+    agregar.disabled = stock === 0;
+    agregar.textContent = stock === 0 ? 'Agotado' : 'Agregar';
+
+    texto.textContent = enCarrito;
+    sumar.disabled = enCarrito >= stock;
+    // Con 1 unidad, "−" no resta: saca el producto del carrito. El nombre
+    // accesible lo dice para que no sea una sorpresa
+    restar.setAttribute('aria-label', enCarrito === 1
+      ? `Quitar ${producto.nombre} del carrito`
+      : `Quitar una unidad de ${producto.nombre}`);
   }
 
-  restar.addEventListener('click', () => { cantidad--; refrescar(); });
-  sumar.addEventListener('click', () => { cantidad++; refrescar(); });
-
+  // Todo pasa por cambiarCantidad(): limita al stock y con 0 borra el producto.
+  // El foco se mueve porque el botón pulsado queda hidden: sin esto, quien
+  // navega con teclado "pierde" su lugar y vuelve al inicio de la página
   agregar.addEventListener('click', () => {
-    const agregadas = cantidad;
-    cantidad = 1;
-    agregar.classList.add('agregado');
-    agregar.textContent = '✓ Agregado';
-    cambiarCantidad(producto, cantidadEnCarrito(producto.id) + agregadas);
-
-    clearTimeout(temporizador); // dos clics seguidos: reinicia el conteo
-    temporizador = setTimeout(() => {
-      agregar.classList.remove('agregado');
-      refrescar();
-    }, 1200);
+    cambiarCantidad(producto, 1);
+    sumar.focus();
+  });
+  sumar.addEventListener('click', () => {
+    cambiarCantidad(producto, cantidadEnCarrito(producto.id) + 1);
+  });
+  restar.addEventListener('click', () => {
+    cambiarCantidad(producto, cantidadEnCarrito(producto.id) - 1);
+    if (cantidadEnCarrito(producto.id) === 0) agregar.focus();
   });
 
   refrescosTarjetas.set(producto.id, refrescar);
   refrescar();
 
-  acciones.append(restar, texto, sumar, agregar);
+  acciones.append(agregar, stepper);
   return acciones;
 }
 
@@ -250,7 +261,7 @@ function crearBotonCantidad(simbolo, descripcion) {
 
 // --- Buscador y filtro por categoría ---
 // Las tarjetas ya existen: filtrar solo las muestra u oculta con hidden. No se
-// consulta Supabase en cada tecla, y cada tarjeta conserva su cantidad elegida.
+// consulta Supabase en cada tecla, y cada tarjeta conserva sus botones.
 const buscador = document.getElementById('buscador');
 let categoriaActiva = ''; // texto normalizado; '' = Todas
 
@@ -502,6 +513,63 @@ document.getElementById('btn-pago').addEventListener('click', async () => {
 
   mostrarNotificacion('El pago todavía no está disponible.', 'error');
 });
+
+
+// --- Menú del usuario en el header ---
+// Con sesión: botón con el nombre. Sin sesión: enlace "Iniciar sesión".
+const menuUsuario = document.getElementById('menu-usuario');
+const botonUsuario = document.getElementById('btn-usuario');
+
+async function pintarMenuUsuario() {
+  const { data } = await db.auth.getUser();
+  const usuario = data.user;
+
+  document.getElementById('enlace-login').hidden = Boolean(usuario);
+  menuUsuario.hidden = !usuario;
+  if (!usuario) return;
+
+  // Primero el correo (lo tenemos ya), y si hay perfil, el nombre.
+  // Así el botón nunca queda vacío mientras llega la respuesta
+  const nombre = document.getElementById('nombre-usuario');
+  nombre.textContent = usuario.email;
+
+  const { data: perfil, error } = await db
+    .from('clientes_practica')
+    .select('nombre')
+    .eq('id', usuario.id)
+    .maybeSingle(); // sin fila (ej. sesión de admin) → null, se queda el correo
+
+  if (error) console.log('Error al leer el nombre del cliente:', error);
+  if (perfil?.nombre) nombre.textContent = perfil.nombre;
+}
+
+// Una sola función abre/cierra: la clase (para el CSS) y aria-expanded
+// (para el lector de pantalla) nunca quedan desincronizados
+function abrirMenuUsuario(abrir) {
+  menuUsuario.classList.toggle('abierto', abrir);
+  botonUsuario.setAttribute('aria-expanded', abrir);
+}
+
+botonUsuario.addEventListener('click', () => {
+  abrirMenuUsuario(!menuUsuario.classList.contains('abierto'));
+});
+
+// Se cierra al hacer clic afuera, con Escape o al salir con Tab
+document.addEventListener('click', (event) => {
+  if (!menuUsuario.contains(event.target)) abrirMenuUsuario(false);
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && menuUsuario.classList.contains('abierto')) {
+    abrirMenuUsuario(false);
+    botonUsuario.focus(); // el foco vuelve a donde estaba
+  }
+});
+// focusout + relatedTarget = "a dónde se fue el foco". Si fue fuera del menú, se cierra
+menuUsuario.addEventListener('focusout', (event) => {
+  if (!menuUsuario.contains(event.relatedTarget)) abrirMenuUsuario(false);
+});
+
+pintarMenuUsuario();
 
 
 // --- Notificación (igual que en admin.js) ---

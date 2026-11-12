@@ -84,6 +84,9 @@ async function mostrarEstadoSesionAdmin() {
   }
 
   document.getElementById('panel-admin').hidden = !esAdmin;
+  // Admin confirmado → la tarjeta de acceso ya no aporta nada. Sin sesión o
+  // sin perfil de admin sigue visible: ahí están los forms y el mensaje
+  document.getElementById('zona-acceso-admin').hidden = esAdmin;
   document.getElementById('btn-logout-admin').hidden = !conSesion;
   document.getElementById('form-registro-admin').hidden = true; // se abre con su enlace
   document.getElementById('form-login-admin').hidden = conSesion;
