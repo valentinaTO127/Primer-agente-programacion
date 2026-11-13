@@ -315,3 +315,26 @@ Lo que más me costó hoy fue entender la **sesión compartida** entre páginas.
   - **`galeria.html`, tarjetas:** solo `[Agregar]`. Cuando el producto ya está en el carrito aparece el stepper `[−] n [+]`, y el número sale del carrito (una sola fuente de verdad). Los `−` y `+` del panel del carrito tienen texto blanco.
   - **Menú del usuario:** el header muestra el nombre del cliente y, con hover o clic, las opciones Mi cuenta y Pedidos (`cliente.html?vista=…`, que se lee con `URLSearchParams`). Después del login se redirige a la galería.
   - **Pedidos:** por ahora es una vista vacía. Lo siguiente es crear las tablas `pedidos` y `pedido_items`.
+
+## 2026-11-13
+
+Hoy hicimos un análisis de seguridad de la base de datos de `INPUT/codigo/supabase1/` y rediseñamos los pedidos.
+
+- **Lo que aprendí:**
+  - **Vulnerabilidades encontradas en el esquema:**
+    - Cualquier cuenta registrada podía hacerse admin, porque la policy de INSERT en `admins_practica` solo revisaba `auth.uid() = id`. Una policy de "tu propia fila" sirve para un perfil, no para un permiso.
+    - `clientes_practica` tenía RLS apagado: con la anon key, que es pública, se podían leer y editar los datos de todos los clientes.
+    - Un cliente podía crear pedidos que ya dijeran `entregado` o con cantidad negativa.
+  - **Dos filtros:** los `grant` por columna deciden *qué columnas y operaciones* se permiten; las policies deciden *qué filas*. Una operación tiene que pasar los dos.
+  - **RLS filtra, no avisa:** un `update` o `delete` sobre una fila que la policy no deja ver devuelve 0 filas **sin error**. Por eso hay que revisar `data.length`.
+  - **Índices:** el índice único parcial (`where estado = 'carrito'`) sirve para obligar a que haya un solo carrito por cliente. Postgres no indexa solo las llaves foráneas, y RLS las consulta en cada petición.
+  - **Vistas y RLS:** una vista sin `security_invoker = true` corre con los permisos de su dueño y se salta el RLS.
+- **Lo que trabajamos:**
+  - SQL para proteger `clientes_practica`: activar RLS, policies de SELECT y UPDATE para el dueño, SELECT para el admin, y `grant update (nombre, telefono, direccion)`.
+  - Pruebas desde la consola del navegador (escribir `allow pasting`, variables globales como `db` y `r`) para insertar, confirmar y borrar pedidos y comprobar cada policy.
+  - Se eliminó `pedidos_practica` (una fila por producto) y se pasó a cabecera + detalle: `pedidos`, `detalles_pedidos` (con `precio_unitario` guardado) y `historial_estados_pedido`.
+  - Se corrigió el error `42P01` del script de policies: la vista `pedidos_con_total` no existía todavía y el script decía `admin_practica` en vez de `admins_practica`.
+- **Pendiente:**
+  - Cerrar la policy de INSERT de `admins_practica` y quitar el registro de admin de `admin.html`.
+  - Verificar que existan el trigger de `precio_unitario`, el trigger del historial y `confirmar_pedido()`.
+  - Hacer que cancelar un pedido devuelva el stock.
