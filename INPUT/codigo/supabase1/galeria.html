@@ -45,6 +45,11 @@
       --vidrio: rgba(255, 255, 255, 0.45);
       --vidrio-interno: rgba(255, 255, 255, 0.55);
       --vidrio-borde: rgba(255, 255, 255, 0.7);
+      /* Rastro de crema al abrir el carrito (escala de grises: R = G = B) */
+      --crema-relleno: #dde3e2;
+      --crema-borde: #e9e7e7;
+      --crema-opacidad: 1;
+      --crema-brillo: rgba(255, 255, 255, 0.585);
       color-scheme: light;
     }
     :root[data-tema="oscuro"] {
@@ -70,6 +75,10 @@
       --vidrio: rgba(21, 26, 31, 0.5);
       --vidrio-interno: rgba(21, 26, 31, 0.55);
       --vidrio-borde: rgba(255, 255, 255, 0.1);
+      --crema-relleno: #595b5a90;
+      --crema-borde: #e9e9e9;
+      --crema-opacidad: 0.6;
+      --crema-brillo: rgba(255, 255, 255, 0.45);
       color-scheme: dark;
     }
 
@@ -465,6 +474,66 @@
       background: rgba(0, 0, 0, 0.4);
     }
 
+    /* --- Rastro de crema ---
+       Va entre la capa oscura (150) y el panel (200). pointer-events: none
+       para que los clics pasen a la capa que está debajo.
+       El truco del "dibujado": pathLength="1" hace que el trazo mida 1 sin
+       importar su largo real. Con stroke-dasharray: 1 el trazo es UNA raya de
+       largo 1 seguida de un hueco de largo 1. stroke-dashoffset corre ese patrón:
+       en -1 se ve solo el hueco (nada), en 0 se ve la raya completa.
+       El signo decide la dirección: de 1 a 0 la raya crece desde el INICIO del
+       path (izquierda); de -1 a 0 crece desde el FINAL (derecha) */
+    #rastro-crema {
+      position: fixed;
+      top: 0;
+      right: 0; /* pegado al borde derecho... */
+      z-index: 180;
+      width: 80%; /* ...y abarca el 80% del ancho */
+      height: 100%;
+      pointer-events: none;
+    }
+    .crema-trazo {
+      fill: none;
+      stroke-linecap: round;
+      stroke-dasharray: 1;
+      stroke-dashoffset: -1; /* negativo = se dibuja de derecha a izquierda */
+    }
+    /* La transparencia va en el grupo y no en cada color: así el grupo se
+       pinta primero como una sola imagen y DESPUÉS se vuelve translúcido.
+       Si el brillo fuera transparente por su cuenta, a través de él se vería
+       la forma gris que está debajo, no la página */
+    .crema-masa { opacity: var(--crema-opacidad); }
+    /* El borde NO es un trazo: un stroke tiene el mismo grosor en todo el
+       recorrido. Es una forma rellena que galeria.js calcula siguiendo la curva
+       (ancha en la punta redonda, delgada hacia la derecha). Como un relleno no
+       se puede "dibujar" con dashoffset, se revela con una máscara: un trazo
+       blanco muy grueso que sí se anima igual que los demás */
+    /* Contorno de grosor variable = dos formas rellenas, una encima de otra:
+       la oscura un poco más ancha y la clara un poco más angosta. Lo que
+       asoma de la oscura es el contorno (un stroke no puede variar su grosor) */
+    .crema-contorno { fill: var(--crema-borde); }
+    .crema-relleno { fill: var(--crema-relleno); }
+    .crema-mascara { stroke: white; stroke-width: 460; }
+    .crema-brillo { stroke: var(--crema-brillo); stroke-width: 30; }
+    .crema-burbuja {
+      fill: var(--crema-brillo);
+      opacity: 0;
+      /* sin esto, scale crece desde la esquina del svg y no desde cada círculo */
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    /* La clase "pasando" la pone galeria.js. El brillo sale un poco después
+       que la forma, como si la crema se asentara */
+    #rastro-crema.pasando { animation: crema-desvanecer .4s ease .9s both; }
+    #rastro-crema.pasando .crema-trazo { animation: crema-dibujar .8s ease-in-out forwards; }
+    #rastro-crema.pasando .crema-brillo { animation-delay: 0.08s; }
+    #rastro-crema.pasando .crema-burbuja { animation: crema-burbuja 0.3s ease-out 0.35s forwards; }
+
+    @keyframes crema-dibujar { to { stroke-dashoffset: 0; } }
+    @keyframes crema-desvanecer { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes crema-burbuja { from { opacity: 0; scale: 0; } to { opacity: 1; scale: 1; } }
+
     /* Mensaje flotante: igual que en admin.html, pero por encima del panel */
     #notificacion {
       position: fixed;
@@ -485,6 +554,8 @@
       .tarjeta { animation: none; }
       .tarjeta:hover { scale: none; }
       #panel-carrito, #panel-carrito.abierto { transition: none; }
+      /* galeria.js tampoco lo muestra, esto es por si acaso */
+      #rastro-crema { display: none; }
     }
 
     /* El bug del portfolio: cualquier regla display le gana a hidden */
@@ -550,6 +621,37 @@
   </main>
 
   <div id="capa-carrito" hidden></div>
+
+  <!-- Rastro de crema que sale del borde derecho y cubre el 80% de la pantalla.
+       xMaxYMid meet = el viewBox se ve completo sin deformarse, pegado a la derecha.
+       La curva arranca fuera del viewBox por la derecha (no se ve esa punta) y
+       termina dentro, en x=230, para que se vea la punta redondeada del final
+       (230 > lo que mide la forma desde el centro en la punta, 221, así no se corta) -->
+  <svg id="rastro-crema" viewBox="0 0 1600 900" preserveAspectRatio="xMaxYMid meet"
+       aria-hidden="true" hidden>
+    <defs>
+      <!-- Máscara: lo blanco deja ver, lo negro (o vacío) esconde.
+           userSpaceOnUse + un área grande = la máscara no recorta la forma -->
+      <mask id="mascara-borde" maskUnits="userSpaceOnUse" x="-200" y="-300" width="2200" height="1500">
+        <path class="crema-trazo crema-mascara" pathLength="1" d="M 230 500 C 450 440, 550 450, 800 450 S 1350 420, 1750 330"/>
+      </mask>
+    </defs>
+    <g class="crema-masa">
+      <!-- El "d" de estas formas lo genera galeria.js (calcularBordeCrema).
+           La máscara va en el grupo para revelar las dos a la vez -->
+      <g mask="url(#mascara-borde)">
+        <path id="contorno-crema" class="crema-contorno"/>
+        <path id="relleno-crema" class="crema-relleno"/>
+      </g>
+      <!-- El brillo es la misma curva, más delgada y corrida hacia arriba -->
+      <path class="crema-trazo crema-brillo" pathLength="1" transform="translate(0 -70)"
+            d="M 230 500 C 450 440, 550 450, 800 450 S 1350 420, 1750 330"/>
+    </g>
+    <circle class="crema-burbuja" cx="520" cy="455" r="5"/>
+    <circle class="crema-burbuja" cx="750" cy="450" r="3"/>
+    <circle class="crema-burbuja" cx="980" cy="452" r="6"/>
+    <circle class="crema-burbuja" cx="1200" cy="425" r="4"/>
+  </svg>
 
   <!-- Va fuera del header a propósito (ver el comentario de "header" en el CSS) -->
   <aside id="panel-carrito" aria-labelledby="titulo-carrito" inert>

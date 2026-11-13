@@ -475,15 +475,142 @@ function crearItemCarrito(producto) {
 const panelCarrito = document.getElementById('panel-carrito');
 const capaCarrito = document.getElementById('capa-carrito');
 const botonCarrito = document.getElementById('btn-carrito');
+const rastroCrema = document.getElementById('rastro-crema');
+// El trazo de la máscara: de él sale la curva y su animación avisa cuándo abrir el panel
+const mascaraCrema = rastroCrema.querySelector('.crema-mascara');
+const sinAnimaciones = matchMedia('(prefers-reduced-motion: reduce)');
+// true mientras la crema está pasando y el panel todavía no entra
+let esperandoRastro = false;
+let respaldoRastro = null; // id del setTimeout de respaldo
 
-function abrirCarrito() {
+// --- Borde de la crema: ancho en la punta redonda, delgado hacia la derecha ---
+// Un stroke tiene el mismo grosor en todo el recorrido, así que el borde se
+// arma como una forma rellena: se recorre la curva y, en cada punto, se pone un
+// punto a cada lado (sobre la normal) a una distancia que va cambiando.
+// Valores en unidades del viewBox (1600 × 900)
+// Ancho de la forma a cada lado de la curva = ANCHO_BASE + lo que vaya del borde
+const ANCHO_BASE = 129;  // la mitad del ancho que tenía el cuerpo (258 / 2)
+const BORDE_INICIO = 70; // cuánto se suma a cada lado en la punta redonda
+const BORDE_FINAL = 4;   // cuánto se suma al final de la curva (borde derecho)
+// Grosor del contorno oscuro: más grueso en la punta, más fino hacia la derecha.
+// Se reparte mitad afuera y mitad adentro de la forma, como haría un stroke
+const CONTORNO_PUNTA = 44;
+const CONTORNO_FINAL = 24;
+const MUESTRAS = 150;    // puntos por lado: más = contorno más suave
+const MUESTRAS_PUNTA = 60; // puntos de la media circunferencia de la punta
+
+function calcularBordeCrema() {
+  // Copia de la curva SIN pathLength, para medir en unidades reales del viewBox
+  const curva = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  curva.setAttribute('d', mascaraCrema.getAttribute('d'));
+  rastroCrema.querySelector('defs').append(curva);
+  const largo = curva.getTotalLength();
+
+  // Punto, tangente (hacia dónde va la curva) y normal (la tangente girada 90°)
+  function medir(distancia) {
+    const p = curva.getPointAtLength(distancia);
+    const antes = curva.getPointAtLength(Math.max(0, distancia - 1));
+    const despues = curva.getPointAtLength(Math.min(largo, distancia + 1));
+    const dx = despues.x - antes.x;
+    const dy = despues.y - antes.y;
+    const tamano = Math.hypot(dx, dy);
+    const tx = dx / tamano;
+    const ty = dy / tamano;
+    return { x: p.x, y: p.y, tx, ty, nx: -ty, ny: tx };
+  }
+
+  // Interpolación lineal: en avance 0 da "inicio", en avance 1 da "final"
+  const mezclar = (inicio, final, avance) => inicio + (final - inicio) * avance;
+
+  // Arma el "d" de la forma. "extra" se suma al ancho (negativo = más angosta),
+  // así la misma función sirve para la forma oscura de afuera y la clara de adentro
+  function forma(extraPunta, extraFinal) {
+    const ladoA = [];
+    const ladoB = [];
+    for (let i = 0; i <= MUESTRAS; i++) {
+      const avance = i / MUESTRAS; // 0 = punta redonda, 1 = final de la curva
+      const m = medir(avance * largo);
+      const ancho = ANCHO_BASE + mezclar(BORDE_INICIO, BORDE_FINAL, avance)
+                  + mezclar(extraPunta, extraFinal, avance);
+      ladoA.push([m.x + m.nx * ancho, m.y + m.ny * ancho]);
+      ladoB.push([m.x - m.nx * ancho, m.y - m.ny * ancho]);
+    }
+
+    // Punta redonda: media circunferencia que va del lado B al lado A
+    // pasando por "detrás" del inicio (en contra de la tangente)
+    const inicio = medir(0);
+    const radio = ANCHO_BASE + BORDE_INICIO + extraPunta;
+    const punta = [];
+    for (let i = 0; i <= MUESTRAS_PUNTA; i++) {
+      const angulo = Math.PI * (1 - i / MUESTRAS_PUNTA); // de π a 0
+      const cos = Math.cos(angulo);
+      const sen = Math.sin(angulo);
+      punta.push([
+        inicio.x + radio * (cos * inicio.nx - sen * inicio.tx),
+        inicio.y + radio * (cos * inicio.ny - sen * inicio.ty),
+      ]);
+    }
+
+    // Lado A de ida, lado B de vuelta y la punta para cerrar
+    const puntos = [...ladoA, ...ladoB.reverse(), ...punta];
+    return 'M ' + puntos.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join(' L ') + ' Z';
+  }
+
+  // La oscura asoma media franja por fuera; la clara queda media franja por dentro
+  document.getElementById('contorno-crema')
+    .setAttribute('d', forma(CONTORNO_PUNTA / 2, CONTORNO_FINAL / 2));
+  document.getElementById('relleno-crema')
+    .setAttribute('d', forma(-CONTORNO_PUNTA / 2, -CONTORNO_FINAL / 2));
+  curva.remove();
+}
+calcularBordeCrema();
+
+function mostrarPanel() {
+  esperandoRastro = false;
   panelCarrito.classList.add('abierto');
   panelCarrito.inert = false;
-  capaCarrito.hidden = false;
   document.getElementById('btn-cerrar-carrito').focus();
 }
 
+// Ojo: el rastro es un <svg>, y .hidden solo existe en elementos HTML.
+// En un SVG, "rastroCrema.hidden = false" no toca el atributo y el svg
+// sigue oculto. Por eso aquí se cambia el ATRIBUTO con toggleAttribute
+function ocultarRastro() {
+  rastroCrema.toggleAttribute('hidden', true);
+  rastroCrema.classList.remove('pasando');
+}
+
+// Primero pasa la crema y, cuando termina de dibujarse, entra el panel
+function abrirCarrito() {
+  if (esperandoRastro || panelCarrito.classList.contains('abierto')) return;
+  capaCarrito.hidden = false;
+
+  if (sinAnimaciones.matches) {
+    mostrarPanel();
+    return;
+  }
+  esperandoRastro = true;
+  rastroCrema.toggleAttribute('hidden', false);
+  rastroCrema.classList.add('pasando');
+  // Respaldo: si la animación no llega a correr, animationend nunca se dispara
+  // y el panel no entraría. A los 1100 ms se abre igual (duración de
+  // crema-dibujar en el CSS + ~300 ms de margen: si cambias una, cambia la otra)
+  respaldoRastro = setTimeout(() => { if (esperandoRastro) mostrarPanel(); }, 1100);
+}
+
+// animationend "burbujea" hacia arriba: al svg le llegan los eventos de todos
+// sus hijos (trazos, burbujas). Por eso se revisa event.target
+mascaraCrema.addEventListener('animationend', () => {
+  if (esperandoRastro) mostrarPanel();
+});
+rastroCrema.addEventListener('animationend', (event) => {
+  if (event.target === rastroCrema) ocultarRastro(); // terminó de desvanecerse
+});
+
 function cerrarCarrito() {
+  esperandoRastro = false; // por si se cierra mientras la crema aún pasa
+  clearTimeout(respaldoRastro);
+  ocultarRastro();
   panelCarrito.classList.remove('abierto');
   panelCarrito.inert = true;
   capaCarrito.hidden = true;
@@ -495,7 +622,8 @@ document.getElementById('btn-cerrar-carrito').addEventListener('click', cerrarCa
 capaCarrito.addEventListener('click', cerrarCarrito);
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && panelCarrito.classList.contains('abierto')) cerrarCarrito();
+  const abiertoOAbriendo = panelCarrito.classList.contains('abierto') || esperandoRastro;
+  if (event.key === 'Escape' && abiertoOAbriendo) cerrarCarrito();
 });
 
 
