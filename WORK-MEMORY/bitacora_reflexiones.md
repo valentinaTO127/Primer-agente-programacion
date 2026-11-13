@@ -318,7 +318,7 @@ Lo que más me costó hoy fue entender la **sesión compartida** entre páginas.
 
 ## 2026-11-13
 
-Hoy hicimos un análisis de seguridad de la base de datos de `INPUT/codigo/supabase1/` y rediseñamos los pedidos.
+Lo que más me costó hoy fue entender los **índices**. Además hicimos un análisis de seguridad de la base de datos de `INPUT/codigo/supabase1/` y rediseñamos los pedidos.
 
 - **Lo que aprendí:**
   - **Vulnerabilidades encontradas en el esquema:**
