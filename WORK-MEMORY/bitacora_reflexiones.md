@@ -354,3 +354,4 @@ Lo que más me quedó de hoy fue el **cambio de columna que rompía `supabase1`*
 - **Pendiente:**
   - Pasar el texto de "En piel grasa" de los 50 productos y agregar las imágenes.
   - Historial de pedidos del cliente y pedidos con cambio de estado en el admin.
+- **Segunda parte (carrito en Supabase y confirmación del pedido):** todo quedó claro (carrera del `23505` al crear el carrito, `maybeSingle()` vs `single()`, `rpc` a `confirmar_pedido` que hace todo en la base).
