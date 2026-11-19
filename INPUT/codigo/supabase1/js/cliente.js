@@ -117,7 +117,6 @@ async function iniciarSesion(correo, contrasena) {
 // evento del <form>, y hay que apagar la recarga automática de página.
 document.getElementById('form-login').addEventListener('submit', async (event) => {
   event.preventDefault(); // evita que el navegador recargue la página
-  const form = event.target; // el propio <form>, guardado para usar después
 
   const usuario = await iniciarSesion(
     document.getElementById('login-correo').value.trim(),
@@ -125,8 +124,9 @@ document.getElementById('form-login').addEventListener('submit', async (event) =
   );
 
   if (usuario) {
-    form.reset();
-    mostrarEstadoSesion(); // definida en la sección 5
+    // Con sesión, el cliente va directo a la tienda. La sesión queda guardada
+    // en el navegador, así que galeria.html la encuentra sola con getUser()
+    window.location.href = 'galeria.html';
   } else {
     document.getElementById('estado-sesion').textContent =
       'Correo o contraseña incorrectos.';
@@ -156,7 +156,7 @@ async function mostrarEstadoSesion() {
   estado.hidden = conSesion;
 
   if (conSesion) {
-    mostrarVista('ver');        // al entrar, el cliente VE sus datos (no los edita)
+    mostrarVista(vistaInicial()); // por defecto VE sus datos (no los edita)
     cargarPerfil(data.user.id); // PRIMERO leer, para llenar la ficha y el form
   } else {
     estado.textContent = 'No has iniciado sesión.';
@@ -172,7 +172,7 @@ async function leerPerfil(id) {
     .from('clientes_practica')
     .select('*')
     .eq('id', id)
-    .maybeSingle(); // sin fila → data = null SIN error (igual que en prueba2.js)
+    .maybeSingle(); // sin fila → data = null SIN error (igual que en admin.js)
 
   if (error) console.log('Error al leer el perfil:', error);
   return { perfil: data, error };
@@ -229,11 +229,21 @@ async function cargarPerfil(id) {
   botonEditar.disabled = false;
 }
 
-// --- Aside: una vista a la vez ('ver' = ficha, 'editar' = form) ---
+// La galería enlaza a cliente.html?vista=ver o ?vista=pedidos.
+// URLSearchParams lee lo que va después del "?" en la URL.
+// Solo se aceptan esas dos: "editar" llena el form desde perfilActual, que
+// todavía no llegó de Supabase al cargar la página. Cualquier otra → 'ver'
+function vistaInicial() {
+  const pedida = new URLSearchParams(window.location.search).get('vista');
+  return ['ver', 'pedidos'].includes(pedida) ? pedida : 'ver';
+}
+
+// --- Aside: una vista a la vez ('ver' = ficha, 'editar' = form, 'pedidos') ---
 // Mismo patrón que mostrarFormulario() del login/registro
 function mostrarVista(vista) {
   document.getElementById('ficha-perfil').hidden = vista !== 'ver';
   document.getElementById('form-perfil').hidden = vista !== 'editar';
+  document.getElementById('vista-pedidos').hidden = vista !== 'pedidos';
 
   // Marca en el aside la opción activa (el CSS la pinta con --primario)
   document.querySelectorAll('#menu-cliente button').forEach(boton => {
@@ -334,7 +344,7 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
   mostrarEstadoSesion();
 });
 
-// --- Modo claro / oscuro (copiado de prueba2.js) ---
+// --- Modo claro / oscuro (copiado de admin.js) ---
 // El tema INICIAL ya lo eligió el <script> del <head> (para que no parpadee).
 // Aquí solo manejamos el botón y los cambios del sistema.
 const botonTema = document.getElementById('btn-tema');
@@ -353,7 +363,7 @@ aplicarTema(document.documentElement.dataset.tema); // sincroniza el ícono al c
 botonTema.addEventListener('click', () => {
   const nuevo = document.documentElement.dataset.tema === 'oscuro' ? 'claro' : 'oscuro';
   aplicarTema(nuevo);
-  // Misma clave 'tema' que prueba2.js → la elección vale para las dos páginas
+  // Misma clave 'tema' que admin.js → la elección vale para las dos páginas
   try { localStorage.setItem('tema', nuevo); } catch (e) {}
 });
 
