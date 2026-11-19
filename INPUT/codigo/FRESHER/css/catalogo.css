@@ -27,12 +27,16 @@
 }
 .btn-hero:hover { color: var(--texto-boton); background: var(--acento); border-color: var(--acento); }
 
+/* Espacio entre secciones del inicio (pasos, vitrina, catálogo): una sola
+   variable para que todas queden igual de separadas. Crece con la pantalla */
+main { --espacio-seccion: clamp(72px, 10vw, 128px); }
+
 /* --- Pasos --- */
 .pasos {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 32px;
-  padding: 56px 0;
+  padding: var(--espacio-seccion) 0 0;
   text-align: center;
 }
 .paso-numero {
@@ -49,7 +53,148 @@
 .pasos h2 { margin: 12px 0 4px; font-family: var(--fuente-titulo); font-size: 1.4rem; font-weight: 500; }
 .pasos p { margin: 0; font-size: 0.88rem; color: var(--texto-suave); }
 
+/* --- Vitrina horizontal (después de los pasos) ---
+   Idea de SKIN1004: nombre arriba, producto sobre una franja y descripción abajo.
+   Los ítems van pegados (sin gap) para que las franjas se vean como una sola
+   cinta que cambia de color según la categoría. */
+.vitrina { padding-top: var(--espacio-seccion); }
+.vitrina-encabezado {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.vitrina h2 {
+  margin: 4px 0 0;
+  font-family: var(--fuente-titulo);
+  font-size: 2.2rem;
+  font-weight: 500;
+}
+.vitrina-flechas { display: flex; gap: 8px; }
+.btn-flecha {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--texto);
+  background: transparent;
+  border: 1px solid var(--borde);
+  border-radius: 50%;
+}
+.btn-flecha:hover:not(:disabled) { color: var(--texto-boton); }
+
+.vitrina-pista {
+  display: flex;
+  margin-block: 0;   /* solo arriba/abajo: margin-inline lo pone .contenedor */
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  overscroll-behavior-x: contain;   /* el gesto de lado no hace "atrás" en el navegador */
+  /* Sin barra visible: se avanza con las flechas, el trackpad o el dedo */
+  scrollbar-width: none;
+}
+.vitrina-pista::-webkit-scrollbar { display: none; }   /* Safari no entiende scrollbar-width */
+
+/* Color de la franja por categoría. Tonos fríos y tierra, en línea con la paleta */
+.vitrina-item { --franja: #B9CCD3; }
+.vitrina-item[data-categoria="limpiador"]  { --franja: #A9C4D0; }   /* agua */
+.vitrina-item[data-categoria="serum"]      { --franja: #CDBBA0; }   /* arena */
+.vitrina-item[data-categoria="mascarilla"] { --franja: #B5C8B4; }   /* arcilla verde */
+.vitrina-item[data-categoria="crema"]      { --franja: #DCD2C6; }   /* crema */
+.vitrina-item[data-categoria="bloqueador"] { --franja: #E2CE9F; }   /* sol */
+
+.vitrina-item {
+  flex: 0 0 clamp(260px, 30vw, 400px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  scroll-snap-align: start;
+}
+.vitrina-item h3 {
+  margin: 0;
+  padding: 0 24px;
+  font-family: var(--fuente-titulo);
+  font-size: 1.7rem;
+  font-weight: 500;
+  line-height: 1.2;
+  /* Siempre 2 líneas de alto (y máximo 2): si un nombre ocupara 3, su franja
+     bajaría y la cinta se vería escalonada */
+  min-height: 2.4em;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.vitrina-item h3 a { text-decoration: none; }
+.vitrina-item h3 a:hover { color: var(--acento); }
+.vitrina-item .eyebrow { margin-top: 6px; }
+
+.vitrina-escena {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  padding: 28px 0;
+}
+/* La franja: color de la categoría + una textura de ruido (SVG feTurbulence)
+   para que no se vea plana, como las fotos de agua/arena de la referencia */
+.vitrina-escena::before {
+  content: "";
+  position: absolute;
+  inset: 38% 0 auto;
+  height: 26%;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)'/%3E%3C/svg%3E"),
+    linear-gradient(100deg, color-mix(in srgb, var(--franja) 80%, #fff), var(--franja) 45%, color-mix(in srgb, var(--franja) 85%, #000));
+}
+:root[data-tema="oscuro"] .vitrina-escena::before {
+  filter: brightness(0.62) saturate(0.85);   /* la franja clara encandila sobre fondo oscuro */
+}
+.vitrina-imagen {
+  position: relative;            /* encima de la franja */
+  width: 52%;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radio);
+  transition: translate 0.35s ease;
+}
+.vitrina-imagen img { width: 100%; height: 100%; object-fit: contain; }
+/* Mientras no hay foto: una tarjeta clara con "Sin imagen" sobre la franja */
+.vitrina-imagen:has(.sin-imagen) {
+  background: var(--superficie);
+  box-shadow: 0 10px 30px var(--sombra);
+}
+.vitrina-item:hover .vitrina-imagen { translate: 0 -6px; }
+
+.vitrina-descripcion {
+  max-width: 32ch;
+  margin: 0;
+  padding: 0 24px;
+  font-size: 0.92rem;
+  color: var(--texto-suave);
+  /* Máximo 3 líneas: las descripciones tienen largos muy distintos */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .vitrina-item { flex-basis: 78vw; }
+  .vitrina-flechas { display: none; }   /* en celular se desliza con el dedo */
+  .vitrina h2 { font-size: 1.8rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vitrina-imagen { transition: none; }
+}
+
 /* --- Catálogo --- */
+.catalogo { padding-top: var(--espacio-seccion); }
 .catalogo h2 {
   margin: 0 0 20px;
   font-family: var(--fuente-titulo);

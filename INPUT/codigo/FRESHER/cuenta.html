@@ -42,6 +42,15 @@
     .menu-cliente button:hover:not(:disabled) { color: var(--texto); background: var(--acento-suave); border-color: transparent; }
     /* aria-current = la vista abierta (lo pone cuenta.js) */
     .menu-cliente button[aria-current="true"] { font-weight: 600; background: var(--acento-suave); }
+    /* El enlace al admin se ve igual que los botones del menú (mismo padding y borde) */
+    .menu-cliente a {
+      padding: 10px 18px;
+      color: var(--acento);
+      text-decoration: none;
+      border: 1px solid transparent;
+      border-radius: var(--radio);
+    }
+    .menu-cliente a:hover { background: var(--acento-suave); }
 
     .contenido-cliente h2 { margin: 0 0 20px; font-family: var(--fuente-titulo); font-size: 1.8rem; font-weight: 500; }
     /* <dl> de la ficha: nombre del dato arriba en mayúsculas, valor abajo */
@@ -66,7 +75,7 @@
     <div class="contenedor">
       <a class="logo" href="index.html">FRESHER</a>
       <nav class="nav-principal" aria-label="Categorías">
-        <a href="index.html#catalogo" data-categoria="">Todo</a>
+        <a href="index.html?ver=todo#catalogo" data-categoria="">Todo</a>
         <a href="index.html?categoria=limpiador#catalogo" data-categoria="limpiador">Limpiadores</a>
         <a href="index.html?categoria=serum#catalogo" data-categoria="serum">Sérums</a>
         <a href="index.html?categoria=mascarilla#catalogo" data-categoria="mascarilla">Mascarillas</a>
@@ -149,6 +158,10 @@
           <button type="button" data-vista="ver">Mis datos</button>
           <button type="button" data-vista="editar" id="btn-menu-editar">Actualizar datos</button>
           <button type="button" data-vista="pedidos">Pedidos</button>
+          <!-- Solo para administradores (cuenta.js lo muestra). Es un <a> y no un
+               botón de vista porque LLEVA a otra página. Esconderlo no protege
+               nada: admin.html vuelve a revisar admins_practica al cargar -->
+          <a href="admin.html" id="enlace-admin" hidden>Panel de administración</a>
         </nav>
 
         <div class="contenido-cliente panel">

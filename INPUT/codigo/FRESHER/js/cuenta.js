@@ -99,6 +99,9 @@ async function mostrarEstadoSesion() {
 
   document.getElementById('zona-cliente').hidden = !conSesion;
   document.getElementById('panel-acceso').hidden = conSesion;
+  // Oculto hasta que cargarPerfil confirme en admins_practica que es admin.
+  // Así, al cerrar sesión o cambiar de cuenta, no queda visible
+  document.getElementById('enlace-admin').hidden = true;
   estado.textContent = '';
 
   if (conSesion) {
@@ -136,11 +139,18 @@ async function cargarPerfil(id) {
   const mensaje = document.getElementById('mensaje-ficha');
   const botonEditar = document.getElementById('btn-menu-editar');
 
-  const { data: perfil, error } = await db
-    .from('clientes_practica')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
+  // Las dos consultas a la vez (Promise.all): no dependen una de la otra.
+  // RLS filtra, no avisa: sin fila (o sin permiso) cada una da null, sin error
+  const [respuestaCliente, respuestaAdmin] = await Promise.all([
+    db.from('clientes_practica').select('*').eq('id', id).maybeSingle(),
+    db.from('admins_practica').select('*').eq('id', id).maybeSingle(),
+  ]);
+  const { data: perfil, error } = respuestaCliente;
+  const { data: admin, error: errorAdmin } = respuestaAdmin;
+
+  if (errorAdmin) console.log('Error al revisar si es administrador:', errorAdmin);
+  // La opción al panel depende SOLO de ser admin (aunque también sea cliente)
+  document.getElementById('enlace-admin').hidden = !admin;
 
   if (error) {
     console.log('Error al leer el perfil:', error);
@@ -148,18 +158,37 @@ async function cargarPerfil(id) {
     botonEditar.disabled = true;
     return;
   }
-  // RLS filtra, no avisa: sin permiso o sin fila, los dos dan null
-  // (es el caso de una cuenta de admin, que no tiene fila de cliente)
-  if (!perfil) {
-    mensaje.textContent = 'Esta cuenta no tiene perfil de cliente.';
+
+  if (perfil) {
+    perfilActual = perfil;
+    mostrarDatosDeEnvio(true);
+    pintarFicha(perfil);
+    mensaje.textContent = '';
+    botonEditar.disabled = false;
+    return;
+  }
+
+  if (admin) {
+    // Teléfono y dirección de envío son datos de cliente: al admin se le ocultan
+    // (mostrar "Sin registrar" daría a entender que le faltan)
+    mostrarDatosDeEnvio(false);
+    pintarFicha(admin);
+    mensaje.textContent = 'Cuenta de administrador.';
+    // "Actualizar datos" escribe en clientes_practica: al admin no le sirve
     botonEditar.disabled = true;
     return;
   }
 
-  perfilActual = perfil;
-  pintarFicha(perfil);
-  mensaje.textContent = '';
-  botonEditar.disabled = false;
+  mensaje.textContent = 'Esta cuenta no tiene perfil de cliente.';
+  botonEditar.disabled = true;
+}
+
+// Muestra u oculta las filas de teléfono y dirección de la ficha.
+// closest('div') = el <div> que agrupa ese <dt> + <dd>
+function mostrarDatosDeEnvio(visible) {
+  ['ficha-telefono', 'ficha-direccion'].forEach(id => {
+    document.getElementById(id).closest('div').hidden = !visible;
+  });
 }
 
 // ?vista=ver o ?vista=pedidos (el menú del header los usa). "editar" no se

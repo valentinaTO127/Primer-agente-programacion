@@ -1,8 +1,16 @@
 // Catálogo (index.html): carga los productos, pinta las tarjetas y filtra por
 // categoría y por texto. Usa las funciones de tienda.js.
 
+// Sin filtros, el catálogo muestra solo los primeros LIMITE_CATALOGO.
+// Los muestra todos cuando la persona elige "Todo" en el menú (o el chip "Todo")
+const LIMITE_CATALOGO = 20;
+const LIMITE_VITRINA = 5;
+
 let productos = [];
-let categoriaActiva = categoriaDeLaUrl(); // '' = Todo
+let categoriaActiva = categoriaDeLaUrl(); // '' = sin categoría
+// ?ver=todo: así "Todo" también funciona desde producto.html o cuenta.html,
+// y al recargar la página se sigue viendo todo
+let mostrarTodos = new URLSearchParams(window.location.search).get('ver') === 'todo';
 
 // ?categoria=serum → 'serum'. Si no es una categoría válida, se ignora
 function categoriaDeLaUrl() {
@@ -39,11 +47,86 @@ async function cargarProductos() {
   }
 
   estado.hidden = true;
+  pintarVitrina();
   document.getElementById('galeria').replaceChildren(...productos.map(crearTarjeta));
   pintarChips();
   document.getElementById('filtros').hidden = false;
   aplicarFiltros();
 }
+
+
+// --- Vitrina horizontal ---
+// Los LIMITE_VITRINA mejor calificados con stock. filter() ya devuelve un array
+// nuevo, así que sort no desordena "productos" (el catálogo lo quiere por nombre)
+function pintarVitrina() {
+  // Primero se quitan los agotados: "los mejor calificados" debe poder comprarse
+  // (en los datos reales, el de nota más alta tiene 0 unidades)
+  const destacados = productos
+    .filter(producto => stockDe(producto) > 0)
+    .sort((a, b) => (b.calificacion ?? 0) - (a.calificacion ?? 0))
+    .slice(0, LIMITE_VITRINA);
+
+  // Si todos estuvieran agotados, la vitrina se queda oculta
+  if (destacados.length === 0) return;
+
+  document.getElementById('vitrina-pista').replaceChildren(...destacados.map(crearItemVitrina));
+  document.querySelector('.vitrina').hidden = false;
+  actualizarFlechasVitrina();
+}
+
+function crearItemVitrina(producto) {
+  const item = document.createElement('li');
+  item.className = 'vitrina-item';
+  // El color de la franja sale de la categoría (ver .vitrina-item[data-categoria] en el CSS)
+  item.dataset.categoria = producto.categoria;
+
+  const nombre = document.createElement('h3');
+  const enlace = document.createElement('a');
+  enlace.href = urlProducto(producto);
+  enlace.textContent = producto.nombre;
+  nombre.append(enlace);
+
+  const marca = document.createElement('p');
+  marca.className = 'eyebrow';
+  marca.textContent = producto.marca ?? '';
+
+  // La franja es el ::before de .vitrina-escena; la imagen va encima
+  const escena = document.createElement('div');
+  escena.className = 'vitrina-escena';
+  const imagen = document.createElement('div');
+  imagen.className = 'vitrina-imagen';
+  imagen.append(crearImagen(producto, ''));
+  escena.append(imagen);
+
+  const descripcion = document.createElement('p');
+  descripcion.className = 'vitrina-descripcion';
+  descripcion.textContent = producto.descripcion ?? '';
+
+  item.append(nombre, marca, escena, descripcion);
+  return item;
+}
+
+const pista = document.getElementById('vitrina-pista');
+const btnAnterior = document.getElementById('vitrina-anterior');
+const btnSiguiente = document.getElementById('vitrina-siguiente');
+
+// Cada flecha mueve casi un "ancho de pantalla" de la pista
+function moverVitrina(direccion) {
+  const suave = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+  pista.scrollBy({ left: direccion * pista.clientWidth * 0.8, behavior: suave ? 'smooth' : 'auto' });
+}
+
+// Se apaga la flecha del lado al que ya no se puede avanzar.
+// El -1 es por los decimales: a veces el scroll se queda en 0.5px del final
+function actualizarFlechasVitrina() {
+  btnAnterior.disabled = pista.scrollLeft <= 0;
+  btnSiguiente.disabled = pista.scrollLeft + pista.clientWidth >= pista.scrollWidth - 1;
+}
+
+btnAnterior.addEventListener('click', () => moverVitrina(-1));
+btnSiguiente.addEventListener('click', () => moverVitrina(1));
+pista.addEventListener('scroll', actualizarFlechasVitrina, { passive: true });
+window.addEventListener('resize', actualizarFlechasVitrina);
 
 
 // --- Filtros ---
@@ -74,12 +157,29 @@ function pintarChips() {
   }));
 }
 
-function elegirCategoria(categoria) {
+// categoria '' = "Todo": por defecto también quita el límite de 20.
+// "Limpiar filtros" pasa verTodos = false para volver a la vista inicial
+function elegirCategoria(categoria, verTodos = categoria === '') {
   categoriaActiva = categoria;
+  mostrarTodos = verTodos;
   // Cambia la URL sin recargar: así el enlace se puede compartir o recargar
   // y abre con el mismo filtro
-  history.replaceState(null, '', categoria ? `?categoria=${categoria}#catalogo` : 'index.html#catalogo');
+  const url = categoria ? `?categoria=${categoria}#catalogo`
+    : verTodos ? '?ver=todo#catalogo'
+    : 'index.html#catalogo';
+  history.replaceState(null, '', url);
   aplicarFiltros();
+}
+
+// El límite solo aplica a la vista inicial. Con categoría o búsqueda se ven
+// todas las coincidencias: buscar solo entre 20 escondería resultados
+function hayLimite(busqueda) {
+  return !mostrarTodos && !categoriaActiva && !busqueda;
+}
+
+// "Todo" está activo solo cuando de verdad se ven todos
+function categoriaMarcada(clave) {
+  return clave === '' ? !categoriaActiva && mostrarTodos : clave === categoriaActiva;
 }
 
 // Cada palabra debe aparecer en el nombre, la marca, la descripción, los
@@ -95,26 +195,29 @@ function coincide(producto, busqueda) {
 
 function aplicarFiltros() {
   const busqueda = normalizar(buscador.value);
+  const limite = hayLimite(busqueda) ? LIMITE_CATALOGO : Infinity;
   let visibles = 0;
 
   productos.forEach(producto => {
     const tarjeta = document.querySelector(`.tarjeta[data-id="${producto.id}"]`);
-    const visible = coincide(producto, busqueda);
+    const visible = visibles < limite && coincide(producto, busqueda);
     tarjeta.hidden = !visible;
     if (visible) visibles++;
   });
 
   document.querySelectorAll('.chip-categoria').forEach(chip => {
-    chip.setAttribute('aria-pressed', chip.dataset.categoria === categoriaActiva);
+    chip.setAttribute('aria-pressed', categoriaMarcada(chip.dataset.categoria));
   });
   document.querySelectorAll('.nav-principal a').forEach(enlace => {
-    if (enlace.dataset.categoria === categoriaActiva) enlace.setAttribute('aria-current', 'page');
+    if (categoriaMarcada(enlace.dataset.categoria)) enlace.setAttribute('aria-current', 'page');
     else enlace.removeAttribute('aria-current');
   });
 
-  document.getElementById('resultados-filtro').textContent = `Mostrando ${visibles} de ${productos.length}`;
+  document.getElementById('resultados-filtro').textContent = limite === LIMITE_CATALOGO && productos.length > limite
+    ? `Mostrando ${visibles} de ${productos.length} · elige «Todo» para ver el resto`
+    : `Mostrando ${visibles} de ${productos.length}`;
   document.getElementById('sin-resultados').hidden = visibles > 0;
-  document.getElementById('btn-limpiar-filtros').hidden = !busqueda && !categoriaActiva;
+  document.getElementById('btn-limpiar-filtros').hidden = !busqueda && !categoriaActiva && !mostrarTodos;
 }
 
 buscador.addEventListener('input', aplicarFiltros);
@@ -122,7 +225,7 @@ document.getElementById('filtros').addEventListener('submit', (event) => event.p
 
 document.getElementById('btn-limpiar-filtros').addEventListener('click', () => {
   buscador.value = '';
-  elegirCategoria('');
+  elegirCategoria('', false);
   buscador.focus();
 });
 

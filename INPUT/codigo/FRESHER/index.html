@@ -29,7 +29,7 @@
 
       <!-- catalogo.js intercepta estos enlaces para filtrar sin recargar -->
       <nav class="nav-principal" aria-label="Categorías">
-        <a href="index.html#catalogo" data-categoria="">Todo</a>
+        <a href="index.html?ver=todo#catalogo" data-categoria="">Todo</a>
         <a href="index.html?categoria=limpiador#catalogo" data-categoria="limpiador">Limpiadores</a>
         <a href="index.html?categoria=serum#catalogo" data-categoria="serum">Sérums</a>
         <a href="index.html?categoria=mascarilla#catalogo" data-categoria="mascarilla">Mascarillas</a>
@@ -87,6 +87,25 @@
         <h2>Recíbelo en casa</h2>
         <p>Pagas en línea y te lo enviamos.</p>
       </article>
+    </section>
+
+    <!-- Vitrina horizontal, como la fila de ampolletas de SKIN1004: nombre arriba,
+         producto sobre una franja de color y descripción abajo. La franja es un
+         degradado propio (las fotos de agua/arena de SKIN1004 no se copian).
+         catalogo.js la llena con los 5 mejor calificados -->
+    <section class="vitrina" aria-labelledby="titulo-vitrina" hidden>
+      <div class="contenedor vitrina-encabezado">
+        <div>
+          <p class="eyebrow">Selección FRESHER</p>
+          <h2 id="titulo-vitrina">Los mejor calificados</h2>
+        </div>
+        <div class="vitrina-flechas">
+          <button type="button" id="vitrina-anterior" class="btn-flecha" aria-label="Ver productos anteriores" aria-controls="vitrina-pista">‹</button>
+          <button type="button" id="vitrina-siguiente" class="btn-flecha" aria-label="Ver más productos" aria-controls="vitrina-pista">›</button>
+        </div>
+      </div>
+      <!-- .contenedor: mismo ancho y márgenes que los pasos y el catálogo -->
+      <ul id="vitrina-pista" class="vitrina-pista contenedor"></ul>
     </section>
 
     <section id="catalogo" class="catalogo contenedor" aria-labelledby="titulo-catalogo">

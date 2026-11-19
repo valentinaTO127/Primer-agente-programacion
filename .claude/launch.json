@@ -4,9 +4,26 @@
     {
       "name": "portfolio-valentina",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "INPUT/codigo/portfolio-valentina"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "INPUT/codigo/portfolio-valentina"
+      ],
       "port": 5173,
       "autoPort": true
+    },
+    {
+      "name": "fresher",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "5500",
+        "--directory",
+        "INPUT/codigo/FRESHER"
+      ],
+      "port": 5500
     }
   ]
 }

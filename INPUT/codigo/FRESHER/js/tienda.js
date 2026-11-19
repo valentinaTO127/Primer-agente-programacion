@@ -799,14 +799,20 @@ async function pintarMenuUsuario() {
   const nombre = document.getElementById('nombre-usuario');
   nombre.textContent = usuario.email;
 
-  const { data: perfil, error } = await db
-    .from('clientes_practica')
-    .select('nombre')
-    .eq('id', usuario.id)
-    .maybeSingle();
+  // El nombre puede estar en clientes_practica o, si es admin, en admins_practica.
+  // Las dos consultas a la vez; sin fila (o sin permiso) cada una da null
+  const [respuestaCliente, respuestaAdmin] = await Promise.all([
+    db.from('clientes_practica').select('nombre').eq('id', usuario.id).maybeSingle(),
+    db.from('admins_practica').select('nombre').eq('id', usuario.id).maybeSingle(),
+  ]);
 
-  if (error) console.log('Error al leer el nombre del cliente:', error);
-  if (perfil?.nombre) nombre.textContent = perfil.nombre;
+  if (respuestaCliente.error) console.log('Error al leer el nombre del cliente:', respuestaCliente.error);
+  if (respuestaAdmin.error) console.log('Error al leer el nombre del admin:', respuestaAdmin.error);
+
+  // ?. = si data es null, no falla: da undefined. ?? = usa el siguiente si es null/undefined.
+  // Si no hay nombre en ninguna, se queda el correo que ya estaba escrito
+  const nombrePerfil = respuestaCliente.data?.nombre ?? respuestaAdmin.data?.nombre;
+  if (nombrePerfil) nombre.textContent = nombrePerfil;
 }
 
 function abrirMenuUsuario(abrir) {

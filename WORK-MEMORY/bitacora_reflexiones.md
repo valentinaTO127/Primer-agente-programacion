@@ -355,3 +355,19 @@ Lo que más me quedó de hoy fue el **cambio de columna que rompía `supabase1`*
   - Pasar el texto de "En piel grasa" de los 50 productos y agregar las imágenes.
   - Historial de pedidos del cliente y pedidos con cambio de estado en el admin.
 - **Segunda parte (carrito en Supabase y confirmación del pedido):** todo quedó claro (carrera del `23505` al crear el carrito, `maybeSingle()` vs `single()`, `rpc` a `confirmar_pedido` que hace todo en la base).
+
+## 2026-11-19
+
+Hoy ajusté el inicio de FRESHER y la cuenta del administrador.
+
+- **Lo que trabajamos** (`INPUT/codigo/FRESHER/`):
+  - **Vitrina "Los mejor calificados"** (cambios míos de estilo): fila horizontal al estilo de SKIN1004, con una franja de color por categoría y textura de ruido en SVG, flechas que se apagan en los extremos y deslizamiento con el dedo en celular. Ahora deja fuera los productos agotados, porque el de nota más alta (Capital Soleil, 4.9) tenía 0 unidades.
+  - **Catálogo con límite de 20** en la vista inicial; con categoría, búsqueda o "Todo" (`?ver=todo`) se ven todos.
+  - **Espacio entre secciones** con una sola variable (`--espacio-seccion`).
+  - **Cuenta del admin:** `cuenta.html` solo buscaba en `clientes_practica`, por eso el admin no veía sus datos. Ahora consulta también `admins_practica` (las dos a la vez con `Promise.all`) y muestra nombre y correo. Teléfono y dirección se ocultan porque son datos de cliente.
+  - **Opción "Panel de administración"** debajo de Pedidos, solo si la cuenta está en `admins_practica`. Esconderla es solo visual: `admin.html` vuelve a revisar el permiso.
+  - **Nombre del admin en el header** en vez del correo, con el mismo respaldo a `admins_practica`.
+- **Lo que vimos:**
+  - `filter()` devuelve un array nuevo: después de filtrar, `sort()` ya no desordena el original.
+  - `Promise.all` lanza consultas que no dependen una de otra al mismo tiempo, en vez de esperar una por una.
+  - `?.` evita el error cuando `data` es `null`, y `??` elige el siguiente valor si el primero no existe.
