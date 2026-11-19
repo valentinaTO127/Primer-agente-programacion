@@ -338,3 +338,19 @@ Lo que más me costó hoy fue entender los **índices**. Además hicimos un aná
   - Cerrar la policy de INSERT de `admins_practica` y quitar el registro de admin de `admin.html`.
   - Verificar que existan el trigger de `precio_unitario`, el trigger del historial y `confirmar_pedido()`.
   - Hacer que cancelar un pedido devuelva el stock.
+
+## 2026-11-18
+
+Lo que más me quedó de hoy fue el **cambio de columna que rompía `supabase1`**.
+
+- **Lo que aprendí:**
+  - **Dos tiendas, una tabla:** FRESHER y `supabase1` usan la misma `productos_practica`. Cuando borré `categorias` y renombré `tipo_producto` a `categoria`, FRESHER quedó bien, pero `supabase1` seguía pidiendo `categorias` en su `select` y en el form del admin: la base respondía `42703` ("esa columna no existe") y la galería dejaba de cargar. Antes de borrar o renombrar una columna hay que buscar en TODO el código quién la usa.
+  - **Adaptar sin reescribir:** en `supabase1` la columna pasó de array de texto libre a un solo valor. En vez de rehacer los chips y el filtro, `categoriasDe(producto)` convierte el valor nuevo en un array (`[]` o `['Sérum']`), que es lo que ese código ya esperaba.
+  - **`CHECK` y vacíos:** el `CHECK` de `categoria` acepta `null` pero rechaza `''`, porque una comparación con `null` da "desconocido" y el `CHECK` solo rechaza lo que da falso. Por eso el form manda `form.categoria.value || null`, y el campo de texto libre del admin viejo tuvo que pasar a un `<select>`.
+  - **Separar las tiendas con un filtro:** FRESHER solo muestra productos con `categoria` no nula. Por eso al principio no veía productos: los 8 que había eran de `supabase1` y tenían la columna vacía.
+- **Lo que trabajamos** (`INPUT/codigo/FRESHER/`):
+  - Tienda FRESHER a partir de `supabase1` y de la ficha `FRESHER.pdf`: catálogo con filtro por categoría, detalle con el bloque "En piel grasa", carrito lateral, cuenta del cliente y admin de inventario (sin registro de admin, por el hueco de seguridad del 2026-11-13).
+  - SQL: `01` agrega las columnas de skincare, `02` deja una sola columna `categoria` y `03` carga los 50 productos del Excel (unidades, descuento y calificación inventados).
+- **Pendiente:**
+  - Pasar el texto de "En piel grasa" de los 50 productos y agregar las imágenes.
+  - Historial de pedidos del cliente y pedidos con cambio de estado en el admin.
