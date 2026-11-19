@@ -47,7 +47,7 @@ function pintarProducto() {
   // Migas: Catálogo › Sérums › Nombre
   const migaCategoria = document.getElementById('miga-categoria');
   migaCategoria.textContent = categoria.plural;
-  migaCategoria.href = `index.html?categoria=${producto.categoria}#catalogo`;
+  migaCategoria.href = `catalogo.html?categoria=${producto.categoria}`;
   migaCategoria.hidden = false;
   document.getElementById('separador-categoria').hidden = false;
   document.getElementById('miga-nombre').textContent = producto.nombre;

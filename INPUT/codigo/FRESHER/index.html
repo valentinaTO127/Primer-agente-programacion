@@ -27,14 +27,14 @@
     <div class="contenedor">
       <a class="logo" href="index.html">FRESHER</a>
 
-      <!-- catalogo.js intercepta estos enlaces para filtrar sin recargar -->
+      <!-- Llevan a catalogo.html. Ahí catalogo.js los intercepta para filtrar sin recargar -->
       <nav class="nav-principal" aria-label="Categorías">
-        <a href="index.html?ver=todo#catalogo" data-categoria="">Todo</a>
-        <a href="index.html?categoria=limpiador#catalogo" data-categoria="limpiador">Limpiadores</a>
-        <a href="index.html?categoria=serum#catalogo" data-categoria="serum">Sérums</a>
-        <a href="index.html?categoria=mascarilla#catalogo" data-categoria="mascarilla">Mascarillas</a>
-        <a href="index.html?categoria=crema#catalogo" data-categoria="crema">Cremas</a>
-        <a href="index.html?categoria=bloqueador#catalogo" data-categoria="bloqueador">Bloqueadores</a>
+        <a href="catalogo.html?ver=todo" data-categoria="">Todo</a>
+        <a href="catalogo.html?categoria=limpiador" data-categoria="limpiador">Limpiadores</a>
+        <a href="catalogo.html?categoria=serum" data-categoria="serum">Sérums</a>
+        <a href="catalogo.html?categoria=mascarilla" data-categoria="mascarilla">Mascarillas</a>
+        <a href="catalogo.html?categoria=crema" data-categoria="crema">Cremas</a>
+        <a href="catalogo.html?categoria=bloqueador" data-categoria="bloqueador">Bloqueadores</a>
       </nav>
 
       <div class="acciones-header">
@@ -108,7 +108,8 @@
       <ul id="vitrina-pista" class="vitrina-pista contenedor"></ul>
     </section>
 
-    <section id="catalogo" class="catalogo contenedor" aria-labelledby="titulo-catalogo">
+    <!-- data-limite: en el inicio, sin filtros, se ven solo 20 (catalogo.js) -->
+    <section id="catalogo" class="catalogo contenedor" aria-labelledby="titulo-catalogo" data-limite="20">
       <h2 id="titulo-catalogo">Catálogo</h2>
 
       <form id="filtros" role="search" hidden>
@@ -184,5 +185,6 @@
   <script src="js/tema.js"></script>
   <script src="js/tienda.js"></script>
   <script src="js/catalogo.js"></script>
+  <script src="js/inicio.js"></script>
 </body>
 </html>

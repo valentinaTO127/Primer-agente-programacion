@@ -195,6 +195,7 @@ main { --espacio-seccion: clamp(72px, 10vw, 128px); }
 
 /* --- Catálogo --- */
 .catalogo { padding-top: var(--espacio-seccion); }
+.catalogo h1,
 .catalogo h2 {
   margin: 0 0 20px;
   font-family: var(--fuente-titulo);
