@@ -253,10 +253,10 @@ function crearTarjetaProducto(producto) {
   estado.className = producto.disponible ? 'estado disponible' : 'estado agotado';
   estado.textContent = `${producto.disponible ? 'Disponible' : 'No disponible'} · ${producto.unidades} unidades`;
 
-  // categorias es un array json; "?? []" por si viene null
+  // categoria es un solo valor (o null): categoriasDe() lo vuelve array
   const etiquetas = document.createElement('ul');
   etiquetas.className = 'etiquetas';
-  (producto.categorias ?? []).forEach(categoria => {
+  categoriasDe(producto).forEach(categoria => {
     const li = document.createElement('li');
     li.textContent = categoria;
     etiquetas.appendChild(li);
@@ -309,6 +309,21 @@ async function agregarProducto(datos) {
                         // elemento, que es la fila recién creada
 }
 
+// --- Categoría ---
+// Desde el 2026-11-18 la tabla tiene "categoria": UNA palabra (o null) con un
+// CHECK que solo acepta las 5 categorías de FRESHER (ver FRESHER/sql/02_categoria.sql).
+// Antes era "categorias", un array de texto libre.
+const NOMBRES_CATEGORIA = {
+  limpiador: 'Limpiador', serum: 'Sérum', mascarilla: 'Mascarilla',
+  crema: 'Crema', bloqueador: 'Bloqueador solar',
+};
+
+// Devuelve un array ([] o ['Sérum']) para que las etiquetas, los chips y la
+// búsqueda sigan funcionando igual que con el array viejo
+function categoriasDe(producto) {
+  return producto.categoria ? [NOMBRES_CATEGORIA[producto.categoria] ?? producto.categoria] : [];
+}
+
 // --- Formulario de producto: sirve para CREAR y para EDITAR ---
 
 // Form → objeto listo para Supabase. Lo usan tanto el insert como el update,
@@ -327,9 +342,9 @@ function leerFormulario(form) {
         descuento: Number(form.descuento.value),
         // Un checkbox no usa .value sino .checked → true / false
         disponible: form.disponible.checked,
-        // "tecnología, audio" → ["tecnología", "audio"]
-        // filter(c => c) quita vacíos si sobra una coma al final
-        categorias: form.categorias.value.split(',').map(c => c.trim()).filter(c => c),
+        // Un solo valor del <select>. "Sin categoría" ('') → null: el CHECK
+        // de la base acepta null, pero no un texto vacío
+        categoria: form.categoria.value || null,
         // Campo vacío → null (no ""), así la galería sabe que no hay
         // imagen y no pinta un <img> roto
         img_url: form.img_url.value.trim() || null
@@ -346,7 +361,7 @@ function llenarFormulario(form, producto) {
     form.unidades.value = producto.unidades;
     form.descuento.value = producto.descuento;
     form.disponible.checked = producto.disponible;
-    form.categorias.value = (producto.categorias ?? []).join(', ');
+    form.categoria.value = producto.categoria ?? '';
     form.img_url.value = producto.img_url ?? '';
     // Asignar .value desde JS NO dispara el evento "input" (solo lo dispara
     // el usuario al escribir), así que la previsualización se actualiza a mano

@@ -1,0 +1,93 @@
+/* Estilos solo de index.html (el catálogo) */
+
+/* --- Hero: degradado suave verde → azul, sin foto --- */
+.hero {
+  padding: clamp(56px, 10vw, 120px) 0;
+  text-align: center;
+  background: linear-gradient(135deg, var(--acento-suave), var(--azul-suave));
+}
+.hero h1 {
+  margin: 12px 0;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 500;
+  line-height: 1.1;
+}
+.hero p:not(.eyebrow) { max-width: 46ch; margin: 0 auto 28px; color: var(--texto-suave); }
+/* Botón con borde y bordes redondos, como el "SHOP NOW" de SKIN1004 */
+.btn-hero {
+  display: inline-block;
+  padding: 10px 28px;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--texto);
+  border-radius: 999px;
+}
+.btn-hero:hover { color: var(--texto-boton); background: var(--acento); border-color: var(--acento); }
+
+/* --- Pasos --- */
+.pasos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 32px;
+  padding: 56px 0;
+  text-align: center;
+}
+.paso-numero {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  font-size: 1.1rem;            /* Montserrat: en Cormorant el "1" parece una "I" */
+  font-weight: 500;
+  color: var(--acento);
+  background: var(--acento-suave);
+  border-radius: 50%;
+}
+.pasos h2 { margin: 12px 0 4px; font-family: var(--fuente-titulo); font-size: 1.4rem; font-weight: 500; }
+.pasos p { margin: 0; font-size: 0.88rem; color: var(--texto-suave); }
+
+/* --- Catálogo --- */
+.catalogo h2 {
+  margin: 0 0 20px;
+  font-family: var(--fuente-titulo);
+  font-size: 2.2rem;
+  font-weight: 500;
+  text-align: center;
+}
+#filtros { display: grid; gap: 16px; margin-bottom: 32px; }
+
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.chip-categoria {
+  padding: 7px 16px;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  color: var(--texto);
+  background: transparent;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+}
+.chip-categoria:hover:not(:disabled) { color: var(--texto); background: var(--acento-suave); border-color: var(--acento); }
+.chip-categoria[aria-pressed="true"],
+.chip-categoria[aria-pressed="true"]:hover:not(:disabled) {
+  color: var(--texto-boton);
+  background: var(--acento);
+  border-color: var(--acento);
+}
+
+.busqueda { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 16px; }
+#buscador {
+  width: min(420px, 100%);
+  padding: 10px 14px;
+  font: inherit;
+  color: var(--texto);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+#buscador:focus { border-color: var(--acento); outline: none; box-shadow: 0 0 0 3px var(--acento-suave); }
+#resultados-filtro { margin: 0; font-size: 0.85rem; color: var(--texto-suave); }
+
+#estado-galeria, #sin-resultados { text-align: center; color: var(--texto-suave); }

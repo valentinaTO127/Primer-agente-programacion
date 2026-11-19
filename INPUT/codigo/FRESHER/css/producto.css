@@ -1,0 +1,159 @@
+/* Estilos solo de producto.html (detalle, al estilo de Beauty of Joseon) */
+
+.migas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 20px 0;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+.migas a { text-decoration: none; }
+.migas a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+#estado-detalle { padding: 48px 0; text-align: center; color: var(--texto-suave); }
+
+/* Dos columnas: galería | información. En celular, una debajo de la otra */
+.producto {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .producto { grid-template-columns: 1fr; gap: 28px; }
+}
+
+/* --- Galería: miniaturas en columna a la izquierda de la imagen grande --- */
+.galeria-detalle {
+  position: sticky;   /* la imagen acompaña mientras se lee la información */
+  top: 96px;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 16px;
+}
+/* Con una sola imagen producto.js oculta las miniaturas. Sin esta regla, la
+   imagen grande caería en la columna de 76px que era para ellas.
+   :has() = "la galería que TIENE miniaturas ocultas" */
+.galeria-detalle:has(.miniaturas[hidden]) { grid-template-columns: 1fr; }
+.miniaturas { display: grid; align-content: start; gap: 10px; }
+.miniaturas button {
+  padding: 0;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--superficie-2);
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+.miniaturas button:hover:not(:disabled) { background: var(--superficie-2); border-color: var(--borde); }
+.miniaturas button[aria-current="true"] { border-color: var(--acento); }
+.miniaturas img { width: 100%; height: 100%; object-fit: contain; padding: 6px; }
+
+.imagen-principal {
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--superficie-2);
+  border-radius: var(--radio);
+}
+.imagen-principal img { width: 100%; height: 100%; object-fit: contain; padding: 6%; }
+
+@media (max-width: 860px) {
+  .galeria-detalle { position: static; grid-template-columns: 1fr; }
+  /* En celular las miniaturas pasan debajo, en fila */
+  .miniaturas { order: 2; grid-auto-flow: column; grid-auto-columns: 64px; overflow-x: auto; }
+}
+
+/* --- Información --- */
+.info { display: grid; gap: 14px; }
+.info h1 {
+  margin: 0;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  font-weight: 500;
+  line-height: 1.1;
+}
+/* Estrellas más grandes solo en el detalle: el selector empieza en
+   #calificacion (que solo existe en producto.html), así las tarjetas
+   del catálogo se quedan con el tamaño de fresher.css */
+#calificacion .calificacion { font-size: 0.9rem; gap: 8px; }
+#calificacion .estrellas { font-size: 1.3rem; letter-spacing: 3px; }
+.precio-detalle .precio { font-size: 1.35rem; }
+.descripcion-detalle { margin: 0; color: var(--texto-suave); }
+
+/* Beneficios como etiquetas, como los tags de BoJ (pero en verde azulado) */
+.etiquetas-beneficios { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.etiquetas-beneficios li {
+  padding: 3px 10px;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  color: var(--acento);
+  background: var(--acento-suave);
+  border-radius: 999px;
+}
+
+.piel-grasa {
+  padding: 16px 18px;
+  background: var(--azul-suave);
+  border-left: 3px solid var(--acento);
+  border-radius: 0 var(--radio) var(--radio) 0;
+}
+.piel-grasa h2 {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+.piel-grasa p { margin: 0; white-space: pre-line; }
+
+.estado-stock { margin: 0; font-size: 0.85rem; color: var(--texto-suave); }
+.estado-stock.pocas { color: var(--oferta); }
+
+/* Cantidad + botón ancho, como el selector + "Add to cart" de BoJ */
+.compra { display: flex; gap: 12px; padding-top: 14px; border-top: 1px solid var(--borde); }
+.selector-cantidad {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+.selector-cantidad .btn-cantidad { border-color: transparent; }
+#cantidad-agregar { min-width: 28px; text-align: center; font-weight: 600; }
+#btn-agregar-detalle {
+  flex: 1;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.nota-carrito { margin: 0; font-size: 0.82rem; color: var(--texto-suave); }
+
+/* --- Acordeones --- */
+.acordeones { border-top: 1px solid var(--borde); }
+.acordeones details { border-bottom: 1px solid var(--borde); }
+.acordeones summary {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;            /* quita el triángulo por defecto... */
+}
+.acordeones summary::-webkit-details-marker { display: none; }
+.acordeones summary::after { content: "+"; color: var(--texto-suave); }  /* ...y pone + / − */
+.acordeones details[open] summary::after { content: "−"; }
+.acordeones details > :not(summary) { margin: 0 0 16px; color: var(--texto-suave); white-space: pre-line; }
+.acordeones ul { padding-left: 20px; white-space: normal; }
+
+/* --- Relacionados --- */
+.relacionados { margin-top: 80px; }
+.relacionados h2 {
+  margin: 0 0 24px;
+  font-family: var(--fuente-titulo);
+  font-size: 2rem;
+  font-weight: 500;
+  text-align: center;
+}

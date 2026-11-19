@@ -804,8 +804,17 @@
     <label class="check">
       <input type="checkbox" name="disponible" checked> Disponible
     </label>
-    <label>Categorías (separadas por coma)
-      <input type="text" name="categorias" placeholder="tecnología, audio">
+    <!-- <select> y no texto libre: la columna categoria tiene un CHECK en la
+         base que solo acepta estos 5 valores (o vacío). Otra palabra la rechazaría -->
+    <label>Categoría
+      <select name="categoria">
+        <option value="">Sin categoría</option>
+        <option value="limpiador">Limpiador</option>
+        <option value="serum">Sérum</option>
+        <option value="mascarilla">Mascarilla</option>
+        <option value="crema">Crema</option>
+        <option value="bloqueador">Bloqueador solar</option>
+      </select>
     </label>
     <label>URL de la imagen
       <input type="url" name="img_url" placeholder="https://...">

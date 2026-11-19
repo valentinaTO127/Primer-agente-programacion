@@ -7,7 +7,7 @@
 const CLAVE_CARRITO = 'carrito';
 
 // Solo las columnas que usa esta página
-const COLUMNAS = 'id, nombre, descripcion, precio, unidades, descuento, disponible, categorias, img_url';
+const COLUMNAS = 'id, nombre, descripcion, precio, unidades, descuento, disponible, categoria, img_url';
 
 const formatoPrecio = new Intl.NumberFormat('es-CO', {
   style: 'currency', currency: 'COP', maximumFractionDigits: 0
@@ -41,6 +41,21 @@ function guardarCarrito() {
   try { localStorage.setItem(CLAVE_CARRITO, JSON.stringify(carrito)); } catch (e) {}
 }
 
+
+// --- Categoría ---
+// Desde el 2026-11-18 la tabla tiene "categoria": UNA palabra (o null) con un
+// CHECK que solo acepta las 5 categorías de FRESHER (ver FRESHER/sql/02_categoria.sql).
+// Antes era "categorias", un array de texto libre.
+const NOMBRES_CATEGORIA = {
+  limpiador: 'Limpiador', serum: 'Sérum', mascarilla: 'Mascarilla',
+  crema: 'Crema', bloqueador: 'Bloqueador solar',
+};
+
+// Devuelve un array ([] o ['Sérum']) para que las etiquetas, los chips y la
+// búsqueda sigan funcionando igual que con el array viejo
+function categoriasDe(producto) {
+  return producto.categoria ? [NOMBRES_CATEGORIA[producto.categoria] ?? producto.categoria] : [];
+}
 
 // --- Reglas del producto ---
 // Agotado = disponible en false o sin unidades
@@ -129,7 +144,7 @@ function crearTarjeta(producto) {
 
   const etiquetas = document.createElement('ul');
   etiquetas.className = 'etiquetas';
-  (producto.categorias ?? []).forEach(categoria => {
+  categoriasDe(producto).forEach(categoria => {
     const li = document.createElement('li');
     li.textContent = categoria;
     etiquetas.appendChild(li);
@@ -280,7 +295,7 @@ function normalizar(texto) {
 function pintarCategorias() {
   const categorias = new Map();
   productos.forEach(producto => {
-    (producto.categorias ?? []).forEach(categoria => {
+    categoriasDe(producto).forEach(categoria => {
       const clave = normalizar(categoria);
       if (clave && !categorias.has(clave)) categorias.set(clave, String(categoria).trim());
     });
@@ -313,7 +328,7 @@ function crearChipCategoria(etiqueta, clave) {
 // Cada palabra debe aparecer en el nombre, la descripción o las categorías.
 // Por eso "bluetooth audifonos" encuentra "Audífonos Bluetooth".
 function coincide(producto, busqueda) {
-  const categorias = (producto.categorias ?? []).map(normalizar);
+  const categorias = categoriasDe(producto).map(normalizar);
   if (categoriaActiva && !categorias.includes(categoriaActiva)) return false;
 
   const texto = normalizar([producto.nombre, producto.descripcion, ...categorias].join(' '));

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi cuenta · FRESHER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@400;500;600&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    let temaGuardado = null;
+    try { temaGuardado = localStorage.getItem('tema-fresher'); } catch (e) {}
+    document.documentElement.dataset.tema = temaGuardado ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+  </script>
+  <link rel="stylesheet" href="css/fresher.css">
+  <link rel="stylesheet" href="css/formularios.css">
+  <style>
+    /* Zona del cliente: menú a la izquierda, una vista a la vez a la derecha */
+    .encabezado-cuenta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 40px 0 24px;
+    }
+    .zona-cliente {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 32px;
+      align-items: start;
+    }
+    .menu-cliente { display: grid; gap: 4px; }
+    .menu-cliente button {
+      text-align: left;
+      color: var(--texto);
+      background: transparent;
+      border-color: transparent;
+    }
+    .menu-cliente button:hover:not(:disabled) { color: var(--texto); background: var(--acento-suave); border-color: transparent; }
+    /* aria-current = la vista abierta (lo pone cuenta.js) */
+    .menu-cliente button[aria-current="true"] { font-weight: 600; background: var(--acento-suave); }
+
+    .contenido-cliente h2 { margin: 0 0 20px; font-family: var(--fuente-titulo); font-size: 1.8rem; font-weight: 500; }
+    /* <dl> de la ficha: nombre del dato arriba en mayúsculas, valor abajo */
+    .ficha { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin: 0; }
+    .ficha dt { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--texto-suave); }
+    .ficha dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+    #form-perfil { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    #form-perfil .fila-botones { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    #mensaje-ficha, #mensaje-perfil { margin: 16px 0 0; font-size: 0.88rem; color: var(--texto-suave); }
+
+    @media (max-width: 760px) {
+      .zona-cliente { grid-template-columns: 1fr; gap: 16px; }
+      .menu-cliente { grid-auto-flow: column; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <p class="anuncio">Skincare elegido para piel grasa · Envío a domicilio</p>
+
+  <header class="header">
+    <div class="contenedor">
+      <a class="logo" href="index.html">FRESHER</a>
+      <nav class="nav-principal" aria-label="Categorías">
+        <a href="index.html#catalogo" data-categoria="">Todo</a>
+        <a href="index.html?categoria=limpiador#catalogo" data-categoria="limpiador">Limpiadores</a>
+        <a href="index.html?categoria=serum#catalogo" data-categoria="serum">Sérums</a>
+        <a href="index.html?categoria=mascarilla#catalogo" data-categoria="mascarilla">Mascarillas</a>
+        <a href="index.html?categoria=crema#catalogo" data-categoria="crema">Cremas</a>
+        <a href="index.html?categoria=bloqueador#catalogo" data-categoria="bloqueador">Bloqueadores</a>
+      </nav>
+      <div class="acciones-header">
+        <a id="enlace-login" href="cuenta.html" hidden>Iniciar sesión</a>
+        <div id="menu-usuario" hidden>
+          <button type="button" id="btn-usuario" class="btn-icono" aria-expanded="false" aria-controls="lista-usuario">
+            <span id="nombre-usuario"></span>
+            <span aria-hidden="true">▾</span>
+          </button>
+          <ul id="lista-usuario">
+            <li><a href="cuenta.html?vista=ver">Mi cuenta</a></li>
+            <li><a href="cuenta.html?vista=pedidos">Pedidos</a></li>
+          </ul>
+        </div>
+        <button type="button" id="btn-tema" class="btn-icono" aria-label="Cambiar a modo oscuro">🌙</button>
+        <button type="button" id="btn-carrito" class="btn-icono" aria-controls="panel-carrito">
+          <span class="texto-carrito">Carrito</span>
+          <span id="contador-carrito">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <p id="estado-sesion" class="mensaje-estado" role="status">Comprobando sesión…</p>
+
+    <!-- Sin sesión: un solo form a la vez (cuenta.js los intercambia) -->
+    <section id="panel-acceso" class="panel panel-acceso" hidden>
+      <form id="form-login">
+        <h1 class="pagina-titulo">Iniciar sesión</h1>
+        <div class="campo">
+          <label for="login-correo">Correo</label>
+          <input id="login-correo" type="email" autocomplete="email" required>
+        </div>
+        <div class="campo">
+          <label for="login-password">Contraseña</label>
+          <input id="login-password" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit">Iniciar sesión</button>
+        <p class="cambiar-form">¿No tienes cuenta?
+          <button type="button" class="enlace" data-mostrar="registro">Crear cuenta</button>
+        </p>
+      </form>
+
+      <form id="form-registro" hidden>
+        <h1 class="pagina-titulo">Crear cuenta</h1>
+        <div class="campo">
+          <label for="registro-nombre">Nombre</label>
+          <input id="registro-nombre" type="text" autocomplete="name" required>
+        </div>
+        <div class="campo">
+          <label for="registro-correo">Correo</label>
+          <input id="registro-correo" type="email" autocomplete="email" required>
+        </div>
+        <div class="campo">
+          <label for="registro-password">Contraseña</label>
+          <input id="registro-password" type="password" minlength="6" autocomplete="new-password" required>
+          <small class="nota">Mínimo 6 caracteres.</small>
+        </div>
+        <button type="submit">Crear cuenta</button>
+        <p class="cambiar-form">¿Ya tienes cuenta?
+          <button type="button" class="enlace" data-mostrar="login">Iniciar sesión</button>
+        </p>
+      </form>
+    </section>
+
+    <!-- Con sesión -->
+    <div id="zona-cliente" hidden>
+      <div class="encabezado-cuenta">
+        <h1 class="pagina-titulo">Mi cuenta</h1>
+        <button type="button" id="btn-logout" class="btn-peligro">Cerrar sesión</button>
+      </div>
+
+      <div class="zona-cliente">
+        <nav class="menu-cliente" aria-label="Mi cuenta">
+          <button type="button" data-vista="ver">Mis datos</button>
+          <button type="button" data-vista="editar" id="btn-menu-editar">Actualizar datos</button>
+          <button type="button" data-vista="pedidos">Pedidos</button>
+        </nav>
+
+        <div class="contenido-cliente panel">
+          <article id="ficha-perfil">
+            <h2>Mis datos</h2>
+            <dl class="ficha">
+              <div><dt>Nombre</dt><dd id="ficha-nombre"></dd></div>
+              <div><dt>Correo</dt><dd id="ficha-correo"></dd></div>
+              <div><dt>Teléfono</dt><dd id="ficha-telefono"></dd></div>
+              <div><dt>Dirección de envío</dt><dd id="ficha-direccion"></dd></div>
+            </dl>
+            <p id="mensaje-ficha" aria-live="polite"></p>
+          </article>
+
+          <form id="form-perfil" hidden>
+            <h2 style="grid-column: 1 / -1">Actualizar datos</h2>
+            <div class="campo">
+              <label for="perfil-nombre">Nombre</label>
+              <input id="perfil-nombre" type="text" autocomplete="name" required>
+            </div>
+            <!-- readonly: cambiarlo aquí no lo cambiaría en Auth -->
+            <div class="campo">
+              <label for="perfil-correo">Correo</label>
+              <input id="perfil-correo" type="email" readonly>
+              <small class="nota">El correo no se puede cambiar.</small>
+            </div>
+            <div class="campo">
+              <label for="perfil-telefono">Teléfono</label>
+              <input id="perfil-telefono" type="tel" autocomplete="tel">
+            </div>
+            <div class="campo">
+              <label for="perfil-direccion">Dirección de envío</label>
+              <input id="perfil-direccion" type="text" autocomplete="street-address">
+            </div>
+            <div class="fila-botones">
+              <button type="submit" id="btn-guardar-perfil">Guardar cambios</button>
+              <p id="mensaje-perfil" aria-live="polite"></p>
+            </div>
+          </form>
+
+          <!-- Pendiente: leer la tabla pedidos (rediseñada el 2026-11-13) -->
+          <article id="vista-pedidos" hidden>
+            <h2>Pedidos</h2>
+            <p>Aún no tienes pedidos.</p>
+            <a href="index.html#catalogo">Ver productos</a>
+          </article>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <span class="logo">FRESHER</span>
+      <span>Proyecto académico · Lenguajes Digitales · 2026</span>
+    </div>
+  </footer>
+
+  <div id="capa-carrito" hidden></div>
+  <aside id="panel-carrito" aria-labelledby="titulo-carrito" inert>
+    <div class="carrito-encabezado">
+      <h2 id="titulo-carrito">Tu carrito (0)</h2>
+      <button type="button" id="btn-cerrar-carrito" class="btn-icono" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <p id="mensaje-carrito">Tu carrito está vacío.</p>
+    <ul id="lista-carrito" hidden></ul>
+    <div class="carrito-pie">
+      <div class="carrito-total">
+        <span>Subtotal</span>
+        <span id="total-carrito">$ 0</span>
+      </div>
+      <button type="button" id="btn-pago" disabled>Proceder al pago</button>
+      <button type="button" id="btn-seguir" class="btn-quitar">Seguir comprando</button>
+    </div>
+  </aside>
+
+  <div id="notificacion" role="status" hidden></div>
+
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/constantes.js"></script>
+  <script src="js/tema.js"></script>
+  <script src="js/tienda.js"></script>
+  <script src="js/cuenta.js"></script>
+</body>
+</html>

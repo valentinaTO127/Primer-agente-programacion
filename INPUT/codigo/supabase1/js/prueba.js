@@ -103,7 +103,7 @@ document.getElementById('btn-traer').addEventListener('click', async () => {
         ${p.descuento > 0 ? `<span class="badge-descuento">-${Math.round(p.descuento * 100)}%</span>` : ''}
         <div class="card-body">
           <div class="categorias">
-            ${(Array.isArray(p.categorias) ? p.categorias : []).map(c => `<span class="chip">${c}</span>`).join('')}
+            ${p.categoria ? `<span class="chip">${p.categoria}</span>` : ''}
           </div>
           <h3>${p.nombre}</h3>
           <p class="descripcion">${p.descripcion}</p>

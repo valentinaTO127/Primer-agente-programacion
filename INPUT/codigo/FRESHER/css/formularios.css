@@ -1,0 +1,94 @@
+/* Formularios, paneles y tabla: los usan cuenta.html y admin.html */
+
+.pagina-titulo {
+  margin: 0;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  font-weight: 500;
+}
+
+.panel {
+  padding: clamp(20px, 4vw, 32px);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+
+/* Login y registro: una tarjeta angosta y centrada */
+.panel-acceso { width: min(440px, 100%); margin: 48px auto 0; display: grid; gap: 16px; }
+.panel-acceso form { display: grid; gap: 14px; }
+.panel-acceso h1, .panel-acceso h2 { text-align: center; }
+
+.mensaje-estado { margin: 0; font-size: 0.88rem; text-align: center; color: var(--texto-suave); }
+.mensaje-estado:empty { display: none; }
+
+/* --- Campos --- */
+/* align-content: start: si la fila del grid es más alta (por la nota del
+   campo vecino), label e input se quedan arriba juntos en vez de separarse */
+.campo { display: grid; gap: 6px; align-content: start; }
+.campo label, .campo > span { font-size: 0.82rem; font-weight: 500; }
+.campo .nota { font-size: 0.75rem; color: var(--texto-suave); }
+
+input:not([type="checkbox"]), select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--texto);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+textarea { resize: vertical; min-height: 84px; }
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px var(--acento-suave);
+}
+input[readonly] { color: var(--texto-suave); background: var(--fondo); }
+input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--acento); }
+.campo-check { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+
+/* <button> con aspecto de enlace: HACE algo en la página, no lleva a otra */
+.enlace {
+  padding: 0;
+  color: var(--acento);
+  background: none;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.enlace:hover:not(:disabled) { color: var(--acento-hover); background: none; }
+.cambiar-form { margin: 0; font-size: 0.88rem; text-align: center; color: var(--texto-suave); }
+
+/* Botón de peligro (cerrar sesión, deshabilitar) */
+.btn-peligro { color: var(--oferta); background: transparent; border-color: var(--oferta); }
+.btn-peligro:hover:not(:disabled) { color: #FFFFFF; background: var(--oferta); border-color: var(--oferta); }
+
+/* --- Tabla (inventario del admin) --- */
+.tabla-contenedor { overflow-x: auto; }  /* en celular la tabla se desliza de lado */
+table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+th {
+  padding: 10px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  color: var(--texto-suave);
+  border-bottom: 1px solid var(--borde);
+}
+td { padding: 12px; vertical-align: middle; border-bottom: 1px solid var(--borde); }
+tr.deshabilitado td:not(:last-child) { opacity: 0.55; }
+
+/* --- Modal (<dialog>) --- */
+dialog {
+  width: min(760px, 100% - 32px);
+  max-height: calc(100dvh - 48px);
+  padding: 0;
+  color: var(--texto);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  box-shadow: 0 16px 48px var(--sombra-fuerte);
+}
+dialog::backdrop { background: rgba(18, 25, 27, 0.45); }

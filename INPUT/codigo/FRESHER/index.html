@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FRESHER · Skincare para piel grasa</title>
+  <!-- Montserrat (texto) y Cormorant Garamond (títulos) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@400;500;600&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Tema antes de pintar: sin esto se ve un parpadeo claro → oscuro -->
+  <script>
+    let temaGuardado = null;
+    try { temaGuardado = localStorage.getItem('tema-fresher'); } catch (e) {}
+    document.documentElement.dataset.tema = temaGuardado ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+  </script>
+  <link rel="stylesheet" href="css/fresher.css">
+  <link rel="stylesheet" href="css/catalogo.css">
+</head>
+<body>
+
+  <p class="anuncio">Skincare elegido para piel grasa · Envío a domicilio</p>
+
+  <header class="header">
+    <div class="contenedor">
+      <a class="logo" href="index.html">FRESHER</a>
+
+      <!-- catalogo.js intercepta estos enlaces para filtrar sin recargar -->
+      <nav class="nav-principal" aria-label="Categorías">
+        <a href="index.html#catalogo" data-categoria="">Todo</a>
+        <a href="index.html?categoria=limpiador#catalogo" data-categoria="limpiador">Limpiadores</a>
+        <a href="index.html?categoria=serum#catalogo" data-categoria="serum">Sérums</a>
+        <a href="index.html?categoria=mascarilla#catalogo" data-categoria="mascarilla">Mascarillas</a>
+        <a href="index.html?categoria=crema#catalogo" data-categoria="crema">Cremas</a>
+        <a href="index.html?categoria=bloqueador#catalogo" data-categoria="bloqueador">Bloqueadores</a>
+      </nav>
+
+      <div class="acciones-header">
+        <!-- Los dos arrancan hidden: tienda.js revisa la sesión y muestra UNO -->
+        <a id="enlace-login" href="cuenta.html" hidden>Iniciar sesión</a>
+        <div id="menu-usuario" hidden>
+          <button type="button" id="btn-usuario" class="btn-icono" aria-expanded="false" aria-controls="lista-usuario">
+            <span id="nombre-usuario"></span>
+            <span aria-hidden="true">▾</span>
+          </button>
+          <ul id="lista-usuario">
+            <li><a href="cuenta.html?vista=ver">Mi cuenta</a></li>
+            <li><a href="cuenta.html?vista=pedidos">Pedidos</a></li>
+          </ul>
+        </div>
+        <button type="button" id="btn-tema" class="btn-icono" aria-label="Cambiar a modo oscuro">🌙</button>
+        <button type="button" id="btn-carrito" class="btn-icono" aria-controls="panel-carrito">
+          <span class="texto-carrito">Carrito</span>
+          <span id="contador-carrito">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero sin foto de persona (la ficha dice que eso NO se copia de SKIN1004) -->
+    <section class="hero">
+      <div class="contenedor">
+        <p class="eyebrow">Skincare para piel grasa</p>
+        <h1>Cuidado diario para piel grasa</h1>
+        <p>Cada producto te dice cómo actúa en la piel grasa. Así eliges con información.</p>
+        <a class="btn-hero" href="#catalogo">Ver catálogo</a>
+      </div>
+    </section>
+
+    <!-- Tres pasos, como la fila de íconos de Beauty of Joseon -->
+    <section class="pasos contenedor" aria-label="Cómo comprar">
+      <article>
+        <span class="paso-numero" aria-hidden="true">1</span>
+        <h2>Filtra por categoría</h2>
+        <p>Limpiador, sérum, mascarilla, crema o bloqueador.</p>
+      </article>
+      <article>
+        <span class="paso-numero" aria-hidden="true">2</span>
+        <h2>Lee «En piel grasa»</h2>
+        <p>Cada producto explica qué hace en tu tipo de piel.</p>
+      </article>
+      <article>
+        <span class="paso-numero" aria-hidden="true">3</span>
+        <h2>Recíbelo en casa</h2>
+        <p>Pagas en línea y te lo enviamos.</p>
+      </article>
+    </section>
+
+    <section id="catalogo" class="catalogo contenedor" aria-labelledby="titulo-catalogo">
+      <h2 id="titulo-catalogo">Catálogo</h2>
+
+      <form id="filtros" role="search" hidden>
+        <div id="filtro-categorias" class="chips" role="group" aria-label="Filtrar por categoría"></div>
+        <div class="busqueda">
+          <label class="visualmente-oculto" for="buscador">Buscar productos</label>
+          <input type="search" id="buscador" placeholder="Buscar por nombre, marca o ingrediente" autocomplete="off">
+          <p id="resultados-filtro" aria-live="polite"></p>
+          <button type="button" id="btn-limpiar-filtros" class="btn-secundario" hidden>Limpiar filtros</button>
+        </div>
+      </form>
+
+      <p id="estado-galeria">Cargando productos…</p>
+      <p id="sin-resultados" hidden>Ningún producto coincide con tu búsqueda.</p>
+      <div id="galeria" class="galeria"></div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <span class="logo">FRESHER</span>
+      <span>Proyecto académico · Lenguajes Digitales · 2026</span>
+    </div>
+  </footer>
+
+  <!-- Panel del carrito: fuera del header (backdrop-filter rompería el position: fixed) -->
+  <div id="capa-carrito" hidden></div>
+  <aside id="panel-carrito" aria-labelledby="titulo-carrito" inert>
+    <div class="carrito-encabezado">
+      <h2 id="titulo-carrito">Tu carrito (0)</h2>
+      <button type="button" id="btn-cerrar-carrito" class="btn-icono" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <p id="mensaje-carrito">Tu carrito está vacío.</p>
+    <ul id="lista-carrito" hidden></ul>
+    <div class="carrito-pie">
+      <div class="carrito-total">
+        <span>Subtotal</span>
+        <span id="total-carrito">$ 0</span>
+      </div>
+      <button type="button" id="btn-pago" disabled>Proceder al pago</button>
+      <button type="button" id="btn-seguir" class="btn-quitar">Seguir comprando</button>
+    </div>
+  </aside>
+
+  <div id="notificacion" role="status" hidden></div>
+
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/constantes.js"></script>
+  <script src="js/tema.js"></script>
+  <script src="js/tienda.js"></script>
+  <script src="js/catalogo.js"></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- producto.js cambia el título por el nombre del producto -->
+  <title>Producto · FRESHER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@400;500;600&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    let temaGuardado = null;
+    try { temaGuardado = localStorage.getItem('tema-fresher'); } catch (e) {}
+    document.documentElement.dataset.tema = temaGuardado ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+  </script>
+  <link rel="stylesheet" href="css/fresher.css">
+  <link rel="stylesheet" href="css/producto.css">
+</head>
+<body>
+
+  <p class="anuncio">Skincare elegido para piel grasa · Envío a domicilio</p>
+
+  <header class="header">
+    <div class="contenedor">
+      <a class="logo" href="index.html">FRESHER</a>
+
+      <!-- Aquí los enlaces sí navegan: llevan al catálogo ya filtrado -->
+      <nav class="nav-principal" aria-label="Categorías">
+        <a href="index.html#catalogo" data-categoria="">Todo</a>
+        <a href="index.html?categoria=limpiador#catalogo" data-categoria="limpiador">Limpiadores</a>
+        <a href="index.html?categoria=serum#catalogo" data-categoria="serum">Sérums</a>
+        <a href="index.html?categoria=mascarilla#catalogo" data-categoria="mascarilla">Mascarillas</a>
+        <a href="index.html?categoria=crema#catalogo" data-categoria="crema">Cremas</a>
+        <a href="index.html?categoria=bloqueador#catalogo" data-categoria="bloqueador">Bloqueadores</a>
+      </nav>
+
+      <div class="acciones-header">
+        <a id="enlace-login" href="cuenta.html" hidden>Iniciar sesión</a>
+        <div id="menu-usuario" hidden>
+          <button type="button" id="btn-usuario" class="btn-icono" aria-expanded="false" aria-controls="lista-usuario">
+            <span id="nombre-usuario"></span>
+            <span aria-hidden="true">▾</span>
+          </button>
+          <ul id="lista-usuario">
+            <li><a href="cuenta.html?vista=ver">Mi cuenta</a></li>
+            <li><a href="cuenta.html?vista=pedidos">Pedidos</a></li>
+          </ul>
+        </div>
+        <button type="button" id="btn-tema" class="btn-icono" aria-label="Cambiar a modo oscuro">🌙</button>
+        <button type="button" id="btn-carrito" class="btn-icono" aria-controls="panel-carrito">
+          <span class="texto-carrito">Carrito</span>
+          <span id="contador-carrito">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <nav class="migas" aria-label="Ruta">
+      <a href="index.html#catalogo">Catálogo</a>
+      <span aria-hidden="true">›</span>
+      <a id="miga-categoria" href="index.html#catalogo" hidden></a>
+      <span aria-hidden="true" id="separador-categoria" hidden>›</span>
+      <span id="miga-nombre" aria-current="page"></span>
+    </nav>
+
+    <p id="estado-detalle">Cargando producto…</p>
+
+    <!-- Todo esto lo llena producto.js con textContent -->
+    <article id="producto" class="producto" hidden>
+      <div class="galeria-detalle">
+        <div id="miniaturas" class="miniaturas" role="group" aria-label="Imágenes del producto"></div>
+        <div id="imagen-principal" class="imagen-principal"></div>
+      </div>
+
+      <div class="info">
+        <p id="marca" class="eyebrow"></p>
+        <h1 id="nombre"></h1>
+        <div id="calificacion"></div>
+        <div id="precio" class="precio-detalle"></div>
+        <p id="descripcion" class="descripcion-detalle"></p>
+        <ul id="etiquetas-beneficios" class="etiquetas-beneficios" aria-label="Beneficios"></ul>
+
+        <!-- El diferencial de FRESHER (ficha, sección 3): destacado arriba,
+             no escondido en un acordeón -->
+        <section id="piel-grasa" class="piel-grasa" aria-labelledby="titulo-piel-grasa" hidden>
+          <h2 id="titulo-piel-grasa">En piel grasa</h2>
+          <p id="efecto-piel-grasa"></p>
+        </section>
+
+        <p id="estado-stock" class="estado-stock"></p>
+
+        <div class="compra">
+          <div class="selector-cantidad" role="group" aria-label="Cantidad a agregar">
+            <button type="button" id="btn-menos" class="btn-cantidad btn-secundario" aria-label="Una unidad menos">−</button>
+            <span id="cantidad-agregar" aria-live="polite">1</span>
+            <button type="button" id="btn-mas" class="btn-cantidad btn-secundario" aria-label="Una unidad más">+</button>
+          </div>
+          <button type="button" id="btn-agregar-detalle">Agregar al carrito</button>
+        </div>
+        <p id="nota-carrito" class="nota-carrito" hidden></p>
+
+        <!-- <details> = acordeón nativo: abre y cierra sin JS y funciona con teclado -->
+        <div class="acordeones">
+          <details id="bloque-beneficios" open>
+            <summary>Beneficios clave</summary>
+            <ul id="lista-beneficios"></ul>
+          </details>
+          <details id="bloque-uso">
+            <summary>Modo de uso</summary>
+            <p id="modo-uso"></p>
+          </details>
+          <details id="bloque-ingredientes">
+            <summary>Ingredientes</summary>
+            <p id="ingredientes"></p>
+          </details>
+        </div>
+      </div>
+    </article>
+
+    <section id="relacionados" class="relacionados" aria-labelledby="titulo-relacionados" hidden>
+      <h2 id="titulo-relacionados"></h2>
+      <div id="galeria-relacionados" class="galeria"></div>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <span class="logo">FRESHER</span>
+      <span>Proyecto académico · Lenguajes Digitales · 2026</span>
+    </div>
+  </footer>
+
+  <div id="capa-carrito" hidden></div>
+  <aside id="panel-carrito" aria-labelledby="titulo-carrito" inert>
+    <div class="carrito-encabezado">
+      <h2 id="titulo-carrito">Tu carrito (0)</h2>
+      <button type="button" id="btn-cerrar-carrito" class="btn-icono" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <p id="mensaje-carrito">Tu carrito está vacío.</p>
+    <ul id="lista-carrito" hidden></ul>
+    <div class="carrito-pie">
+      <div class="carrito-total">
+        <span>Subtotal</span>
+        <span id="total-carrito">$ 0</span>
+      </div>
+      <button type="button" id="btn-pago" disabled>Proceder al pago</button>
+      <button type="button" id="btn-seguir" class="btn-quitar">Seguir comprando</button>
+    </div>
+  </aside>
+
+  <div id="notificacion" role="status" hidden></div>
+
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/constantes.js"></script>
+  <script src="js/tema.js"></script>
+  <script src="js/tienda.js"></script>
+  <script src="js/producto.js"></script>
+</body>
+</html>

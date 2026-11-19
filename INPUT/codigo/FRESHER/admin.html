@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración · FRESHER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@400;500;600&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    let temaGuardado = null;
+    try { temaGuardado = localStorage.getItem('tema-fresher'); } catch (e) {}
+    document.documentElement.dataset.tema = temaGuardado ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+  </script>
+  <link rel="stylesheet" href="css/fresher.css">
+  <link rel="stylesheet" href="css/formularios.css">
+  <style>
+    .encabezado-admin {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 40px 0 24px;
+    }
+    .barra-inventario { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .barra-inventario input[type="search"] { flex: 1 1 260px; }
+    .barra-inventario select { width: auto; flex: 0 1 200px; }
+    #resumen-inventario { margin: 0 0 12px; font-size: 0.85rem; color: var(--texto-suave); }
+
+    .celda-producto { display: flex; align-items: center; gap: 12px; min-width: 220px; }
+    .celda-producto img, .celda-producto .sin-imagen {
+      flex: none;
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      font-size: 0.6rem;
+      background: var(--superficie-2);
+      border-radius: 4px;
+    }
+    .celda-producto strong { display: block; font-weight: 500; }
+    .celda-producto span { font-size: 0.78rem; color: var(--texto-suave); }
+    .estado-chip {
+      display: inline-block;
+      padding: 2px 10px;
+      font-size: 0.75rem;
+      border-radius: 999px;
+      color: var(--acento);
+      background: var(--acento-suave);
+    }
+    .estado-chip.apagado { color: var(--texto-suave); background: var(--fondo); border: 1px solid var(--borde); }
+    .acciones-fila { display: flex; gap: 8px; white-space: nowrap; }
+    .acciones-fila button { padding: 6px 12px; font-size: 0.82rem; }
+
+    /* Formulario del modal: 2 columnas, los textos largos ocupan las dos */
+    .modal-encabezado {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      background: var(--superficie);
+      border-bottom: 1px solid var(--borde);
+    }
+    .modal-encabezado h2 { margin: 0; font-family: var(--fuente-titulo); font-size: 1.7rem; font-weight: 500; }
+    #form-producto {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      padding: 24px;
+    }
+    #form-producto .ancho { grid-column: 1 / -1; }
+    #form-producto fieldset { display: contents; }  /* agrupa sin romper el grid */
+    #form-producto legend {
+      grid-column: 1 / -1;
+      padding-top: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--acento);
+    }
+    #preview-imagen { margin: 0; display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: var(--texto-suave); }
+    #preview-imagen img { width: 72px; height: 72px; object-fit: contain; background: var(--superficie-2); border-radius: 4px; }
+    #preview-imagen.error { color: var(--oferta); }
+    #mensaje-modal { margin: 0 auto 0 0; align-self: center; font-size: 0.85rem; color: var(--oferta); }
+    .modal-pie {
+      position: sticky;
+      bottom: 0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+      background: var(--superficie);
+      border-top: 1px solid var(--borde);
+    }
+    @media (max-width: 640px) {
+      #form-producto { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="contenedor">
+      <a class="logo" href="index.html">FRESHER</a>
+      <p class="eyebrow" style="margin-right: auto">Administración</p>
+      <div class="acciones-header">
+        <a href="index.html" class="btn-icono" style="text-decoration: none">Ver tienda</a>
+        <button type="button" id="btn-tema" class="btn-icono" aria-label="Cambiar a modo oscuro">🌙</button>
+        <button type="button" id="btn-logout-admin" class="btn-icono" hidden>Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <!-- Acceso: SOLO inicio de sesión. El registro de admin se quitó a propósito:
+         en el análisis del 2026-11-13 vimos que cualquier cuenta podía hacerse
+         admin con él. Los admins se crean desde Supabase -->
+    <section id="zona-acceso-admin" class="panel panel-acceso">
+      <h1 class="pagina-titulo">Acceso de administrador</h1>
+      <p id="estado-sesion-admin" class="mensaje-estado" role="status">Comprobando sesión…</p>
+      <form id="form-login-admin" hidden>
+        <div class="campo">
+          <label for="admin-correo">Correo</label>
+          <input id="admin-correo" name="correo" type="email" autocomplete="email" required>
+        </div>
+        <div class="campo">
+          <label for="admin-password">Contraseña</label>
+          <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button type="submit">Iniciar sesión</button>
+      </form>
+    </section>
+
+    <!-- Solo se ve si admin.js confirma sesión Y fila en admins_practica.
+         Ojo: hidden solo decide qué se VE; lo que protege los datos son las policies -->
+    <div id="panel-admin" hidden>
+      <div class="encabezado-admin">
+        <div>
+          <p class="eyebrow">Inventario</p>
+          <h1 class="pagina-titulo">Productos</h1>
+        </div>
+        <button type="button" id="btn-nuevo">+ Nuevo producto</button>
+      </div>
+
+      <section class="panel">
+        <div class="barra-inventario" role="search">
+          <label class="visualmente-oculto" for="buscar-inventario">Buscar productos</label>
+          <input type="search" id="buscar-inventario" placeholder="Buscar por nombre o marca">
+          <label class="visualmente-oculto" for="filtro-categoria">Categoría</label>
+          <select id="filtro-categoria">
+            <option value="">Todas las categorías</option>
+          </select>
+        </div>
+        <p id="resumen-inventario" aria-live="polite">Cargando inventario…</p>
+        <div class="tabla-contenedor">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">Producto</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Unidades</th>
+                <th scope="col">Estado</th>
+                <th scope="col"><span class="visualmente-oculto">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo-inventario"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- <dialog> = modal nativo: showModal() lo centra, oscurece el fondo y lo
+       cierra con Esc. El MISMO form sirve para crear y para editar -->
+  <dialog id="modal-producto" aria-labelledby="titulo-modal">
+    <div class="modal-encabezado">
+      <h2 id="titulo-modal">Nuevo producto</h2>
+      <button type="button" class="btn-icono" id="btn-cerrar-modal" aria-label="Cerrar">✕</button>
+    </div>
+
+    <!-- name="..." = nombre de la columna en Supabase (form.marca.value...) -->
+    <form id="form-producto">
+      <input type="hidden" name="idEditar">
+
+      <fieldset>
+        <legend>Producto</legend>
+        <div class="campo">
+          <label for="campo-nombre">Nombre</label>
+          <input id="campo-nombre" name="nombre" type="text" required>
+        </div>
+        <div class="campo">
+          <label for="campo-marca">Marca</label>
+          <input id="campo-marca" name="marca" type="text" required>
+        </div>
+        <!-- Las opciones salen del mismo listado que el CHECK de la base -->
+        <div class="campo">
+          <label for="campo-categoria">Categoría</label>
+          <select id="campo-categoria" name="categoria" required>
+            <option value="">Elige una categoría</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="campo-calificacion">Calificación (0 a 5)</label>
+          <input id="campo-calificacion" name="calificacion" type="number" min="0" max="5" step="0.1">
+          <small class="nota">Vacío = sin calificación.</small>
+        </div>
+        <div class="campo ancho">
+          <label for="campo-descripcion">Descripción corta</label>
+          <textarea id="campo-descripcion" name="descripcion" rows="2" required></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Precio e inventario</legend>
+        <div class="campo">
+          <label for="campo-precio">Precio (COP)</label>
+          <input id="campo-precio" name="precio" type="number" min="0" step="100" required>
+        </div>
+        <!-- En porcentaje para que sea fácil de escribir; admin.js lo pasa a
+             fracción (15 → 0.15), que es como se guarda en la base -->
+        <div class="campo">
+          <label for="campo-descuento">Descuento (%)</label>
+          <input id="campo-descuento" name="descuento" type="number" min="0" max="90" step="1" value="0">
+        </div>
+        <div class="campo">
+          <label for="campo-unidades">Unidades</label>
+          <input id="campo-unidades" name="unidades" type="number" min="0" step="1" required>
+        </div>
+        <label class="campo-check">
+          <input type="checkbox" name="disponible" checked>
+          Habilitado en la tienda
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Información para piel grasa</legend>
+        <div class="campo ancho">
+          <label for="campo-efecto">En piel grasa</label>
+          <textarea id="campo-efecto" name="efecto_piel_grasa" rows="3" required></textarea>
+          <small class="nota">Cómo actúa en la piel grasa. Sale destacado en el detalle.</small>
+        </div>
+        <div class="campo ancho">
+          <label for="campo-beneficios">Beneficios clave (uno por línea)</label>
+          <textarea id="campo-beneficios" name="beneficios" rows="3"></textarea>
+        </div>
+        <div class="campo ancho">
+          <label for="campo-uso">Modo de uso</label>
+          <textarea id="campo-uso" name="modo_uso" rows="3"></textarea>
+        </div>
+        <div class="campo ancho">
+          <label for="campo-ingredientes">Ingredientes</label>
+          <textarea id="campo-ingredientes" name="ingredientes" rows="3"></textarea>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Imágenes</legend>
+        <div class="campo ancho">
+          <label for="campo-img">URL de la imagen principal</label>
+          <input id="campo-img" name="img_url" type="url" placeholder="https://...">
+          <figure id="preview-imagen" hidden>
+            <img alt="Previsualización de la imagen principal">
+            <figcaption></figcaption>
+          </figure>
+        </div>
+        <div class="campo ancho">
+          <label for="campo-imagenes">Más imágenes (una URL por línea)</label>
+          <textarea id="campo-imagenes" name="imagenes" rows="3" placeholder="https://..."></textarea>
+          <small class="nota">La primera aparece al pasar el mouse por la tarjeta del catálogo.</small>
+        </div>
+      </fieldset>
+    </form>
+
+    <!-- form="form-producto": el botón envía ese form aunque esté afuera -->
+    <div class="modal-pie">
+      <!-- Los errores van aquí y no en #notificacion: un <dialog> abierto con
+           showModal() queda en la "top layer", por encima de cualquier z-index -->
+      <p id="mensaje-modal" role="status"></p>
+      <button type="button" class="btn-secundario" id="btn-cancelar-modal">Cancelar</button>
+      <button type="submit" form="form-producto" id="btn-guardar">Agregar producto</button>
+    </div>
+  </dialog>
+
+  <div id="notificacion" role="status" hidden></div>
+
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/constantes.js"></script>
+  <script src="js/tema.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
