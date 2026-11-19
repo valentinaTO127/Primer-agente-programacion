@@ -371,3 +371,23 @@ Hoy ajusté el inicio de FRESHER y la cuenta del administrador.
   - `filter()` devuelve un array nuevo: después de filtrar, `sort()` ya no desordena el original.
   - `Promise.all` lanza consultas que no dependen una de otra al mismo tiempo, en vez de esperar una por una.
   - `?.` evita el error cuando `data` es `null`, y `??` elige el siguiente valor si el primero no existe.
+- **Segunda parte (pedidos en Mi cuenta, vista del admin y página del catálogo):**
+  - **Lo que más me costó: la visualización de pedidos.**
+    - **Una consulta, tres niveles:** `pedidos` → `detalles_pedidos` → `productos_practica`, más `historial_estados_pedido`. Supabase los anida porque sigue las llaves foráneas.
+    - **RLS dice qué PUEDES ver, no qué QUIERES ver:** `ver_pedidos` deja al admin ver los pedidos de todos. Por eso el cliente necesita `.eq('cliente_id', ...)`, y el admin no.
+    - **El historial no llegaba al cliente:** solo existía `ver_historial_admin`. Sin policy, RLS devuelve `[]` **sin error**. Se agregó `ver_historial_cliente` (`sql/04`). Las policies de SELECT se suman con OR.
+    - **El `+/−` del `<summary>` se bajaba de línea:** el `::after` también es un elemento de la grilla, así que 5 elementos necesitan 5 columnas.
+    - **Especificidad:** `.pedido.sin-numero summary` le ganaba a la regla de celular, porque el `@media` no suma especificidad.
+  - **Lo que trabajamos** (`INPUT/codigo/FRESHER/`):
+    - **Pedidos del cliente** en `cuenta.html`: `<details>` por pedido con fecha (sin número), estado, total, productos con miniatura, envío y observación. El total suma los `precio_unitario` guardados, no recalcula nada.
+    - **Seguimiento** Confirmado → Enviado → Entregado con la fecha de cada paso. Si se cancela, la barra pasa a rojo y termina en "Cancelado".
+    - **Admin:** "Pedidos de clientes" con filtro por estado, "Mis clientes" (tabla con clic para ver los pedidos de cada uno) y botones para cambiar el estado. Cancelar pide confirmación en un modal `<dialog>` (Promise que espera el evento `close`).
+    - **SQL:** `05` cierra el alta de admins desde el navegador. `06` devuelve el stock al cancelar (trigger en la base, para que se cumpla por cualquier camino).
+    - **Catálogo separado:** `catalogo.html` es a donde lleva el menú. La vitrina pasó a `inicio.js`. El límite de 20 lo pone el HTML con `data-limite`.
+  - **Pendiente:**
+    - Correr `05_cerrar_registro_admin.sql` y `06_devolver_stock.sql` en Supabase, si no se han corrido.
+    - `crear_carrito` no revisa `estado`: un cliente puede insertar un pedido ya "entregado". Agregar `and estado = 'carrito'` al `with check`.
+    - Revisar `security_invoker` en la vista `pedidos_con_total`.
+    - El carrito del visitante se pierde al iniciar sesión. Y el admin no puede tener carrito (`23503`).
+    - Agregar `CHECK` de `unidades >= 0` y `descuento` entre 0 y 1.
+    - Imágenes y texto de "En piel grasa" de los 50 productos.
