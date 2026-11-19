@@ -104,8 +104,14 @@ async function mostrarEstadoSesion() {
   if (conSesion) {
     mostrarVista(vistaInicial());
     cargarPerfil(usuarioActual.id);
+    cargarCarritoDesdeBD(); // con sesión, el carrito es el de la base
   } else {
     mostrarFormulario('login');
+    // Solo si el carrito era el de una sesión (tiene pedidoId), es decir, recién
+    // se cerró la sesión. El carrito de un visitante NO se borra: si no, lo
+    // perdería justo al venir aquí a iniciar sesión (ver cargarCarritoDesdeBD)
+    if (pedidoId) vaciarCarritoLocal();
+    else cargarProductosDelCarrito(); // nombre y precio del carrito del visitante, para el panel
   }
 }
 
@@ -226,6 +232,7 @@ document.getElementById('form-perfil').addEventListener('submit', async (event) 
 // --- Cerrar sesión ---
 document.getElementById('btn-logout').addEventListener('click', async () => {
   await db.auth.signOut();
+  // El carrito de este cliente lo vacía mostrarEstadoSesion() (rama sin sesión)
   // Ocultar no borra: se vacían ficha y form para el siguiente que entre
   perfilActual = null;
   document.getElementById('form-perfil').reset();
@@ -235,5 +242,7 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
 });
 
 
-cargarProductosDelCarrito(); // el panel del carrito también funciona aquí
+// Esta página no carga productos: la promesa ya está resuelta.
+// cargarCarritoDesdeBD (la llama mostrarEstadoSesion) la espera
+const productosListos = Promise.resolve();
 mostrarEstadoSesion();

@@ -70,6 +70,252 @@ function cantidadEnCarrito(id) {
   return carrito[id] ?? 0;
 }
 
+
+// --- Carrito en Supabase ---
+// En la base, el carrito es un pedido con estado 'carrito' y sus filas en
+// detalles_pedidos. Un índice único parcial deja UN solo carrito abierto por cliente
+let pedidoId = null;        // id del pedido de este cliente que está en estado 'carrito'
+const detalleIds = {};      // { producto_id: id de la fila en detalles_pedidos }
+
+// El usuario con sesión, o null
+async function obtenerUsuario() {
+  const { data } = await db.auth.getUser();
+  return data.user ?? null;
+}
+
+// Id del pedido en estado 'carrito' de ese cliente, o null.
+// maybeSingle() y no single(): single() da ERROR cuando no hay fila, y "todavía
+// no tiene carrito" es un caso normal, no un fallo
+async function buscarCarrito(usuario) {
+  const { data, error } = await db
+    .from('pedidos')
+    .select('id')
+    .eq('cliente_id', usuario.id)
+    .eq('estado', 'carrito')
+    .maybeSingle();
+
+  if (error) {
+    console.log('Error al buscar el carrito:', error);
+    return null;
+  }
+  return data?.id ?? null;
+}
+
+async function obtenerOCrearCarrito(usuario) {
+  if (pedidoId) return pedidoId; // ya lo conocemos: no se consulta otra vez
+
+  pedidoId = await buscarCarrito(usuario);
+  if (pedidoId) return pedidoId;
+
+  // Solo cliente_id: el estado ('carrito') lo pone la base con su valor por
+  // defecto. Si el front lo mandara, alguien podría crear un pedido ya "confirmado"
+  const { data, error } = await db
+    .from('pedidos')
+    .insert({ cliente_id: usuario.id })
+    .select('id')
+    .single();
+
+  if (error) {
+    // 23505 = viola un índice único: ya hay un carrito abierto (doble clic u
+    // otra pestaña lo creó un instante antes). No es un fallo: se busca ese
+    if (error.code === '23505') {
+      pedidoId = await buscarCarrito(usuario);
+      return pedidoId;
+    }
+    console.log('Error al crear el carrito:', error);
+    return null;
+  }
+
+  pedidoId = data.id;
+  return pedidoId;
+}
+
+// Suma "cantidad" unidades del producto "id" al carrito. Devuelve true o false.
+// "id" llega como texto (de btn.dataset.id): como llave de un objeto da igual
+// ("3" y 3 son la misma llave), pero para la columna producto_id se convierte
+async function agregarAlCarrito(id, cantidad) {
+  const nuevaCantidad = (carrito[id] ?? 0) + cantidad;
+  const usuario = await obtenerUsuario();
+
+  // Sin sesión: modo demostración, solo en este navegador
+  if (!usuario) {
+    carrito[id] = nuevaCantidad;
+    guardarCarrito();
+    return true;
+  }
+
+  const pedido = await obtenerOCrearCarrito(usuario);
+  if (!pedido) return false;
+
+  if (detalleIds[id]) {
+    // Ya tiene su fila: solo cambia la cantidad.
+    // .select() devuelve las filas que DE VERDAD cambiaron: si RLS bloquea el
+    // update, Supabase no da error, devuelve [] → también es fallo
+    const { data, error } = await db
+      .from('detalles_pedidos')
+      .update({ cantidad: nuevaCantidad })
+      .eq('id', detalleIds[id])
+      .select();
+
+    if (error || data.length === 0) {
+      console.log('Error al actualizar la cantidad:', error ?? 'RLS no dejó actualizar');
+      return false;
+    }
+  } else {
+    // Fila nueva. NUNCA se manda el precio: lo copia un trigger de la base
+    // desde productos_practica (si viniera del front, se podría cambiar en la consola)
+    const { data, error } = await db
+      .from('detalles_pedidos')
+      .insert({ pedido_id: pedido, producto_id: Number(id), cantidad })
+      .select('id')
+      .single();
+
+    if (error) {
+      console.log('Error al agregar al carrito:', error);
+      return false;
+    }
+    detalleIds[id] = data.id;
+  }
+
+  carrito[id] = nuevaCantidad;
+  guardarCarrito();
+  return true;
+}
+
+// Saca el producto "id" del carrito. Devuelve true o false.
+// El pedido NO se borra aunque quede sin productos: el carrito vacío se reutiliza
+async function quitarDelCarrito(id) {
+  if (detalleIds[id]) {
+    // Igual que el update: si RLS bloquea el delete, no hay error, solo data = []
+    const { data, error } = await db
+      .from('detalles_pedidos')
+      .delete()
+      .eq('id', detalleIds[id])
+      .select();
+
+    if (error || data.length === 0) {
+      console.log('Error al quitar del carrito:', error ?? 'RLS no dejó borrar');
+      return false; // el carrito local NO se toca: sigue igual que la base
+    }
+    delete detalleIds[id];
+  }
+
+  // Con o sin sesión
+  delete carrito[id];
+  guardarCarrito();
+  actualizarCarrito();
+  return true;
+}
+
+// Pone la cantidad EXACTA de un producto (la usan los − y + del stepper y del
+// panel). A diferencia de agregarAlCarrito, recibe el total, no cuánto sumar:
+// así "−" funciona igual que "+" y nunca se inserta una cantidad negativa
+async function fijarCantidad(producto, nuevaCantidad) {
+  const id = String(producto.id);
+  const cantidad = Math.min(nuevaCantidad, stockDe(producto)); // nunca más que el stock
+  if (cantidad <= 0) return quitarDelCarrito(id);
+
+  const usuario = await obtenerUsuario();
+  if (usuario) {
+    const pedido = await obtenerOCrearCarrito(usuario);
+    if (!pedido) return false;
+
+    if (detalleIds[id]) {
+      const { data, error } = await db
+        .from('detalles_pedidos')
+        .update({ cantidad })
+        .eq('id', detalleIds[id])
+        .select();
+      if (error || data.length === 0) {
+        console.log('Error al cambiar la cantidad:', error ?? 'RLS no dejó actualizar');
+        return false;
+      }
+    } else {
+      const { data, error } = await db
+        .from('detalles_pedidos')
+        .insert({ pedido_id: pedido, producto_id: Number(id), cantidad })
+        .select('id')
+        .single();
+      if (error) {
+        console.log('Error al agregar al carrito:', error);
+        return false;
+      }
+      detalleIds[id] = data.id;
+    }
+  }
+
+  carrito[id] = cantidad;
+  guardarCarrito();
+  actualizarCarrito();
+  return true;
+}
+
+// Corre una acción del carrito con el botón deshabilitado (evita el doble clic
+// mientras responde Supabase). Si falla, avisa. actualizarCarrito() al final
+// vuelve a calcular qué botones deben quedar deshabilitados (ej. "+" sin stock)
+async function conBotonOcupado(boton, accion) {
+  boton.disabled = true;
+  const ok = await accion();
+  boton.disabled = false;
+  if (!ok) mostrarNotificacion('No se pudo actualizar el carrito. Intenta de nuevo.', 'error');
+  actualizarCarrito();
+  return ok;
+}
+
+// Deja el carrito vacío en esta página (ej. después de confirmar el pedido o
+// al cerrar sesión). "carrito" es const: no se le puede asignar {}, así que se
+// borran sus llaves una por una
+function vaciarCarritoLocal() {
+  Object.keys(carrito).forEach(id => delete carrito[id]);
+  Object.keys(detalleIds).forEach(id => delete detalleIds[id]);
+  pedidoId = null;
+  guardarCarrito(); // sin esto, al recargar volvería lo que había en localStorage
+  actualizarCarrito();
+}
+
+// Al cargar la página: con sesión, la base es la fuente de verdad del carrito.
+// Cada página define "productosListos" (la promesa de su carga de productos)
+// justo antes de llamar a esta función
+async function cargarCarritoDesdeBD() {
+  await productosListos;
+
+  const usuario = await obtenerUsuario();
+  // Sin sesión: el carrito del visitante vive en localStorage y se conserva.
+  // (Si se vaciara aquí, lo perdería al recargar o al ir a cuenta.html a entrar)
+  if (!usuario) {
+    await cargarProductosDelCarrito();
+    return;
+  }
+
+  vaciarCarritoLocal();
+
+  // UNA sola consulta: el pedido y, anidadas, sus filas de detalles_pedidos.
+  // Supabase lo puede unir porque detalles_pedidos.pedido_id es llave foránea a pedidos.id
+  const { data: pedido, error } = await db
+    .from('pedidos')
+    .select('id, detalles_pedidos(id, producto_id, cantidad)')
+    .eq('cliente_id', usuario.id)
+    .eq('estado', 'carrito')
+    .maybeSingle();
+
+  if (error) {
+    console.log('Error al cargar el carrito:', error);
+    return;
+  }
+  if (!pedido) return; // todavía no tiene carrito: se crea al agregar el primero
+
+  pedidoId = pedido.id;
+  pedido.detalles_pedidos.forEach(detalle => {
+    carrito[detalle.producto_id] = detalle.cantidad;
+    detalleIds[detalle.producto_id] = detalle.id;
+  });
+  guardarCarrito();
+  actualizarCarrito();
+  // Trae nombre y precio de los productos del carrito que esta página no cargó
+  // (ej. en cuenta.html no se carga ninguno), para poder pintarlos en el panel
+  await cargarProductosDelCarrito();
+}
+
 // Productos ya leídos de Supabase, por id. El panel del carrito los necesita
 // aunque la página actual no los muestre (ej. en producto.html)
 const productosConocidos = new Map();
@@ -82,15 +328,6 @@ function recordarProductos(lista) {
 // del detalle...). Así cada parte de la página se pone al día sola
 const alCambiarCarrito = new Set();
 
-// Único lugar que cambia el carrito. Nunca pasa del stock; con 0 sale
-function cambiarCantidad(producto, nuevaCantidad) {
-  const cantidad = Math.min(nuevaCantidad, stockDe(producto));
-  if (cantidad > 0) carrito[producto.id] = cantidad;
-  else delete carrito[producto.id];
-
-  guardarCarrito();
-  actualizarCarrito();
-}
 
 // Trae de Supabase los productos del carrito que la página no cargó todavía,
 // y ajusta las cantidades al stock actual (el carrito guardado puede tener días)
@@ -139,18 +376,23 @@ function actualizarCarrito() {
   );
 
   const lista = document.getElementById('lista-carrito');
-  const mensaje = document.getElementById('mensaje-carrito');
+  const vacio = document.getElementById('carrito-vacio');
   lista.replaceChildren(...items.map(crearItemCarrito));
   lista.hidden = items.length === 0;
-  mensaje.hidden = items.length > 0;
-  mensaje.textContent = unidades > 0
+  vacio.hidden = items.length > 0;
+  vacio.textContent = unidades > 0
     ? 'No pudimos cargar tu carrito en este momento.'
     : 'Tu carrito está vacío.';
+
+  // Carrito vacío: no hay nada que confirmar → se cierra el formulario
+  if (items.length === 0) {
+    formCheckout.hidden = true;
+    btnCheckout.hidden = false;
+  }
 
   document.getElementById('contador-carrito').textContent = unidades;
   document.getElementById('titulo-carrito').textContent = `Tu carrito (${unidades})`;
   document.getElementById('total-carrito').textContent = formatoPrecio.format(total);
-  document.getElementById('btn-pago').disabled = items.length === 0;
 
   alCambiarCarrito.forEach(refrescar => refrescar());
 }
@@ -176,7 +418,7 @@ function crearItemCarrito(producto) {
   const cantidad = cantidadEnCarrito(producto.id);
 
   const restar = crearBotonCantidad('−', `Quitar una unidad de ${producto.nombre}`);
-  restar.addEventListener('click', () => cambiarCantidad(producto, cantidad - 1));
+  restar.addEventListener('click', () => conBotonOcupado(restar, () => fijarCantidad(producto, cantidad - 1)));
 
   const texto = document.createElement('span');
   texto.className = 'cantidad';
@@ -184,14 +426,14 @@ function crearItemCarrito(producto) {
 
   const sumar = crearBotonCantidad('+', `Agregar una unidad de ${producto.nombre}`);
   sumar.disabled = cantidad >= stockDe(producto);
-  sumar.addEventListener('click', () => cambiarCantidad(producto, cantidad + 1));
+  sumar.addEventListener('click', () => conBotonOcupado(sumar, () => fijarCantidad(producto, cantidad + 1)));
 
   const quitar = document.createElement('button');
   quitar.type = 'button';
   quitar.className = 'btn-quitar';
   quitar.textContent = 'Quitar';
   quitar.setAttribute('aria-label', `Quitar ${producto.nombre} del carrito`);
-  quitar.addEventListener('click', () => cambiarCantidad(producto, 0));
+  quitar.addEventListener('click', () => conBotonOcupado(quitar, () => quitarDelCarrito(String(producto.id))));
 
   const subtotal = document.createElement('span');
   subtotal.className = 'item-subtotal';
@@ -314,14 +556,32 @@ function crearAcciones(producto) {
       : `Quitar una unidad de ${producto.nombre}`);
   }
 
-  // El foco se mueve porque el botón pulsado queda hidden
-  agregar.addEventListener('click', () => {
-    cambiarCantidad(producto, 1);
-    sumar.focus();
+  // async: espera a Supabase (agregarAlCarrito) antes de seguir
+  agregar.addEventListener('click', async () => {
+    agregar.disabled = true; // evita el doble clic mientras responde la base
+    const ok = await agregarAlCarrito(String(producto.id), 1);
+    agregar.disabled = false;
+
+    // Aviso de 1,2 s. actualizarCarrito() va DESPUÉS a propósito: si se
+    // llamara ya, refrescar() escondería el botón (queda 1 en el carrito) y
+    // el "Agregado" no alcanzaría a verse
+    agregar.textContent = ok ? 'Agregado' : 'Error';
+    agregar.classList.add(ok ? 'agregado' : 'error-agregar');
+
+    setTimeout(() => {
+      agregar.classList.remove('agregado', 'error-agregar');
+      agregar.textContent = 'Agregar al carrito';
+      actualizarCarrito();
+      // El foco se mueve porque el botón pulsado queda hidden
+      if (ok) sumar.focus();
+    }, 1200);
   });
-  sumar.addEventListener('click', () => cambiarCantidad(producto, cantidadEnCarrito(producto.id) + 1));
-  restar.addEventListener('click', () => {
-    cambiarCantidad(producto, cantidadEnCarrito(producto.id) - 1);
+  sumar.addEventListener('click', () => {
+    conBotonOcupado(sumar, () => fijarCantidad(producto, cantidadEnCarrito(producto.id) + 1));
+  });
+  restar.addEventListener('click', async () => {
+    await conBotonOcupado(restar, () => fijarCantidad(producto, cantidadEnCarrito(producto.id) - 1));
+    // Con 0 el stepper se esconde: el foco vuelve a "Agregar"
     if (cantidadEnCarrito(producto.id) === 0) agregar.focus();
   });
 
@@ -397,6 +657,15 @@ function crearTarjeta(producto) {
 }
 
 
+// --- Checkout (formulario de envío) ---
+// const al nivel del archivo: actualizarCarrito() las usa, y solo se llama
+// cuando el archivo ya terminó de ejecutarse (nunca antes de esta línea)
+const btnCheckout = document.getElementById('btn-pago');
+const formCheckout = document.getElementById('form-checkout');
+const mensajeCarrito = document.getElementById('mensaje-carrito');
+const checkEnvio = document.getElementById('checkout-envio');
+
+
 // --- Abrir y cerrar el panel del carrito ---
 const panelCarrito = document.getElementById('panel-carrito');
 const capaCarrito = document.getElementById('capa-carrito');
@@ -426,13 +695,92 @@ document.addEventListener('keydown', (event) => {
 
 // El pago real todavía no existe. Cuando exista, precio y stock se validan en
 // Supabase: lo calculado aquí se puede alterar desde la consola
-document.getElementById('btn-pago').addEventListener('click', async () => {
-  const { data } = await db.auth.getUser();
-  if (!data.user) {
-    window.location.href = 'cuenta.html'; // el carrito sigue en localStorage
+btnCheckout.addEventListener('click', async () => {
+  mensajeCarrito.textContent = '';
+
+  if (Object.keys(carrito).length === 0) {
+    mensajeCarrito.textContent = 'Tu carrito está vacío.';
     return;
   }
-  mostrarNotificacion('El pago todavía no está disponible.', 'error');
+  // El pedido se guarda en la base a nombre del cliente: sin sesión no hay a quién
+  if (!(await obtenerUsuario())) {
+    mensajeCarrito.textContent = 'Para comprar, inicia sesión en Mi cuenta.';
+    return;
+  }
+  formCheckout.hidden = false;
+  btnCheckout.hidden = true;
+  checkEnvio.focus(); // el foco va al primer campo del formulario que apareció
+});
+
+// 4b. Volver: cierra el formulario sin borrar lo escrito
+document.getElementById('btn-cancelar-checkout').addEventListener('click', () => {
+  formCheckout.hidden = true;
+  btnCheckout.hidden = false;
+  btnCheckout.focus();
+});
+
+// 4c. Dirección y teléfono son obligatorios solo con envío a domicilio.
+// "required" hace que el navegador no deje enviar el form con el campo vacío
+// (la base lo vuelve a revisar en confirmar_pedido: el front se puede saltar)
+checkEnvio.addEventListener('change', () => {
+  document.getElementById('checkout-direccion').required = checkEnvio.checked;
+  document.getElementById('checkout-telefono').required = checkEnvio.checked;
+});
+
+// Campo de texto → su valor sin espacios, o null si quedó vacío.
+// La función de la base usa nullif(trim(...)), pero así llega limpio
+const textoONull = id => document.getElementById(id).value.trim() || null;
+
+// Confirmar el pedido. El navegador NO calcula el total ni cambia el estado:
+// solo llama a confirmar_pedido, que en la base revisa el stock, lo descuenta,
+// fija los precios y pasa el pedido a 'confirmado' (todo o nada)
+formCheckout.addEventListener('submit', async (event) => {
+  event.preventDefault(); // sin esto el form recargaría la página
+  if (!pedidoId) return;
+
+  const botonConfirmar = document.getElementById('btn-confirmar');
+  botonConfirmar.disabled = true; // un doble clic no confirma dos veces
+  mensajeCarrito.textContent = '';
+
+  // Los nombres de las llaves tienen que ser EXACTAMENTE los parámetros de la
+  // función en SQL: rpc() los empareja por nombre, no por orden
+  const { data, error } = await db.rpc('confirmar_pedido', {
+    p_pedido_id: pedidoId,
+    p_envio: checkEnvio.checked,
+    p_direccion: textoONull('checkout-direccion'),
+    p_telefono: textoONull('checkout-telefono'),
+    p_observacion: textoONull('checkout-observacion'),
+  });
+
+  if (error) {
+    // El mensaje lo escribió la función con "raise exception"
+    // (ej. 'Stock insuficiente para el producto 2'). El carrito no se toca
+    console.log('Error al confirmar el pedido:', error);
+    mensajeCarrito.textContent = error.message;
+    botonConfirmar.disabled = false;
+    return;
+  }
+
+  // data = la fila del pedido ya confirmado. El total lo calcula la vista
+  // pedidos_con_total en la base, con los precios definitivos
+  const { data: conTotal, error: errorTotal } = await db
+    .from('pedidos_con_total')
+    .select('total')
+    .eq('id', data.id)
+    .single();
+
+  if (errorTotal) console.log('Error al leer el total:', errorTotal);
+
+  vaciarCarritoLocal(); // el carrito confirmado ya no es "carrito"
+  formCheckout.reset();
+  document.getElementById('checkout-direccion').required = false;
+  document.getElementById('checkout-telefono').required = false;
+  botonConfirmar.disabled = false;
+
+  // Si falló solo la lectura del total, el pedido igual quedó confirmado
+  mensajeCarrito.textContent = errorTotal
+    ? `Pedido #${data.id} confirmado.`
+    : `Pedido #${data.id} confirmado. Total: $${Number(conTotal.total).toLocaleString('es-CO')}`;
 });
 
 

@@ -26,13 +26,11 @@ async function cargarProductos() {
 
   if (error) {
     estado.textContent = mensajeErrorCarga(error);
-    cargarProductosDelCarrito();
     return;
   }
 
   productos = data;
   recordarProductos(productos);
-  cargarProductosDelCarrito(); // ya conoce casi todos: solo ajusta al stock
 
   // Con RLS sin policy de lectura, Supabase devuelve [] SIN error
   if (productos.length === 0) {
@@ -139,4 +137,9 @@ document.querySelectorAll('.nav-principal a').forEach(enlace => {
 });
 
 
-cargarProductos();
+// Primero los productos, después el carrito: cargarCarritoDesdeBD espera a
+// productosListos para poder pintar el panel con nombre y precio.
+// cargarProductos es async, así que devuelve una promesa que termina cuando
+// termina la función (también si hubo error: ese caso sale con return, no con throw)
+const productosListos = cargarProductos();
+cargarCarritoDesdeBD();

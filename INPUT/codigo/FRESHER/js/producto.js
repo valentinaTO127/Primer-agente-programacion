@@ -9,7 +9,6 @@ async function cargarProducto() {
 
   if (!idProducto) {
     estado.textContent = 'No encontramos este producto.';
-    cargarProductosDelCarrito();
     return;
   }
 
@@ -25,18 +24,15 @@ async function cargarProducto() {
 
   if (error) {
     estado.textContent = mensajeErrorCarga(error);
-    cargarProductosDelCarrito();
     return;
   }
   if (!data) {
     estado.textContent = 'No encontramos este producto.';
-    cargarProductosDelCarrito();
     return;
   }
 
   producto = data;
   recordarProductos([producto]);
-  cargarProductosDelCarrito();
 
   estado.hidden = true;
   pintarProducto();
@@ -172,9 +168,13 @@ document.getElementById('btn-mas').addEventListener('click', () => {
   refrescarCompra();
 });
 
-// Como en BoJ: al agregar se abre el panel para ver el carrito
-document.getElementById('btn-agregar-detalle').addEventListener('click', () => {
-  cambiarCantidad(producto, cantidadEnCarrito(producto.id) + cantidadAAgregar);
+// Como en BoJ: al agregar se abre el panel para ver el carrito.
+// fijarCantidad (tienda.js) guarda en Supabase si hay sesión; sin sesión, solo local
+document.getElementById('btn-agregar-detalle').addEventListener('click', async (event) => {
+  const boton = event.currentTarget;
+  const total = cantidadEnCarrito(producto.id) + cantidadAAgregar;
+  const ok = await conBotonOcupado(boton, () => fijarCantidad(producto, total));
+  if (!ok) return; // conBotonOcupado ya mostró el aviso
   cantidadAAgregar = 1;
   refrescarCompra();
   abrirCarrito();
@@ -205,4 +205,6 @@ async function cargarRelacionados() {
 }
 
 
-cargarProducto();
+// Primero el producto, después el carrito (ver catalogo.js)
+const productosListos = cargarProducto();
+cargarCarritoDesdeBD();

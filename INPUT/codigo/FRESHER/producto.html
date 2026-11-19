@@ -139,14 +139,38 @@
       <h2 id="titulo-carrito">Tu carrito (0)</h2>
       <button type="button" id="btn-cerrar-carrito" class="btn-icono" aria-label="Cerrar carrito">✕</button>
     </div>
-    <p id="mensaje-carrito">Tu carrito está vacío.</p>
+    <p id="carrito-vacio">Tu carrito está vacío.</p>
     <ul id="lista-carrito" hidden></ul>
     <div class="carrito-pie">
       <div class="carrito-total">
         <span>Subtotal</span>
         <span id="total-carrito">$ 0</span>
       </div>
-      <button type="button" id="btn-pago" disabled>Proceder al pago</button>
+      <!-- Mensajes del checkout (carrito vacío, falta iniciar sesión...).
+           role="status": el lector de pantalla lo lee cuando cambia -->
+      <p id="mensaje-carrito" class="mensaje-carrito" role="status"></p>
+      <!-- Datos del pedido. Aparece al pulsar "Proceder al pago" con sesión.
+           Su envío (confirmar_pedido) todavía no está programado -->
+      <form id="form-checkout" hidden>
+        <label class="campo-check">
+          <input type="checkbox" id="checkout-envio"> Envío a domicilio
+        </label>
+        <div class="campo-checkout">
+          <label for="checkout-direccion">Dirección</label>
+          <input type="text" id="checkout-direccion" autocomplete="street-address">
+        </div>
+        <div class="campo-checkout">
+          <label for="checkout-telefono">Teléfono</label>
+          <input type="tel" id="checkout-telefono" autocomplete="tel">
+        </div>
+        <div class="campo-checkout">
+          <label for="checkout-observacion">Observación (opcional)</label>
+          <textarea id="checkout-observacion" rows="2"></textarea>
+        </div>
+        <button type="submit" id="btn-confirmar">Confirmar pedido</button>
+        <button type="button" id="btn-cancelar-checkout" class="btn-secundario">Volver al carrito</button>
+      </form>
+      <button type="button" id="btn-pago">Proceder al pago</button>
       <button type="button" id="btn-seguir" class="btn-quitar">Seguir comprando</button>
     </div>
   </aside>

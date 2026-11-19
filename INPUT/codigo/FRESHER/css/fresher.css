@@ -17,6 +17,7 @@
   --oferta: #A8434A;           /* precio con descuento */
   --texto-boton: #FFFFFF;
   --exito: #2F7570;
+  --ok: #2E7D4F;               /* verde de "Agregado": distinto del acento, 5:1 con blanco */
   --error: #A8434A;
   --sombra: rgba(30, 43, 47, 0.08);
   --sombra-fuerte: rgba(30, 43, 47, 0.22);
@@ -39,6 +40,7 @@
   --oferta: #E58A8F;
   --texto-boton: #0F1A1A;      /* sobre el acento claro, texto oscuro */
   --exito: #3E8E88;
+  --ok: #5DBB84;               /* en oscuro el texto del botón es oscuro */
   --error: #B4545B;
   --sombra: rgba(0, 0, 0, 0.3);
   --sombra-fuerte: rgba(0, 0, 0, 0.6);
@@ -268,6 +270,10 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 /* --- Stepper y botón agregar --- */
 .acciones-tarjeta { display: flex; min-height: 44px; }
 .btn-agregar { width: 100%; }
+/* Aviso de 1,2 s después de "Agregar" (lo pone crearAcciones en tienda.js).
+   :not(:disabled) iguala la especificidad del hover para que no lo tape */
+.btn-agregar.agregado, .btn-agregar.agregado:hover:not(:disabled) { background: var(--ok); border-color: var(--ok); }
+.btn-agregar.error-agregar, .btn-agregar.error-agregar:hover:not(:disabled) { color: #FFFFFF; background: var(--error); border-color: var(--error); }
 .stepper { flex: 1; display: flex; align-items: center; gap: 8px; }
 .stepper .cantidad { flex: 1; text-align: center; font-weight: 600; }
 .btn-cantidad { width: 40px; height: 40px; padding: 0; }
@@ -314,10 +320,11 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   font-size: 1.6rem;
   font-weight: 500;
 }
-#mensaje-carrito { margin: 0; padding: 48px 20px; text-align: center; color: var(--texto-suave); }
+#carrito-vacio { margin: 0; padding: 48px 20px; text-align: center; color: var(--texto-suave); }
 
 #lista-carrito {
   flex: 1;
+  min-height: 140px;   /* con el formulario abierto, la lista no se aplasta del todo */
   display: grid;
   align-content: start;
   margin: 0;
@@ -359,7 +366,43 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 }
 .btn-quitar:hover:not(:disabled) { color: var(--oferta); background: none; }
 
-.carrito-pie { padding: 18px 20px; border-top: 1px solid var(--borde); display: grid; gap: 10px; }
+/* max-height + overflow: con el formulario abierto el pie crece; así no tapa
+   toda la lista y se desplaza por dentro si no cabe */
+.carrito-pie {
+  max-height: 55vh;
+  overflow-y: auto;
+  padding: 18px 20px;
+  border-top: 1px solid var(--borde);
+  display: grid;
+  gap: 10px;
+}
+
+/* Mensaje del checkout: pequeño y en acento. :empty = sin texto → no ocupa espacio */
+.mensaje-carrito { margin: 0; font-size: 0.82rem; color: var(--acento); }
+.mensaje-carrito:empty { display: none; }
+
+/* Formulario de envío: mismo diseño que los campos de formularios.css
+   (index y producto no cargan ese archivo) */
+#form-checkout { display: grid; gap: 12px; }
+.campo-checkout { display: grid; gap: 4px; }
+.campo-checkout label { font-size: 0.8rem; font-weight: 500; }
+#form-checkout input:not([type="checkbox"]), #form-checkout textarea {
+  width: 100%;
+  padding: 9px 12px;
+  font: inherit;
+  color: var(--texto);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+#form-checkout textarea { resize: vertical; }
+#form-checkout input:focus, #form-checkout textarea:focus {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px var(--acento-suave);
+}
+#form-checkout .campo-check { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+#form-checkout input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--acento); }
 .carrito-total { display: flex; justify-content: space-between; align-items: baseline; }
 #total-carrito { font-size: 1.3rem; font-weight: 600; }
 #btn-seguir { justify-self: center; }
