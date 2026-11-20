@@ -111,8 +111,24 @@
       <p class="eyebrow" style="margin-right: auto">Administración</p>
       <div class="acciones-header">
         <a href="index.html" class="btn-icono" style="text-decoration: none">Ver tienda</a>
+        <!-- Botón con el nombre del admin: mismo marcado (ids y clases) que el
+             menú de usuario de la tienda, así toma los estilos de fresher.css.
+             Arranca hidden: admin.js lo muestra cuando confirma que es admin.
+             ?vista=… le dice a cuenta.html qué vista abrir -->
+        <div id="menu-usuario" hidden>
+          <button type="button" id="btn-usuario" class="btn-icono" aria-expanded="false" aria-controls="lista-usuario">
+            <span id="nombre-usuario"></span>
+            <span aria-hidden="true">▾</span>
+          </button>
+          <ul id="lista-usuario">
+            <li><a href="cuenta.html?vista=ver">Mi cuenta</a></li>
+            <li><a href="cuenta.html?vista=pedidos">Pedidos de clientes</a></li>
+            <li><a href="cuenta.html?vista=clientes">Mis clientes</a></li>
+            <!-- <button> y no <a>: no lleva a otra página, HACE algo (cierra la sesión) -->
+            <li><button type="button" id="btn-logout-admin" class="opcion-salir">Cerrar sesión</button></li>
+          </ul>
+        </div>
         <button type="button" id="btn-tema" class="btn-icono" aria-label="Cambiar a modo oscuro">🌙</button>
-        <button type="button" id="btn-logout-admin" class="btn-icono" hidden>Cerrar sesión</button>
       </div>
     </div>
   </header>

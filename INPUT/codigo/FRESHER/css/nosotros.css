@@ -1,0 +1,100 @@
+/* Estilos solo de nosotros.html. Sigue la línea del inicio: títulos en
+   Cormorant, el mismo degradado del hero y chips como los del catálogo */
+
+main { --espacio-seccion: clamp(64px, 9vw, 112px); }
+
+main h2 {
+  margin: 4px 0 12px;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.8rem, 3vw, 2.2rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+/* --- Hero --- */
+.nosotros-hero {
+  padding: clamp(56px, 9vw, 104px) 0;
+  text-align: center;
+  background: linear-gradient(135deg, var(--acento-suave), var(--azul-suave));
+}
+.nosotros-hero h1 {
+  margin: 12px 0;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 500;
+  line-height: 1.1;
+}
+.nosotros-hero p:not(.eyebrow) { max-width: 52ch; margin: 0 auto; color: var(--texto-suave); }
+
+/* --- Por qué / qué nos hace distintos: dos columnas que bajan en celular --- */
+.nosotros-bloque {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: 24px;
+  padding-top: var(--espacio-seccion);
+}
+.nosotros-texto { padding: clamp(24px, 4vw, 36px); }
+.nosotros-texto p:not(.eyebrow) { margin: 0; color: var(--texto-suave); }
+/* El diferencial va en una tarjeta con la misma pinta del bloque
+   "En piel grasa" del detalle del producto */
+.nosotros-texto.destacado {
+  background: var(--azul-suave);
+  border-left: 3px solid var(--acento);
+  border-radius: 0 var(--radio) var(--radio) 0;
+}
+.nosotros-texto strong { color: var(--texto); font-weight: 600; }
+
+/* --- Secciones centradas --- */
+.nosotros-seccion { padding-top: var(--espacio-seccion); text-align: center; }
+
+.nosotros-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+/* Mismo diseño que los chips del catálogo */
+.nosotros-categorias a {
+  display: inline-block;
+  padding: 9px 20px;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  color: var(--texto);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+}
+.nosotros-categorias a:hover { color: var(--texto-boton); background: var(--acento); border-color: var(--acento); }
+.nosotros-nota { margin: 16px 0 0; font-size: 0.88rem; color: var(--texto-suave); }
+
+/* Lista de lo que NO hacemos: una marca "—" en vez de viñeta */
+.nosotros-no {
+  display: grid;
+  justify-content: center;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--texto-suave);
+}
+.nosotros-no li::before { content: "— "; color: var(--acento); }
+
+/* --- Cierre --- */
+.nosotros-cierre { padding-top: var(--espacio-seccion); text-align: center; }
+/* Botón con borde y bordes redondos, igual que "Ver catálogo" del inicio */
+.btn-cierre {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 10px 28px;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--texto);
+  border: 1px solid var(--texto);
+  border-radius: 999px;
+}
+.btn-cierre:hover { color: var(--texto-boton); background: var(--acento); border-color: var(--acento); }

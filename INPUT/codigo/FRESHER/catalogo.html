@@ -27,17 +27,25 @@
     <div class="contenedor">
       <a class="logo" href="index.html">FRESHER</a>
 
-      <!-- En esta página catalogo.js los intercepta: filtran sin recargar -->
-      <nav class="nav-principal" aria-label="Categorías">
-        <a href="catalogo.html?ver=todo" data-categoria="">Todo</a>
-        <a href="catalogo.html?categoria=limpiador" data-categoria="limpiador">Limpiadores</a>
-        <a href="catalogo.html?categoria=serum" data-categoria="serum">Sérums</a>
-        <a href="catalogo.html?categoria=mascarilla" data-categoria="mascarilla">Mascarillas</a>
-        <a href="catalogo.html?categoria=crema" data-categoria="crema">Cremas</a>
-        <a href="catalogo.html?categoria=bloqueador" data-categoria="bloqueador">Bloqueadores</a>
+      <nav class="nav-principal" aria-label="Principal">
+        <a href="catalogo.html" aria-current="page">Productos</a>
+        <a href="nosotros.html">Nosotros</a>
       </nav>
 
       <div class="acciones-header">
+        <!-- Buscador del header: un <form> GET normal. Al enviarlo, el navegador
+             va solo a catalogo.html?buscar=… (sin JS). tienda.js solo abre y
+             cierra el campo. El input va antes del botón: crece hacia la izquierda -->
+        <form class="buscador-header" action="catalogo.html" method="get" role="search">
+          <label class="visualmente-oculto" for="campo-buscar-header">Buscar productos</label>
+          <input type="search" id="campo-buscar-header" name="buscar" placeholder="Buscar productos" autocomplete="off" hidden>
+          <button type="button" id="btn-buscar-header" class="btn-icono" aria-label="Buscar productos" aria-controls="campo-buscar-header" aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="m20 20-3.5-3.5"/>
+            </svg>
+          </button>
+        </form>
         <!-- Los dos arrancan hidden: tienda.js revisa la sesión y muestra UNO -->
         <a id="enlace-login" href="cuenta.html" hidden>Iniciar sesión</a>
         <div id="menu-usuario" hidden>
@@ -48,6 +56,8 @@
           <ul id="lista-usuario">
             <li><a href="cuenta.html?vista=ver">Mi cuenta</a></li>
             <li><a href="cuenta.html?vista=pedidos">Pedidos</a></li>
+            <!-- <button> y no <a>: HACE algo (cierra la sesión). tienda.js lo escucha -->
+            <li><button type="button" class="opcion-salir">Cerrar sesión</button></li>
           </ul>
         </div>
         <button type="button" id="btn-tema" class="btn-icono" aria-label="Cambiar a modo oscuro">🌙</button>

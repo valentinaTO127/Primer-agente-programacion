@@ -33,6 +33,7 @@ async function mostrarEstadoSesionAdmin() {
   const { data } = await db.auth.getUser();
   const conSesion = Boolean(data.user);
   let esAdmin = false;
+  let nombreAdmin = '';
   let mensaje = 'Inicia sesión con tu cuenta de administrador.';
 
   if (conSesion) {
@@ -49,6 +50,9 @@ async function mostrarEstadoSesionAdmin() {
       mensaje = 'No se pudo verificar tu cuenta.';
     } else if (perfil) {
       esAdmin = true;
+      // La misma consulta que confirma al admin ya trae su nombre.
+      // Sin nombre guardado, se usa el correo: el botón nunca queda vacío
+      nombreAdmin = perfil.nombre || data.user.email;
     } else {
       mensaje = 'Esta cuenta no es de administrador.';
     }
@@ -56,7 +60,9 @@ async function mostrarEstadoSesionAdmin() {
 
   document.getElementById('panel-admin').hidden = !esAdmin;
   document.getElementById('zona-acceso-admin').hidden = esAdmin;
-  document.getElementById('btn-logout-admin').hidden = !conSesion;
+  // El botón con el nombre solo para un admin confirmado
+  menuUsuario.hidden = !esAdmin;
+  document.getElementById('nombre-usuario').textContent = nombreAdmin;
   document.getElementById('form-login-admin').hidden = conSesion;
   document.getElementById('estado-sesion-admin').textContent = mensaje;
 
@@ -71,6 +77,35 @@ function limpiarPanel() {
   document.getElementById('cuerpo-inventario').replaceChildren();
   document.getElementById('modal-producto').close();
 }
+
+// --- Menú del botón con el nombre (igual que en tienda.js) ---
+// admin.html no carga tienda.js, por eso el abrir/cerrar se repite aquí
+const menuUsuario = document.getElementById('menu-usuario');
+const botonUsuario = document.getElementById('btn-usuario');
+
+// Una sola función abre/cierra: la clase (para el CSS) y aria-expanded
+// (para el lector de pantalla) nunca quedan desincronizados
+function abrirMenuUsuario(abrir) {
+  menuUsuario.classList.toggle('abierto', abrir);
+  botonUsuario.setAttribute('aria-expanded', abrir);
+}
+
+botonUsuario.addEventListener('click', () => {
+  abrirMenuUsuario(!menuUsuario.classList.contains('abierto'));
+});
+// Se cierra al hacer clic afuera, con Escape o cuando el foco sale del menú
+document.addEventListener('click', (event) => {
+  if (!menuUsuario.contains(event.target)) abrirMenuUsuario(false);
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && menuUsuario.classList.contains('abierto')) {
+    abrirMenuUsuario(false);
+    botonUsuario.focus();
+  }
+});
+menuUsuario.addEventListener('focusout', (event) => {
+  if (!menuUsuario.contains(event.relatedTarget)) abrirMenuUsuario(false);
+});
 
 document.getElementById('btn-logout-admin').addEventListener('click', async () => {
   await db.auth.signOut();

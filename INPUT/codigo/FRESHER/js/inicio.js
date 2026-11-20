@@ -1,22 +1,36 @@
 // Inicio (index.html): la vitrina "Los mejor calificados".
-// Va DESPUÉS de catalogo.js: usa sus "productos" y espera su "productosListos",
-// así los productos se piden a Supabase una sola vez para las dos secciones.
-// (Cuando el inicio deje de tener el catálogo, este archivo tendrá que cargar
-// sus propios productos.)
+// Desde que el catálogo pasó a catalogo.html, el inicio ya no carga catalogo.js:
+// este archivo pide sus propios productos. Va después de tienda.js.
 
 const LIMITE_VITRINA = 5;
+let destacados = [];
 
-// Los LIMITE_VITRINA mejor calificados con stock. filter() ya devuelve un array
-// nuevo, así que sort no desordena "productos" (el catálogo lo quiere por nombre)
+// La base hace el trabajo: solo los LIMITE_VITRINA que necesita la vitrina,
+// ya filtrados y ordenados. Antes se traían los 50 y se filtraba aquí.
+//   - categoria no nula y disponible → productos de FRESHER habilitados
+//   - unidades > 0 → sin agotados: "los mejor calificados" debe poder comprarse
+//     (en los datos reales, el de nota más alta tiene 0 unidades)
+//   - nullsFirst: false → los que no tienen calificación van al final, no primero
+async function cargarDestacados() {
+  const { data, error } = await db
+    .from('productos_practica')
+    .select(COLUMNAS_TARJETA)
+    .not('categoria', 'is', null)
+    .eq('disponible', true)
+    .gt('unidades', 0)
+    .order('calificacion', { ascending: false, nullsFirst: false })
+    .limit(LIMITE_VITRINA);
+
+  if (error) {
+    console.log('Error al cargar la vitrina:', error);
+    return; // la vitrina se queda oculta
+  }
+  destacados = data;
+  recordarProductos(destacados); // por si alguno está en el carrito
+}
+
 function pintarVitrina() {
-  // Primero se quitan los agotados: "los mejor calificados" debe poder comprarse
-  // (en los datos reales, el de nota más alta tiene 0 unidades)
-  const destacados = productos
-    .filter(producto => stockDe(producto) > 0)
-    .sort((a, b) => (b.calificacion ?? 0) - (a.calificacion ?? 0))
-    .slice(0, LIMITE_VITRINA);
-
-  // Si todos estuvieran agotados (o la carga falló), la vitrina se queda oculta
+  // Sin productos con stock (o si la carga falló), la vitrina se queda oculta
   if (destacados.length === 0) return;
 
   document.getElementById('vitrina-pista').replaceChildren(...destacados.map(crearItemVitrina));
@@ -78,5 +92,9 @@ btnSiguiente.addEventListener('click', () => moverVitrina(1));
 pista.addEventListener('scroll', actualizarFlechasVitrina, { passive: true });
 window.addEventListener('resize', actualizarFlechasVitrina);
 
-// productosListos (catalogo.js) termina cuando los productos llegaron
+// Mismo arranque que las demás páginas: productosListos es la promesa que
+// cargarCarritoDesdeBD (tienda.js) espera antes de pintar el panel del carrito.
+// Los productos del carrito que no estén entre los destacados los trae ella sola
+const productosListos = cargarDestacados();
+cargarCarritoDesdeBD();
 productosListos.then(pintarVitrina);

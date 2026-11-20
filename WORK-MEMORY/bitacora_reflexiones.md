@@ -391,3 +391,16 @@ Hoy ajusté el inicio de FRESHER y la cuenta del administrador.
     - El carrito del visitante se pierde al iniciar sesión. Y el admin no puede tener carrito (`23503`).
     - Agregar `CHECK` de `unidades >= 0` y `descuento` entre 0 y 1.
     - Imágenes y texto de "En piel grasa" de los 50 productos.
+- **Tercera parte (header, inicio e ingredientes):**
+  - **Lo que trabajamos** (`INPUT/codigo/FRESHER/`):
+    - **Menú del usuario:** el admin tiene en el header de `admin.html` un botón con su nombre (a la izquierda del modo claro/oscuro, como en las demás páginas). En todas las páginas, si la cuenta es de admin, el menú muestra Mi cuenta, Pedidos de clientes y Mis clientes; el cliente ve Mi cuenta y Pedidos. Los dos terminan en **Cerrar sesión**, separado por una línea y con hover rojo. Se quitó el "Cerrar sesión" suelto de `admin.html`.
+    - **Inicio sin catálogo:** se quitó la sección de `index.html`. `inicio.js` ya no depende de `catalogo.js`: pide a Supabase solo los 5 mejor calificados con stock (`.gt('unidades', 0)`, `.order(..., { nullsFirst: false })`, `.limit(5)`).
+    - **Sección de ingredientes** en el inicio, con la idea de Beauty of Joseon pero en círculos: los 6 que más se repiten en los 50 productos (ácido hialurónico, arcilla, niacinamida, ácido salicílico, ceramidas, centella asiática), con ilustraciones SVG propias. Cada uno lleva a `catalogo.html?buscar=…`.
+    - **Header nuevo:** "Productos" y "Nosotros" en vez de las seis categorías, y una lupa que busca en el catálogo. Se creó `nosotros.html` con el contenido de la ficha `FRESHER.pdf`.
+  - **Lo que vimos:**
+    - **Delegación de eventos:** un solo listener en `#lista-usuario` atiende el "Cerrar sesión" del cliente y el del admin, aunque el del admin se cree después con JS.
+    - **Un `<form method="get">` ya sabe navegar:** el buscador del header va a `catalogo.html?buscar=…` sin JavaScript; el JS solo abre y cierra el campo.
+    - **Quitar un script tiene efectos en otros:** al sacar `catalogo.js` del inicio, `inicio.js` se quedaba sin `productos` ni `productosListos`; y al cambiar los enlaces del menú, el código que leía `data-categoria` habría llamado a `elegirCategoria(undefined)`.
+  - **Pendiente:**
+    - Correr `05_cerrar_registro_admin.sql` y `06_devolver_stock.sql` si no se han corrido.
+    - Revisar los textos de `nosotros.html`.

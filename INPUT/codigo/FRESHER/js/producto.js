@@ -51,8 +51,6 @@ function pintarProducto() {
   migaCategoria.hidden = false;
   document.getElementById('separador-categoria').hidden = false;
   document.getElementById('miga-nombre').textContent = producto.nombre;
-  document.querySelector(`.nav-principal a[data-categoria="${producto.categoria}"]`)
-    ?.setAttribute('aria-current', 'page');
 
   document.getElementById('marca').textContent = producto.marca ?? '';
   document.getElementById('nombre').textContent = producto.nombre;

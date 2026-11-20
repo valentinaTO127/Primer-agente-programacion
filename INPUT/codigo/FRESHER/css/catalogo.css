@@ -193,6 +193,113 @@ main { --espacio-seccion: clamp(72px, 10vw, 128px); }
   .vitrina-imagen { transition: none; }
 }
 
+/* --- Ingredientes (después de la vitrina) ---
+   Idea de la fila de ingredientes de Beauty of Joseon, pero en círculos.
+   Cada <a> trae su color en --fondo-ingrediente (style en el HTML) */
+.ingredientes { padding-top: var(--espacio-seccion); }
+.ingredientes-encabezado { text-align: center; margin-bottom: 40px; }
+.ingredientes-encabezado h2 {
+  margin: 4px 0 8px;
+  font-family: var(--fuente-titulo);
+  font-size: 2.2rem;
+  font-weight: 500;
+}
+.ingredientes-encabezado p:not(.eyebrow) { margin: 0; color: var(--texto-suave); }
+
+/* Una fila centrada que baja de línea si no cabe. En celular pasa a
+   deslizarse de lado (ver @media abajo) */
+.ingredientes-lista {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 32px 28px;
+  margin-block: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ingrediente {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: clamp(120px, 13vw, 168px);
+  text-decoration: none;
+  color: var(--texto);
+}
+
+/* El círculo: aspect-ratio 1 + border-radius 50% = redondo a cualquier tamaño.
+   overflow: hidden recorta la ilustración y la textura al borde del círculo */
+.ingrediente-circulo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--fondo-ingrediente);
+  border-radius: 50%;
+  box-shadow: 0 8px 24px var(--sombra);
+  transition: translate 0.3s ease, box-shadow 0.3s ease;
+}
+/* Textura de ruido encima (la misma idea de la franja de la vitrina), para que
+   el color no se vea plano sino como papel de acuarela */
+.ingrediente-circulo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23r)'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.ingrediente-circulo svg {
+  width: 72%;
+  height: 72%;
+  transition: scale 0.3s ease;
+}
+
+.ingrediente-nombre {
+  font-family: var(--fuente-titulo);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* Hover y foco: el círculo sube, la ilustración crece y el nombre toma el acento */
+.ingrediente:hover .ingrediente-circulo,
+.ingrediente:focus-visible .ingrediente-circulo {
+  translate: 0 -6px;
+  box-shadow: 0 14px 30px var(--sombra);
+}
+.ingrediente:hover svg, .ingrediente:focus-visible svg { scale: 1.08; }
+.ingrediente:hover .ingrediente-nombre,
+.ingrediente:focus-visible .ingrediente-nombre { color: var(--acento); }
+/* El foco va al círculo, no a un rectángulo alrededor de todo el enlace */
+.ingrediente:focus-visible { outline: none; }
+.ingrediente:focus-visible .ingrediente-circulo { outline: 2px solid var(--acento); outline-offset: 4px; }
+
+/* En modo oscuro los pasteles encandilan: se oscurecen un poco */
+:root[data-tema="oscuro"] .ingrediente-circulo { filter: brightness(0.8) saturate(0.9); }
+
+@media (max-width: 600px) {
+  /* En celular: una fila que se desliza con el dedo, como la de BoJ */
+  .ingredientes-lista {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    padding-bottom: 8px;
+  }
+  .ingredientes-lista::-webkit-scrollbar { display: none; }
+  .ingredientes-lista li { flex: none; scroll-snap-align: start; }
+  .ingrediente { width: 120px; }
+  .ingredientes-encabezado h2 { font-size: 1.8rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ingrediente-circulo, .ingrediente-circulo svg { transition: none; }
+}
+
 /* --- Catálogo --- */
 .catalogo { padding-top: var(--espacio-seccion); }
 .catalogo h1,

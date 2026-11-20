@@ -1,8 +1,7 @@
-// Catálogo: carga los productos, pinta las tarjetas y filtra por categoría y
-// por texto. Usa las funciones de tienda.js. Lo usan dos páginas:
-//   - catalogo.html: la página del catálogo (a donde lleva el menú del header)
-//   - index.html: su sección de catálogo, con límite de 20 (data-limite).
-//     La vitrina del inicio está en inicio.js
+// Catálogo (catalogo.html): carga los productos, pinta las tarjetas y filtra
+// por categoría y por texto. Usa las funciones de tienda.js.
+// (index.html ya no tiene sección de catálogo: su vitrina e ingredientes están
+// en inicio.js. El soporte de data-limite se deja por si vuelve a usarse)
 
 const seccionCatalogo = document.getElementById('catalogo');
 
@@ -62,6 +61,10 @@ async function cargarProductos() {
 
 // --- Filtros ---
 const buscador = document.getElementById('buscador');
+// ?buscar=niacinamida: llega desde la sección de ingredientes del inicio. Se
+// escribe en el buscador ANTES de cargar los productos, así el primer
+// aplicarFiltros() ya filtra por ese texto (y la persona ve qué se buscó)
+buscador.value = new URLSearchParams(window.location.search).get('buscar') ?? '';
 
 // "Sérum" → "serum": así buscar "serum" o "SÉRUM" da lo mismo
 function normalizar(texto) {
@@ -113,12 +116,6 @@ function categoriaMarcada(clave) {
   return clave === '' ? !categoriaActiva && mostrarTodos : clave === categoriaActiva;
 }
 
-// ¿El enlace lleva a ESTA página? Solo entonces el menú filtra sin recargar
-// (en index.html los enlaces llevan a catalogo.html: ahí se navega normal)
-function esEstaPagina(enlace) {
-  return new URL(enlace.href).pathname === window.location.pathname;
-}
-
 // Cada palabra debe aparecer en el nombre, la marca, la descripción, los
 // ingredientes o los beneficios. "niacinamida serum" encuentra un sérum con niacinamida
 function coincide(producto, busqueda) {
@@ -155,11 +152,6 @@ function aplicarFiltros() {
   document.querySelectorAll('.chip-categoria').forEach(chip => {
     chip.setAttribute('aria-pressed', categoriaMarcada(chip.dataset.categoria));
   });
-  // El menú marca la categoría solo si sus enlaces son de esta página
-  document.querySelectorAll('.nav-principal a').forEach(enlace => {
-    if (esEstaPagina(enlace) && categoriaMarcada(enlace.dataset.categoria)) enlace.setAttribute('aria-current', 'page');
-    else enlace.removeAttribute('aria-current');
-  });
   actualizarTitulo();
 
   document.getElementById('resultados-filtro').textContent = limite === LIMITE_CATALOGO && productos.length > limite
@@ -180,21 +172,11 @@ document.getElementById('btn-limpiar-filtros').addEventListener('click', () => {
   buscador.focus();
 });
 
-// Si el enlace del menú es de esta página (catalogo.html), filtra sin recargar
-document.querySelectorAll('.nav-principal a').forEach(enlace => {
-  enlace.addEventListener('click', (event) => {
-    if (!esEstaPagina(enlace) || productos.length === 0) return; // navega normal
-    event.preventDefault();
-    elegirCategoria(enlace.dataset.categoria);
-    seccionCatalogo.scrollIntoView({ behavior: 'smooth' });
-  });
-});
 
 
 // Primero los productos, después el carrito: cargarCarritoDesdeBD espera a
 // productosListos para poder pintar el panel con nombre y precio.
 // cargarProductos es async, así que devuelve una promesa que termina cuando
-// termina la función (también si hubo error: ese caso sale con return, no con throw).
-// inicio.js también la espera para pintar la vitrina
+// termina la función (también si hubo error: ese caso sale con return, no con throw)
 const productosListos = cargarProductos();
 cargarCarritoDesdeBD();

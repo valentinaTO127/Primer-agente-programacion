@@ -147,7 +147,9 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   color: var(--texto);
 }
 
-.nav-principal { display: flex; gap: 22px; margin-right: auto; }
+/* margin-left se suma al gap de 24px del header: 24 + 32 = 56px entre el logo
+   y "Productos" */
+.nav-principal { display: flex; gap: 22px; margin-left: 32px; margin-right: auto; }
 .nav-principal a {
   font-size: 0.8rem;
   letter-spacing: 0.12em;
@@ -171,6 +173,21 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   border-color: transparent;
 }
 .btn-icono:hover:not(:disabled) { color: var(--texto); background: var(--acento-suave); border-color: transparent; }
+
+/* Buscador del header: la lupa y, al abrirla, el campo a su izquierda */
+.buscador-header { position: relative; display: flex; align-items: center; gap: 4px; }
+#campo-buscar-header {
+  width: clamp(150px, 18vw, 230px);
+  padding: 7px 14px;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--texto);
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+}
+#campo-buscar-header:focus { outline: none; border-color: var(--acento); box-shadow: 0 0 0 3px var(--acento-suave); }
+#btn-buscar-header svg { display: block; }
 
 #enlace-login { font-size: 0.85rem; text-decoration: none; padding: 8px 12px; }
 #enlace-login:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -208,11 +225,36 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
 #lista-usuario a {
   display: block;
   padding: 8px 12px;
+  white-space: nowrap;   /* cada opción en una línea: el menú se ensancha si hace falta */
   font-size: 0.9rem;
   text-decoration: none;
   border-radius: 4px;
 }
 #lista-usuario a:hover { background: var(--acento-suave); }
+
+/* "Cerrar sesión" (menú del cliente y del admin): última opción, separada por una
+   línea. :has() = "el <li> que TIENE el botón de salir" */
+#lista-usuario li:has(.opcion-salir) { margin-top: 4px; padding-top: 4px; border-top: 1px solid var(--borde); }
+/* Se ve igual que los enlaces del menú, aunque es un <button> */
+#lista-usuario .opcion-salir {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  text-align: left;
+  white-space: nowrap;
+  color: var(--texto);
+  background: none;
+  border: none;
+  border-radius: 4px;
+}
+/* Hover en rojo. --oferta es el rojo de la paleta: oscuro en modo claro y claro
+   en modo oscuro, así el texto se lee en los dos. :not(:disabled) iguala la
+   especificidad de "button:hover:not(:disabled)" para que no lo tape el acento */
+#lista-usuario .opcion-salir:hover:not(:disabled) {
+  color: var(--oferta);
+  background: color-mix(in srgb, var(--oferta) 15%, transparent);
+}
 
 @media (max-width: 860px) {
   .header .contenedor { flex-wrap: wrap; gap: 8px 16px; padding-block: 10px; }
@@ -220,6 +262,7 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
     order: 3;
     width: 100%;
     overflow-x: auto;   /* en celular el menú se desliza de lado */
+    margin-left: 0;     /* en su propia fila no necesita separarse del logo */
     margin-right: 0;
     padding-bottom: 4px;
     scrollbar-width: none;   /* se desliza igual, sin mostrar la barra */
@@ -227,6 +270,17 @@ button:disabled { cursor: not-allowed; opacity: 0.5; }
   .acciones-header { margin-left: auto; }
   .logo { font-size: 1.1rem; letter-spacing: 0.3em; }
   .acciones-header { gap: 2px; }
+  /* El campo no cabe junto a los botones: se abre debajo, a lo ancho */
+  .buscador-header { position: static; }
+  #campo-buscar-header {
+    position: absolute;
+    top: 100%;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    margin-top: 6px;
+    box-shadow: 0 8px 24px var(--sombra);
+  }
   .btn-icono, #enlace-login { padding: 8px 6px; }
   .texto-carrito { display: none; }
 }

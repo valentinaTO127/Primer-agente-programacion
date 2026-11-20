@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nosotros · FRESHER</title>
+  <!-- Montserrat (texto) y Cormorant Garamond (títulos) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Montserrat:wght@400;500;600&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Tema antes de pintar: sin esto se ve un parpadeo claro → oscuro -->
+  <script>
+    let temaGuardado = null;
+    try { temaGuardado = localStorage.getItem('tema-fresher'); } catch (e) {}
+    document.documentElement.dataset.tema = temaGuardado ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
+  </script>
+  <link rel="stylesheet" href="css/fresher.css">
+  <link rel="stylesheet" href="css/nosotros.css">
+</head>
+<body>
+
+  <p class="anuncio">Skincare elegido para piel grasa · Envío a domicilio</p>
+
+  <header class="header">
+    <div class="contenedor">
+      <a class="logo" href="index.html">FRESHER</a>
+
+      <nav class="nav-principal" aria-label="Principal">
+        <a href="catalogo.html">Productos</a>
+        <a href="nosotros.html" aria-current="page">Nosotros</a>
+      </nav>
+
+      <div class="acciones-header">
+        <!-- Buscador del header: un <form> GET normal. Al enviarlo, el navegador
+             va solo a catalogo.html?buscar=… (sin JS). tienda.js solo abre y
+             cierra el campo. El input va antes del botón: crece hacia la izquierda -->
+        <form class="buscador-header" action="catalogo.html" method="get" role="search">
+          <label class="visualmente-oculto" for="campo-buscar-header">Buscar productos</label>
+          <input type="search" id="campo-buscar-header" name="buscar" placeholder="Buscar productos" autocomplete="off" hidden>
+          <button type="button" id="btn-buscar-header" class="btn-icono" aria-label="Buscar productos" aria-controls="campo-buscar-header" aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="m20 20-3.5-3.5"/>
+            </svg>
+          </button>
+        </form>
+        <!-- Los dos arrancan hidden: tienda.js revisa la sesión y muestra UNO -->
+        <a id="enlace-login" href="cuenta.html" hidden>Iniciar sesión</a>
+        <div id="menu-usuario" hidden>
+          <button type="button" id="btn-usuario" class="btn-icono" aria-expanded="false" aria-controls="lista-usuario">
+            <span id="nombre-usuario"></span>
+            <span aria-hidden="true">▾</span>
+          </button>
+          <ul id="lista-usuario">
+            <li><a href="cuenta.html?vista=ver">Mi cuenta</a></li>
+            <li><a href="cuenta.html?vista=pedidos">Pedidos</a></li>
+            <!-- <button> y no <a>: HACE algo (cierra la sesión). tienda.js lo escucha -->
+            <li><button type="button" class="opcion-salir">Cerrar sesión</button></li>
+          </ul>
+        </div>
+        <button type="button" id="btn-tema" class="btn-icono" aria-label="Cambiar a modo oscuro">🌙</button>
+        <button type="button" id="btn-carrito" class="btn-icono" aria-controls="panel-carrito">
+          <span class="texto-carrito">Carrito</span>
+          <span id="contador-carrito">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Contenido tomado de la ficha FRESHER.pdf (secciones 1, 2, 3, 7 y 9) -->
+    <section class="nosotros-hero">
+      <div class="contenedor">
+        <p class="eyebrow">Nosotros</p>
+        <h1>Skincare pensado para piel grasa</h1>
+        <p>FRESHER es una tienda en línea de cuidado de la piel para adultos jóvenes con piel grasa. Nuestro objetivo: que mejores el estado de tu piel eligiendo con información.</p>
+      </div>
+    </section>
+
+    <section class="nosotros-bloque contenedor" aria-labelledby="titulo-por-que">
+      <div class="nosotros-texto">
+        <p class="eyebrow">Por qué existimos</p>
+        <h2 id="titulo-por-que">Elegir skincare no debería ser adivinar</h2>
+        <p>Quieres cuidar tu piel, pero no sabes qué productos le sirven a una piel grasa. Hay demasiadas opciones y poca información clara sobre cómo actúa cada una.</p>
+      </div>
+      <div class="nosotros-texto destacado">
+        <p class="eyebrow">Lo que nos hace distintos</p>
+        <h2>Solo piel grasa, con información</h2>
+        <p>Nos enfocamos en un solo tipo de piel. Cada producto tiene un bloque <strong>«En piel grasa»</strong> que explica cómo actúa en ella, además de sus beneficios, modo de uso e ingredientes.</p>
+      </div>
+    </section>
+
+    <section class="nosotros-seccion contenedor" aria-labelledby="titulo-vendemos">
+      <p class="eyebrow">Qué vendemos</p>
+      <h2 id="titulo-vendemos">Cinco pasos de una rutina</h2>
+      <!-- Cada categoría lleva al catálogo ya filtrado -->
+      <ul class="nosotros-categorias">
+        <li><a href="catalogo.html?categoria=limpiador">Limpiadores</a></li>
+        <li><a href="catalogo.html?categoria=serum">Sérums</a></li>
+        <li><a href="catalogo.html?categoria=mascarilla">Mascarillas</a></li>
+        <li><a href="catalogo.html?categoria=crema">Cremas</a></li>
+        <li><a href="catalogo.html?categoria=bloqueador">Bloqueadores</a></li>
+      </ul>
+      <p class="nosotros-nota">Productos físicos con envío a domicilio.</p>
+    </section>
+
+    <section class="nosotros-seccion contenedor" aria-labelledby="titulo-no">
+      <p class="eyebrow">Lo que no hacemos</p>
+      <h2 id="titulo-no">Preferimos hacer pocas cosas bien</h2>
+      <ul class="nosotros-no">
+        <li>No vendemos maquillaje.</li>
+        <li>No vendemos productos que requieran orden médica.</li>
+        <li>No recomendamos productos para otros tipos de piel.</li>
+      </ul>
+    </section>
+
+    <section class="nosotros-cierre contenedor">
+      <h2>¿Empezamos tu rutina?</h2>
+      <a class="btn-cierre" href="catalogo.html">Ver productos</a>
+    </section>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      <span class="logo">FRESHER</span>
+      <span>Proyecto académico · Lenguajes Digitales · 2026</span>
+    </div>
+  </footer>
+
+  <!-- Panel del carrito: fuera del header (backdrop-filter rompería el position: fixed) -->
+  <div id="capa-carrito" hidden></div>
+  <aside id="panel-carrito" aria-labelledby="titulo-carrito" inert>
+    <div class="carrito-encabezado">
+      <h2 id="titulo-carrito">Tu carrito (0)</h2>
+      <button type="button" id="btn-cerrar-carrito" class="btn-icono" aria-label="Cerrar carrito">✕</button>
+    </div>
+    <p id="carrito-vacio">Tu carrito está vacío.</p>
+    <ul id="lista-carrito" hidden></ul>
+    <div class="carrito-pie">
+      <div class="carrito-total">
+        <span>Subtotal</span>
+        <span id="total-carrito">$ 0</span>
+      </div>
+      <!-- Mensajes del checkout (carrito vacío, falta iniciar sesión...).
+           role="status": el lector de pantalla lo lee cuando cambia -->
+      <p id="mensaje-carrito" class="mensaje-carrito" role="status"></p>
+      <!-- Datos del pedido. Aparece al pulsar "Proceder al pago" con sesión.
+           Su envío (confirmar_pedido) todavía no está programado -->
+      <form id="form-checkout" hidden>
+        <label class="campo-check">
+          <input type="checkbox" id="checkout-envio"> Envío a domicilio
+        </label>
+        <div class="campo-checkout">
+          <label for="checkout-direccion">Dirección</label>
+          <input type="text" id="checkout-direccion" autocomplete="street-address">
+        </div>
+        <div class="campo-checkout">
+          <label for="checkout-telefono">Teléfono</label>
+          <input type="tel" id="checkout-telefono" autocomplete="tel">
+        </div>
+        <div class="campo-checkout">
+          <label for="checkout-observacion">Observación (opcional)</label>
+          <textarea id="checkout-observacion" rows="2"></textarea>
+        </div>
+        <button type="submit" id="btn-confirmar">Confirmar pedido</button>
+        <button type="button" id="btn-cancelar-checkout" class="btn-secundario">Volver al carrito</button>
+      </form>
+      <button type="button" id="btn-pago">Proceder al pago</button>
+      <button type="button" id="btn-seguir" class="btn-quitar">Seguir comprando</button>
+    </div>
+  </aside>
+
+  <div id="notificacion" role="status" hidden></div>
+
+  <script src="js/supabaseClient.js"></script>
+  <script src="js/constantes.js"></script>
+  <script src="js/tema.js"></script>
+  <script src="js/tienda.js"></script>
+  <!-- Esta página no carga productos: la promesa ya está resuelta.
+       cargarCarritoDesdeBD (tienda.js) trae los del carrito para pintar el panel -->
+  <script>
+    const productosListos = Promise.resolve();
+    cargarCarritoDesdeBD();
+  </script>
+</body>
+</html>

@@ -813,6 +813,54 @@ async function pintarMenuUsuario() {
   // Si no hay nombre en ninguna, se queda el correo que ya estaba escrito
   const nombrePerfil = respuestaCliente.data?.nombre ?? respuestaAdmin.data?.nombre;
   if (nombrePerfil) nombre.textContent = nombrePerfil;
+
+  // El HTML trae las opciones del cliente; si es admin, se cambian por las suyas
+  if (respuestaAdmin.data) pintarOpcionesAdmin();
+}
+
+// Las mismas opciones que el menú de admin.html (ahí van escritas en el HTML,
+// porque esa página no carga tienda.js). Si cambias una, cambia la otra
+const OPCIONES_ADMIN = [
+  ['Mi cuenta', 'cuenta.html?vista=ver'],
+  ['Pedidos de clientes', 'cuenta.html?vista=pedidos'],
+  ['Mis clientes', 'cuenta.html?vista=clientes'],
+];
+
+function pintarOpcionesAdmin() {
+  const opciones = OPCIONES_ADMIN.map(([texto, url]) => {
+    const li = document.createElement('li');
+    const enlace = document.createElement('a');
+    enlace.href = url;
+    enlace.textContent = texto;
+    li.append(enlace);
+    return li;
+  });
+
+  // Sin listener propio: lo atiende la delegación de #lista-usuario (más abajo)
+  const liSalir = document.createElement('li');
+  const salir = document.createElement('button');
+  salir.type = 'button';
+  salir.className = 'opcion-salir';
+  salir.textContent = 'Cerrar sesión';
+  liSalir.append(salir);
+
+  document.getElementById('lista-usuario').replaceChildren(...opciones, liSalir);
+}
+
+// Delegación de eventos: UN listener en la lista, en vez de uno por botón.
+// Sirve para el "Cerrar sesión" del cliente (escrito en el HTML) y para el del
+// admin (que pintarOpcionesAdmin crea después, cuando este código ya corrió).
+// closest() sube desde donde se hizo clic hasta encontrar el botón (o null)
+document.getElementById('lista-usuario').addEventListener('click', (event) => {
+  if (event.target.closest('.opcion-salir')) cerrarSesion();
+});
+
+// Recargar es lo más simple: cada página vuelve a revisar la sesión al cargar
+// (cuenta.html muestra el login, la tienda muestra "Iniciar sesión")
+async function cerrarSesion() {
+  await db.auth.signOut();
+  vaciarCarritoLocal(); // por si quedó algo de esta sesión en el navegador
+  window.location.reload();
 }
 
 function abrirMenuUsuario(abrir) {
@@ -834,6 +882,50 @@ document.addEventListener('keydown', (event) => {
 });
 menuUsuario.addEventListener('focusout', (event) => {
   if (!menuUsuario.contains(event.relatedTarget)) abrirMenuUsuario(false);
+});
+
+
+// --- Buscador del header ---
+// El <form> ya sabe ir a catalogo.html?buscar=… (method="get"). Aquí solo se
+// abre y cierra el campo, y se evita una búsqueda vacía
+const formBuscarHeader = document.querySelector('.buscador-header');
+const campoBuscarHeader = document.getElementById('campo-buscar-header');
+const btnBuscarHeader = document.getElementById('btn-buscar-header');
+
+function abrirBuscadorHeader(abrir) {
+  campoBuscarHeader.hidden = !abrir;
+  btnBuscarHeader.setAttribute('aria-expanded', abrir);
+  if (abrir) campoBuscarHeader.focus();
+}
+
+// La lupa hace tres cosas según el estado:
+//   cerrado         → abre el campo
+//   abierto + texto → busca (requestSubmit pasa por el evento submit de abajo)
+//   abierto y vacío → cierra
+btnBuscarHeader.addEventListener('click', () => {
+  if (campoBuscarHeader.hidden) abrirBuscadorHeader(true);
+  else if (campoBuscarHeader.value.trim()) formBuscarHeader.requestSubmit();
+  else abrirBuscadorHeader(false);
+});
+
+// Enter en el campo también envía el form. Vacío no lleva a ningún lado
+formBuscarHeader.addEventListener('submit', (event) => {
+  campoBuscarHeader.value = campoBuscarHeader.value.trim();
+  if (!campoBuscarHeader.value) event.preventDefault();
+});
+
+campoBuscarHeader.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    abrirBuscadorHeader(false);
+    btnBuscarHeader.focus();
+  }
+});
+
+// Clic afuera con el campo vacío: se cierra (si hay texto, se deja escrito)
+document.addEventListener('click', (event) => {
+  if (!formBuscarHeader.contains(event.target) && !campoBuscarHeader.value.trim()) {
+    abrirBuscadorHeader(false);
+  }
 });
 
 
