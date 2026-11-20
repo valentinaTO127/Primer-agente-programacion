@@ -13,9 +13,44 @@ main h2 {
 
 /* --- Hero --- */
 .nosotros-hero {
+  position: relative;
+  isolation: isolate;  /* los z-index negativos de ::before/::after quedan dentro del hero */
+  overflow: hidden;    /* recorta la foto girada a la medida del hero */
+  /* Alto mínimo: 70% de la pantalla, entre 420px y 720px */
+  min-height: clamp(420px, 70vh, 720px);
+  display: grid;
+  align-content: center; /* centra el texto en vertical */
   padding: clamp(56px, 9vw, 104px) 0;
   text-align: center;
-  background: linear-gradient(135deg, var(--acento-suave), var(--azul-suave));
+  background: linear-gradient(135deg, var(--acento-suave), var(--azul-suave)); /* respaldo */
+}
+/* Foto girada: CSS no puede rotar un background-image, así que la foto va en un
+   ::before y se rota ese elemento. Es un cuadrado del ancho del hero
+   (width 100% + aspect-ratio 1): girado sigue cubriendo todo el hero, y
+   overflow: hidden deja ver solo la franja del centro */
+.nosotros-hero::before {
+  content: "";
+  position: absolute;
+  top: 80%;
+  left: 50%;
+  z-index: -2;
+  /* Lado del cuadrado: el ancho del hero o 100vh, lo que sea mayor. En celular
+     el hero puede ser más alto que ancho, y un cuadrado del ancho no lo cubriría */
+  width: max(100%, 100vh);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: url("https://www.stylist.co.uk/_next/image?url=https%3A%2F%2Fmedia.stylist.co.uk%2Fapp%2Fuploads%2F2025%2F12%2Fadobestock_1697728135-1080x1080.jpeg&w=3840&q=85")
+    center / cover no-repeat;
+}
+/* Velo con el degradado de la marca encima de la foto, para que el texto se lea */
+.nosotros-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--acento-suave) 10%, transparent),
+    color-mix(in srgb, var(--azul-suave) 10%, transparent));
 }
 .nosotros-hero h1 {
   margin: 12px 0;

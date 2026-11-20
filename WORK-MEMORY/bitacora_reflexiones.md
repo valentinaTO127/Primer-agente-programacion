@@ -404,3 +404,16 @@ Hoy ajusté el inicio de FRESHER y la cuenta del administrador.
   - **Pendiente:**
     - Correr `05_cerrar_registro_admin.sql` y `06_devolver_stock.sql` si no se han corrido.
     - Revisar los textos de `nosotros.html`.
+
+## 2026-11-20
+
+Hoy fue la **última clase** y fue una **introducción a Wompi**.
+
+- **Lo que trabajamos** (`INPUT/codigo/FRESHER/`):
+  - **Hero del inicio:** foto de fondo con el degradado de la marca encima (velo con `color-mix`) para que el texto se lea, y más alto con `min-height: clamp(...)` + `display: grid` + `align-content: center`.
+  - **Hero de `nosotros.html`:** foto girada 90°. CSS no puede rotar un `background-image`, así que la foto va en un `::before` cuadrado (`aspect-ratio: 1`) que se rota, y `overflow: hidden` recorta lo que sobra.
+  - **Ingredientes:** pasaron de `flex-wrap` a `grid` con `repeat(3, auto)` para que queden 3 arriba y 3 abajo, 15% más grandes y con más espacio.
+  - **Vitrina:** más `padding-top` con `calc(var(--espacio-seccion) * 1.5)`, y la imagen de cada producto ahora también es un enlace al detalle (`tabindex="-1"` + `aria-hidden` para no repetir el enlace del nombre con teclado).
+  - **"Lo que nos hace distintos"** en el inicio: tarjeta con efecto de vidrio (`backdrop-filter`). Sin nada detrás, el desenfoque casi no se nota.
+- **Pendiente:**
+  - Cambiar las fotos de los heros (vienen de otros sitios, una es una miniatura de Google) por imágenes propias o con licencia libre guardadas en el proyecto.

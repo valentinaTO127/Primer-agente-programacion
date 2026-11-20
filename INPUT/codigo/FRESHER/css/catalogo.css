@@ -1,10 +1,20 @@
 /* Estilos solo de index.html (el catálogo) */
 
-/* --- Hero: degradado suave verde → azul, sin foto --- */
+/* --- Hero: foto de fondo + velo con el degradado verde → azul para que el texto se lea --- */
 .hero {
+  /* Alto mínimo: 75% de la pantalla, sin bajar de 480px ni pasar de 800px */
+  min-height: clamp(480px, 75vh, 800px);
+  display: grid;
+  align-content: center; /* centra el texto en vertical dentro del alto extra */
   padding: clamp(56px, 10vw, 120px) 0;
   text-align: center;
-  background: linear-gradient(135deg, var(--acento-suave), var(--azul-suave));
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--acento-suave) 50%, transparent),
+      color-mix(in srgb, var(--azul-suave) 10%, transparent)),
+    url("https://media.paulaschoice-eu.com/image/upload/f_auto,q_auto,dpr_auto/catalog/images/articles/article-overview/basic-skincare/4deep-skin-tones.jpg?_i=AG")
+      center / cover no-repeat,
+    linear-gradient(135deg, var(--acento-suave), var(--azul-suave)); /* respaldo si la foto no carga */
 }
 .hero h1 {
   margin: 12px 0;
@@ -57,7 +67,8 @@ main { --espacio-seccion: clamp(72px, 10vw, 128px); }
    Idea de SKIN1004: nombre arriba, producto sobre una franja y descripción abajo.
    Los ítems van pegados (sin gap) para que las franjas se vean como una sola
    cinta que cambia de color según la categoría. */
-.vitrina { padding-top: var(--espacio-seccion); }
+/* 1.5 veces el espacio normal entre secciones: más aire antes de la vitrina */
+.vitrina { padding-top: calc(var(--espacio-seccion) * 1.5); }
 .vitrina-encabezado {
   display: flex;
   align-items: end;
@@ -156,6 +167,7 @@ main { --espacio-seccion: clamp(72px, 10vw, 128px); }
   filter: brightness(0.62) saturate(0.85);   /* la franja clara encandila sobre fondo oscuro */
 }
 .vitrina-imagen {
+  display: block;                /* ahora es un <a> (inline por defecto): sin esto ignora width y aspect-ratio */
   position: relative;            /* encima de la franja */
   width: 52%;
   aspect-ratio: 3 / 4;
@@ -206,13 +218,13 @@ main { --espacio-seccion: clamp(72px, 10vw, 128px); }
 }
 .ingredientes-encabezado p:not(.eyebrow) { margin: 0; color: var(--texto-suave); }
 
-/* Una fila centrada que baja de línea si no cabe. En celular pasa a
-   deslizarse de lado (ver @media abajo) */
+/* Grilla de 3 columnas: los 6 ingredientes quedan 3 arriba y 3 abajo.
+   auto = cada columna mide lo que mide el .ingrediente; justify-content centra la grilla */
 .ingredientes-lista {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
   justify-content: center;
-  gap: 32px 28px;
+  gap: 88px 112px; /* filas, columnas */
   margin-block: 0;
   padding: 0;
   list-style: none;
@@ -222,8 +234,8 @@ main { --espacio-seccion: clamp(72px, 10vw, 128px); }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  width: clamp(120px, 13vw, 168px);
+  gap: 16px;
+  width: clamp(138px, 15vw, 193px); /* 15% más que clamp(120px, 13vw, 168px) */
   text-decoration: none;
   color: var(--texto);
 }
@@ -259,7 +271,7 @@ main { --espacio-seccion: clamp(72px, 10vw, 128px); }
 
 .ingrediente-nombre {
   font-family: var(--fuente-titulo);
-  font-size: 1.25rem;
+  font-size: 1.44rem; /* 15% más que 1.25rem */
   font-weight: 500;
   line-height: 1.2;
   text-align: center;
@@ -282,23 +294,48 @@ main { --espacio-seccion: clamp(72px, 10vw, 128px); }
 :root[data-tema="oscuro"] .ingrediente-circulo { filter: brightness(0.8) saturate(0.9); }
 
 @media (max-width: 600px) {
-  /* En celular: una fila que se desliza con el dedo, como la de BoJ */
+  /* En celular también 3 + 3: columnas iguales (1fr) que se reparten el ancho,
+     y círculos que ocupan su columna */
   .ingredientes-lista {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
-    padding-bottom: 8px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px 20px;
   }
-  .ingredientes-lista::-webkit-scrollbar { display: none; }
-  .ingredientes-lista li { flex: none; scroll-snap-align: start; }
-  .ingrediente { width: 120px; }
+  .ingrediente { width: 100%; gap: 10px; }
+  .ingrediente-nombre { font-size: 1rem; }
   .ingredientes-encabezado h2 { font-size: 1.8rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ingrediente-circulo, .ingrediente-circulo svg { transition: none; }
 }
+
+/* --- Lo que nos hace distintos (después de los ingredientes) ---
+   Tarjeta centrada con el fondo azul suave y la línea de acento del bloque
+   "En piel grasa", pero arriba en vez de a la izquierda, porque el texto va centrado */
+.distintos { padding-top: var(--espacio-seccion); }
+
+.distintos-tarjeta {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(36px, 6vw, 64px) clamp(24px, 5vw, 56px);
+  text-align: center;
+  /* Fondo semitransparente + desenfoque = vidrio esmerilado */
+  background: color-mix(in srgb, var(--azul-suave) 45%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(140%); /* Safari */
+  backdrop-filter: blur(22px) saturate(140%);
+  /* Borde claro y sombra suave: el "canto" del vidrio */
+  border: 1px solid color-mix(in srgb, white 45%, transparent);
+  border-radius: var(--radio);
+  box-shadow: 0 12px 40px var(--sombra);
+}
+.distintos h2 {
+  margin: 4px 0 16px;
+  font-family: var(--fuente-titulo);
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+.distintos p:not(.eyebrow) { max-width: 52ch; margin: 0 auto 28px; color: var(--texto-suave); }
+.distintos strong { color: var(--texto); font-weight: 600; }
 
 /* --- Catálogo --- */
 .catalogo { padding-top: var(--espacio-seccion); }

@@ -57,8 +57,14 @@ function crearItemVitrina(producto) {
   // La franja es el ::before de .vitrina-escena; la imagen va encima
   const escena = document.createElement('div');
   escena.className = 'vitrina-escena';
-  const imagen = document.createElement('div');
+  // La imagen también es un enlace al detalle. tabindex -1 + aria-hidden: con
+  // el teclado o un lector de pantalla se usa solo el enlace del nombre, para
+  // no pasar dos veces por el mismo producto
+  const imagen = document.createElement('a');
   imagen.className = 'vitrina-imagen';
+  imagen.href = urlProducto(producto);
+  imagen.tabIndex = -1;
+  imagen.setAttribute('aria-hidden', 'true');
   imagen.append(crearImagen(producto, ''));
   escena.append(imagen);
 
